@@ -1,11 +1,17 @@
 # D-Manager
-1 - Set-up Vps from scratch 
-2 - Install from 1 to ~ Fs Nodes on U.16.04
-3 - Update Denarius daemon to latest v3.4 branch
-4 - TO DO - U18.04 install procedure
-5 - TO DO - U18.04 dameon update
-6 - Monitor and control nodes status && Reboot nodes in case of need - more to do
-7 - TO DO - Automatically populate denarius.conf with corrects IP and FS Privkey
+1 - Set-up Vps from scratch -
+
+2 - Install from 1 to ~ Fs Nodes on U.16.04 -
+
+3 - Update Denarius daemon to latest v3.4 branch -
+
+4 - TO DO U18.04 install procedure -
+
+5 - TO DO U18.04 dameon update -
+
+6 - Monitor and control nodes status && Reboot nodes in case of need - more to do -
+
+7 - TO DO Automatically populate denarius.conf with corrects IP and FS Privkey -
 
 
 To add and control nodes it is suggested to install the FS node using this script!!!!
