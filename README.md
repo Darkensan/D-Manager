@@ -27,7 +27,7 @@ denarius.conf --> /etc/masternodes/denarius1.conf ...2.conf ...3.coonf
 
 denariusd --> /usr/local/bin/
 
-Denarius data dir (./denarius ) --> /var/lib/masternodes/denarius1 ..2 ..3 
+Denarius data dir ( ./denarius ) --> /var/lib/masternodes/denarius1 ..2 ..3 
 
 
 Important note:
