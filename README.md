@@ -22,8 +22,8 @@ Change folder and name to some core file: !!!!!
 
 move your node file into those dir:
 
-denarius.conf --> /ets/masternodes/denarius1.conf
+denarius.conf --> /ets/masternodes/denarius1.conf ...2.conf ...3.coonf
 
 denariusd --> /usr/local/bin/
 
-The whole Denarius data dir --> /var/lib/masternodes/denarius1 #change denarius folder name adding 1 2 3 4 as needed
+The whole Denarius data dir --> /var/lib/masternodes/denarius1 ..2 ..3 
