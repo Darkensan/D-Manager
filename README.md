@@ -14,11 +14,11 @@
 7 - TO DO Automatically populate denarius.conf with corrects IP and FS Privkey -
  
  
-To add, and control node(s), it is suggested to install them using this script!
+***To add, and control node(s), it is suggested to install them using this script!***
  
 or
  
-It is mandatory to change folder and name to core files:
+***It is mandatory to change folder and name to core files:***
 
 move your node files into those dir:
 
@@ -29,7 +29,7 @@ denariusd --> /usr/local/bin/
 Denarius data dir ( ./denarius ) --> /var/lib/masternodes/denarius1 ..2 ..3 
  
  
-Important note:
+***Important note:***
 
 Every .conf file need to be edited and proper informations added
 
@@ -37,7 +37,7 @@ To edit .conf file use the following command:
 
 nano /etc/masternodes/denariusX.conf
 
-Remember to change the X with the required node number: ...denarius1.conf
+***Remember to change the X with the required node number: ...denarius1.conf***
 
 Edit the following lines: rpcpassword= & fortunastakeprivkey= & bind= & externalip=
  
