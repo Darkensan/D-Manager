@@ -18,11 +18,13 @@ trap "trap_ctrlc" 2
 TEMP=/tmp/answer$$
 whiptail --title "[D] - Manager" --menu "          Ubuntu 16.04/18.04 Denarius's Nodes Manager :" 20 0 0\
 					1 "Setup Vps and install dependancies"\
-					2 "U. 16.04: Compile and Add - one or more FS nodes"\
+					2 "U. 16.04: Compile v3.4 Daemon - Add one or more FS nodes"\
 					3 "U. 16.04: Update denariusd to latest v3.4 branch commits"\
-					4 "U. 18.04: Compile and Add - one or more FS nodes"\
-					5 "U. 18.04: Update denariusd to latest v3.4 branch commits"\
-					6 "D-Monitor - Controll & Reboot FS Nodes" 2>$TEMP
+					4 "U. To do - 18.04: Compile v3.4 Daemon - Add one or more FS nodes"\
+					5 "U. To do - 18.04: Update denariusd to latest v3.4 branch commits"\
+					6 "U. 18-16: D-Monitor - Control & Reboot FS Nodes while you sleep"\
+					7 "U. On it:- 18-16: D-Compiler - Autopopulate .conf with IPv6 & PrivKey"\
+					8 "U. To do - Request - ideas - ...or nothing if @Carsen cut the FS system! :(" 2>$TEMP
 choice=`cat $TEMP`
 case $choice in
 #Start to process the menu options
@@ -39,7 +41,7 @@ clear
 echo -e "\n"
 echo -e "\e[7m${LBlue}!!!                            D-Vps Installer                            !!!\e[25m${NC}";
 echo -e "\n"
-echo -e "${LGreen}\e[7m 1 - Setup VPS and install dependancies                                      \e[25m ${NC}"
+echo -e "${LGreen}\e[7m 1 - Setup VPS and install dependancies                                     \e[25m ${NC}"
 echo -e "${LYellow}\e[7m Updating linux packages & dependencies                                     \e[25m ${NC}"
         sudo apt-get update -y
         sudo apt-get upgrade -y
@@ -131,32 +133,33 @@ else ((mfs=input)) && ((fsarr=1))
 	cd denarius
 	git checkout v3.4
 	git pull
-        echo -e "${Green}\e[7m Downloded latest v3.4 Branch - Start Compiling                             \e[25m ${NC}"
+    echo -e "${Green}\e[7m Downloded latest v3.4 Branch - Start Compiling                             \e[25m ${NC}"
 	cd src
-	if      [ ! -e ~/denarius/src/denariusd ]
-        then
-	make -f makefile.unix "USE_UPNP=-" "USE_NATIVETOR=-"
-        strip denariusd
-        sudo yes | cp -rf denariusd /usr/local/bin
-        echo -e "${Green}\e[7m Done Compiling Denarius FS Daemon                                          \e[25m ${NC}"
-        echo -e "${Green}\e[7m Copied to /usr/local/bin for ease of use                                   \e[25m ${NC}"
-	echo -e "\n"
-	else
-	echo -e "${LYellow}\e[7m Daemon already compiled skipping process                                   \e[25m ${NC}"
+		if      [ ! -e ~/denarius/src/denariusd ]
+		then
+			make -f makefile.unix "USE_UPNP=-" "USE_NATIVETOR=-"
+			strip denariusd
+			sudo yes | cp -rf denariusd /usr/local/bin
+			echo -e "${Green}\e[7m Done Compiling Denarius FS Daemon                                          \e[25m ${NC}"
+			echo -e "${Green}\e[7m Copied to /usr/local/bin for ease of use                                   \e[25m ${NC}"
+			echo -e "\n"
+		else
+			echo -e "${LYellow}\e[7m Daemon already compiled skipping process                                   \e[25m ${NC}"
+		fi
 	cd ..
 	echo -e "\n"
-        # Checks and download Chaindata, store it for later use during node's datadir creation
+			
+    # Checks and download Chaindata, store it for later use during node's datadir creation
 	echo -e "${Green}\e[7m Checking if Chaindata is already present                                   \e[25m ${NC}"
-                	if 	[ -e ~/denarius/chaindata1701122.zip ]
-                	then 	echo -e "${LYellow}\e[7m Chaindata already present - proceding...                                   \e[25m ${NC}"
-				echo -e "\n"
-                	else	echo -e "${Green}\e[7m Getting  a new Chaindata                           \e[25m ${NC}"
-				wget https://github.com/carsenk/denarius/releases/download/v3.3.7/chaindata1701122.zip
-				echo -e "${Green}\e[7m Chaindata Downloaded                               \e[25m ${NC}"
-				echo -e "\n"
-			fi
-        fi
-	# Build Datadir, Create and populate config file for each FS nodes
+                if 	[ -e ~/denarius/chaindata1701122.zip ]
+                then 	echo -e "${LYellow}\e[7m Chaindata already present - proceding...                                   \e[25m ${NC}"
+						echo -e "\n"
+                else	echo -e "${Green}\e[7m Getting  a new Chaindata                           \e[25m ${NC}"
+						wget https://github.com/carsenk/denarius/releases/download/v3.3.7/chaindata1701122.zip
+						echo -e "${Green}\e[7m Chaindata Downloaded                               \e[25m ${NC}"
+						echo -e "\n"
+				fi
+    # Start main loop - Build Datadir, Create and populate config file for each FS nodes
 	n=0
 	np=$((ifs+32360))
 	fsn=$((ifs+1))
@@ -165,8 +168,8 @@ else ((mfs=input)) && ((fsarr=1))
         echo -e "${Green}\e[7m Now Installing FS node Number $((fsn))                                            \e[25m ${NC}"
 	echo -e "${Green}\e[7m Create and Populate denarius$((fsn)).conf file - Unzip Chaindata                  \e[25m ${NC}"
         cd ..
-        mkdir /var/lib/masternodes/denarius$((fsn)) </dev/null 2>&1;
-        mkdir /etc/masternodes </dev/null 2>&1;
+        mkdir /var/lib/masternodes/denarius$((fsn)) > /dev/null 2>&1;
+        mkdir /etc/masternodes > /dev/null 2>&1;
         echo -e "\nserver=1 \nrpcuser=user \nrpcpassword=changethispassword \nrpcallowsip=127.0.0.1 \nrpcport=$((np))  \n \nlisten=1 \ndaemon=1 \nfortunastake=1 \nfortunastakeprivkey=enterYouPrivKeyHere " > /etc/masternodes/denarius$((fsn)).conf
         echo -e "\nport=9999 \n#bind=WriteYour->[IPv6]:9999 \n#externalip=WriteYour->Ipv6  \n \naddnode=denarius.host \naddnode=denarius.win \naddnode=denarius.pro \naddnode=triforce.black \n " >> /etc/masternodes/denarius$((fsn)).conf
 	# Unzip the previouse downloaded Chaindata
@@ -185,14 +188,14 @@ else ((mfs=input)) && ((fsarr=1))
 	let fsn++
         done
 fi
-	# Prints outputs accoring to what done
+	# Prints outputs according to what done
 	if [[ $fsarr -eq 0 ]]
 	then
 	echo -e "${Red}\e[7m $mfs FS Nodes were installed  - aborting                                     \e[25m ${NC}"
 	else
 	echo -e "${Green}\e[7m $mfs FS New Nodes installed succesfully - $((mfs+ifs)) available now                     \e[25m ${NC}"
 	cd ~/denarius/src
-	# Notes and command to start - stop - and getinfos from nodes
+	# Notes and commands to start - stop - and getinfos from nodes
         echo -e "\n"
         echo -e "${LYellow}\e[7m                               Important note:                              \e[25m ${NC}"
         echo -e "${LYellow}\e[7m      Every .conf file need to be edited and proper informations added      \e[25m ${NC}"
@@ -262,8 +265,12 @@ NC="\033[0m";
 	echo -e "${LGreen}\e[7m Thank you for using this script, pls report bugs in D's Discord    \e[25m ${NC}"
 		;;
 4)
+	echo -e "${LGreen}\e[7m Ubunto 18.04 - Compile Daemon and Add node(s) - Coming soon         \e[25m ${NC}"
+	echo -e "${LGreen}\e[7m Thank you for using this script, pls report bugs in D's Discord    \e[25m ${NC}"
 		;;
 5)
+        echo -e "${LGreen}\e[7m Update and  Compile a New Daemon - Coming soon                      \e[25m ${NC}"
+        echo -e "${LGreen}\e[7m Thank you for using this script, pls report bugs in D's Discord    \e[25m ${NC}"
 		;;
 6)
 # Set Colors & other Variabilities
@@ -404,12 +411,20 @@ echo -e "${LGreen}  Thank you for using this script!  \r${NC}";
 	while [ $t -gt 0 ];
 	do
 	sleep 1
-	echo -ne "${LBlue}  Refreshing D-Monitor in $((t)) sec(s)!\r${NC}";
+	echo -ne "${LBlue} Refreshing D-Monitor in $((t)) sec(s)!\r${NC}";
 	t=$(( $t - 1 ))
 	done
 # Closing the main while cycle.
 sleep 2
 done
+		;;
+7)
+        echo -e "${LGreen}\e[7m D-Config Autopopulate .conf with IPv4/6 & PrivKey - Working on it  \e[25m ${NC}"
+        echo -e "${LGreen}\e[7m Thank you for using this script, pls report bugs in D's Discord    \e[25m ${NC}"
+		;;
+8)
+        echo -e "${LGreen}\e[7m Suggestion?                                                        \e[25m ${NC}"
+        echo -e "${LGreen}\e[7m Thank you for using this script, pls report bugs in D's Discord    \e[25m ${NC}"
 		;;
 esac
 echo Selected $choice
