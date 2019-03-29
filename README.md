@@ -15,7 +15,7 @@
 
 
 
-To add, and control node(s), it is suggested to install the "FS node(s)" using this script!
+To add, and control node(s), it is suggested to install them using this script!
 
 or
 
