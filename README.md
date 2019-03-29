@@ -14,16 +14,50 @@
 7 - TO DO Automatically populate denarius.conf with corrects IP and FS Privkey -
 
 
-To add and control nodes it is suggested to install the FS node using this script!!!!
+
+To add, and control node(s), it is suggested to install the "FS node(s)" using this script!
 
 or
 
-Change folder and name to some core file: !!!!!
+It is mandatory to change folder and name to core files:
 
-move your node file into those dir:
+move your node files into those dir:
 
 denarius.conf --> /ets/masternodes/denarius1.conf ...2.conf ...3.coonf
 
 denariusd --> /usr/local/bin/
 
-The whole Denarius data dir --> /var/lib/masternodes/denarius1 ..2 ..3 
+Denarius data dir (./denarius ) --> /var/lib/masternodes/denarius1 ..2 ..3 
+
+
+Important note:
+
+Every .conf file need to be edited and proper informations added
+
+To edit .conf file use the following command:
+
+nano /etc/masternodes/denariusX.conf
+
+Remember to change the X with the required node number: ...denarius1.conf
+
+Edit the following lines: rpcpassword= & fortunastakeprivkey= & bind= & externalip=
+
+To start a daemon use the following command:
+ 
+denariusd -daemon -pid=/var/lib/masternodes/denariusX/denarius.pid -conf=/etc/masternodes/denariusX.conf -datadir=/var/lib/masternodes/denariusX
+ 
+To stop any daemon use the following command:
+ 
+denariusd -conf=/etc/masternodes/denariusX.conf stop
+ 
+To get informations of any deamon use the following command:
+ 
+denariusd -conf=/etc/masternodes/denariusX.conf getinfo
+ 
+To check any FS's node status use the following command:
+ 
+denariusd -conf=/etc/masternodes/denariusX.conf fortunastake status
+ 
+ ***Remember to change the X with the required node number: ...denarius1.conf***
+
+
