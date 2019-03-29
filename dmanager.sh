@@ -126,7 +126,7 @@ else ((mfs=input)) && ((fsarr=1))
 		then
 		git clone https://github.com/carsenk/denarius </dev/null 2>&1;
 		else
-		echo -e "${Green}\e[7m Denarius Git already Present - Checking for Updats                 \e[25m ${NC}"
+		echo -e "${Green}\e[7m Denarius Git already Present - Checking for Updates                        \e[25m ${NC}"
 		fi
 	cd denarius
 	git checkout v3.4
@@ -167,8 +167,8 @@ else ((mfs=input)) && ((fsarr=1))
         cd ..
         mkdir /var/lib/masternodes/denarius$((fsn)) </dev/null 2>&1;
         mkdir /etc/masternodes </dev/null 2>&1;
-        echo -e "\nserver=1 \nrpcuser=user \nrpcpassword=changethispassword \nrpcallowsip=127.0.0.1 \nrpcport=$((np)) \nlisten=1 \ndaemon=1 \nfortunastake=1 \nfortunastakeprivkey=enterYouPrivKeyHere " > /etc/masternodes/denarius$((fsn)).conf
-        echo -e "\nport=9999 \nbind=WriteYourIPv4/IPv6:portHere \nexternalip=WriteYourIPv4/Ipv6Here \naddnode=denarius.host \naddnode=denarius.win \naddnode=denarius.pro \naddnode=triforce.black \n " >> /etc/masternodes/denarius$((fsn)).conf
+        echo -e "\nserver=1 \nrpcuser=user \nrpcpassword=changethispassword \nrpcallowsip=127.0.0.1 \nrpcport=$((np))  \n \nlisten=1 \ndaemon=1 \nfortunastake=1 \nfortunastakeprivkey=enterYouPrivKeyHere " > /etc/masternodes/denarius$((fsn)).conf
+        echo -e "\nport=9999 \n#bind=WriteYour->[IPv6]:9999 \n#externalip=WriteYour->Ipv6  \n \naddnode=denarius.host \naddnode=denarius.win \naddnode=denarius.pro \naddnode=triforce.black \n " >> /etc/masternodes/denarius$((fsn)).conf
 	# Unzip the previouse downloaded Chaindata
 	cd /var/lib/masternodes/denarius$((fsn))
         unzip ~/denarius/chaindata1701122.zip
@@ -201,7 +201,7 @@ fi
         echo -e "${LGreen} nano /etc/masternodes/denariusX.conf ${NC}"
 	echo -e "${Red} Remember to change the X with the required node number: ...denarius1.conf  ${NC}"
 	echo -e "${LYellow} Edit Lines: rpcpassword= & fortunastakeprivkey= ${NC}"
-	echo -e "${LYellow} Edit Lines: bind= & externalip= ${NC}"
+	echo -e "${LYellow} Edit Lines: bind= & externalip= if u are using IPv6${NC}"
         echo -e "\n"
         echo -e "${LBlue}\e[7m To start any daemon use the following command:                             \e[25m ${NC}"
         echo -e " denariusd -daemon -pid=/var/lib/masternodes/denariusX/denarius.pid -conf=/etc/masternodes/denariusX.conf -datadir=/var/lib/masternodes/denariusX "
@@ -284,7 +284,7 @@ function trap_ctrlc ()
 	# perform cleanup here
 	clear
 	echo -e "${Red} Ctrl-C caught...performing clean up ${NC}"
-	echo -e $(rm -rf /var/lib/masternodes/variants/*.*) > /dev/null 2>&1;
+	#echo -e $(rm -rf /var/lib/masternodes/variants/*.*) > /dev/null 2>&1;
 	echo -e "${Green}\e[7m Cleanup done                           \e[25m ${NC}";
 	# exit shell script with error code 2 if omitted, shell script will continue execution
 	exit 2
@@ -334,8 +334,14 @@ do
 	if      [ ${#nodesarray[$n]} -eq 0 ];
         then
                 # According to storage files status, print out relative outputs
-		if      $(grep -q "Unknown" /var/lib/masternodes/variants/fs$((n+1))status.txt);
+		if	$(grep -q "unconfigured" /var/lib/masternodes/variants/fs$((n+1))status.txt);
                 then    echo -e "${Yellow}\e[7m!FS$((n+1)) Node in sync - Wait until done!\e[25m${NC}";
+                        echo -e "${Yellow}!If the status persist after sync is${NC}";
+                        echo -e "${Yellow}done, check QT wallet - FS tab - and${NC}";
+                        echo -e "${Yellow}start the node(s) from there.       ${NC}";
+		elif    $(grep -q "unknown" /var/lib/masternodes/variants/fs$((n+1))status.txt);
+                then    echo -e "${Yellow}\e[7m!FS$((n+1)) Node in process wait a bit..   \e[25m${NC}";
+			echo -e "${Yellow}\e[7m!FS$((n+1)) after a bit.. -Start from QT Wallet!\e[25m${NC}";
                 elif    $(grep -q "unregistered" /var/lib/masternodes/variants/fs$((n+1))status.txt);
                 then    echo -e "${LYellow}\e[7m! Unregistered FS$((n+1))-Start from QT Wallet!\e[25m${NC}";
                 elif    $(grep -q "registered" /var/lib/masternodes/variants/fs$((n+1))status.txt);
@@ -368,7 +374,12 @@ do
 			denariusd -conf=/etc/masternodes/denarius$((n+1)).conf fortunastake status > /var/lib/masternodes/variants/fs$((n+1))status.txt;
         	        denariusd -conf=/etc/masternodes/denarius$((n+1)).conf getinfo > /var/lib/masternodes/variants/fs$((n+1))info.txt;
 			# According to storage files status, print relative outputs
-			if      $(grep -q "Unknown" /var/lib/masternodes/variants/fs$((n+1))status.txt);
+		        if      $(grep -q "Unconfigured" /var/lib/masternodes/variants/fs$((n+1))status.txt);
+                	then    echo -e "${Yellow}\e[7m!FS$((n+1)) Node in sync - Wait until done!\e[25m${NC}";
+                        	echo -e "${Yellow}!If the status persist after sync is${NC}";
+                        	echo -e "${Yellow}done, check QT wallet - FS tab - and${NC}";
+				echo -e "${Yellow}start the node(s) from there.       ${NC}";
+			elif    $(grep -q "unknown" /var/lib/masternodes/variants/fs$((n+1))status.txt);
 	                then    echo -ne "${Red}\e[7m! FS$((n+1)) Node in sync - Wait untill done!\e[25m${NC}";
         	        elif    $(grep -q "unregistered" /var/lib/masternodes/variants/fs$((n+1))status.txt);
         	        then    echo -ne "${LYellow}\e[7m! Unregistered FS$((n+1))-Start from QT Wallet!\e[25m${NC}";
@@ -387,7 +398,7 @@ do
 let n++
 done
 echo -e "${LYellow}   Press CTRL+C to exit D-Monitor  \r${NC}";
-echo -e "${LGreen}    ./dmanager.sh to enter menu!   \r${NC}";
+echo -e "${LGreen}  Thank you for using this script!  \r${NC}";
 	# setting a timer before close the main "while" cycle - change the $t value to rise or lower it (default = 5 min)
 	t=60
 	while [ $t -gt 0 ];
