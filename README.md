@@ -7,7 +7,7 @@
 
 4 - TO DO U18.04 install procedure -
 
-5 - TO DO U18.04 dameon update -
+5 - TO DO U18.04 update procedure -
 
 6 - Monitor and control nodes status && Reboot nodes in case of need - more to do -
 
