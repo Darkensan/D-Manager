@@ -122,11 +122,11 @@ else ((mfs=input)) && ((fsarr=1))
 	sudo apt-get --assume-yes install git unzip build-essential libssl-dev libdb++-dev libboost-all-dev libqrencode-dev libminiupnpc-dev libevent-dev autogen automake libtool  obfs4proxy libqt5gui5 libqt5core5a libqt5dbus5 qttools5-dev qttools5-dev-tools qt5-default
 	# Starting installation of the wallet(s) and compilation of the daemon
 	echo -e "${Green}\e[7m Installing Denarius Wallet                                                 \e[25m ${NC}"
-		if [ ! -d "~/denarius" ]
+		if [ ! -d ~/denarius ]
 		then
-		git clone https://github.com/carsenk/denarius </dev/null 2>&1
+		git clone https://github.com/carsenk/denarius </dev/null 2>&1;
 		else
-		echo -e "${Green}\e[7m denarius Git already Present - Checking for Updats                 \e[25m ${NC}"
+		echo -e "${Green}\e[7m Denarius Git already Present - Checking for Updats                 \e[25m ${NC}"
 		fi
 	cd denarius
 	git checkout v3.4
@@ -199,7 +199,7 @@ fi
 	# echo -e "\n"
         echo -e "${LYellow}\e[7m               To edit .conf file use the following command:                \e[25m ${NC}"
         echo -e "${LGreen} nano /etc/masternodes/denariusX.conf ${NC}"
-	echo -e "${Red} Remember to change every X in the command lines to use different nodes     ${NC}"
+	echo -e "${Red} Remember to change the X with the required node number: ...denarius1.conf  ${NC}"
 	echo -e "${LYellow} Edit Lines: rpcpassword= & fortunastakeprivkey= ${NC}"
 	echo -e "${LYellow} Edit Lines: bind= & externalip= ${NC}"
         echo -e "\n"
@@ -208,10 +208,10 @@ fi
         echo -e "${LBlue}\e[7m To stop any daemon use the following command:                              \e[25m ${NC}"
         echo -e " denariusd -conf=/etc/masternodes/denariusX.conf stop "
         echo -e "${LBlue}\e[7m To get informations of any deamon use the following command:               \e[25m ${NC}"
-        echo -e " denariusd -conf=/etc/masternodes/denarius_nX.conf getinfo "
+        echo -e " denariusd -conf=/etc/masternodes/denariusX.conf getinfo "
         echo -e "${LBlue}\e[7m To check any FS's node status use the following command:                   \e[25m ${NC}"
-        echo -e " denariusd -conf=/etc/masternodes/denarius_nX.conf fortunastake status "
-	echo -e "${Red} Remember to change every X in the command lines to use different nodes     ${NC}"
+        echo -e " denariusd -conf=/etc/masternodes/denariusX.conf fortunastake status "
+	echo -e "${Red} Remember to change the X with the required node number: ...denarius1.conf  ${NC}"
 	fi
 echo -e "\n"
 echo -e "${LGreen}\e[7m Thank you for using this script, pls report bugs in D's Discord            \e[25m ${NC}"
@@ -386,14 +386,14 @@ do
 	fi;
 let n++
 done
-echo -ne "${LYellow}   Press CTRL+C to exit D-Monitor  \r${NC}";
-echo -e "\n"
+echo -e "${LYellow}   Press CTRL+C to exit D-Monitor  \r${NC}";
+echo -e "${LGreen}    ./dmanager.sh to enter menu!   \r${NC}";
 	# setting a timer before close the main "while" cycle - change the $t value to rise or lower it (default = 5 min)
 	t=60
 	while [ $t -gt 0 ];
 	do
 	sleep 1
-	echo -ne "${LBlue} Refreshing D-Monitor in $((t)) sec(s)!\r${NC}";
+	echo -ne "${LBlue}  Refreshing D-Monitor in $((t)) sec(s)!\r${NC}";
 	t=$(( $t - 1 ))
 	done
 # Closing the main while cycle.
