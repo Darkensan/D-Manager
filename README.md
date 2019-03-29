@@ -23,7 +23,7 @@ It is mandatory to change folder and name to core files:
 
 move your node files into those dir:
 
-denarius.conf --> /ets/masternodes/denarius1.conf ...2.conf ...3.coonf
+denarius.conf --> /etc/masternodes/denarius1.conf ...2.conf ...3.coonf
 
 denariusd --> /usr/local/bin/
 
