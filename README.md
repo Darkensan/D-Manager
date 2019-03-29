@@ -20,7 +20,7 @@ or
  
 ***It is mandatory to change folder and name to core files:***
 
-move your node files into those dir:
+move your existing node's files into those dir:
 
 denarius.conf --> /etc/masternodes/denarius1.conf ...2.conf ...3.coonf
 
