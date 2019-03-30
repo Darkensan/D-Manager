@@ -20,11 +20,7 @@ whiptail --title "[D] - Manager" --menu "          Ubuntu 16.04/18.04 Denarius's
 					1 "Setup Vps and install dependancies"\
 					2 "U. 16.04: Compile v3.4 Daemon - Add one or more FS nodes"\
 					3 "U. 16.04: Update denariusd to latest v3.4 branch commits"\
-					4 "U. To do - 18.04: Compile v3.4 Daemon - Add one or more FS nodes"\
-					5 "U. To do - 18.04: Update denariusd to latest v3.4 branch commits"\
-					6 "U. 18-16: D-Monitor - Control & Reboot FS Nodes while you sleep"\
-					7 "U. On it:- 18-16: D-Compiler - Autopopulate .conf with IPv6 & PrivKey"\
-					8 "U. To do - Request - ideas - ...or nothing if @Carsen cut the FS system! :(" 2>$TEMP
+					4 "U. 18-16: D-Monitor - Control & Reboot FS Nodes while you sleep" 2>$TEMP
 choice=`cat $TEMP`
 case $choice in
 #Start to process the menu options
@@ -45,7 +41,7 @@ echo -e "${LGreen}\e[7m 1 - Setup VPS and install dependancies                  
 echo -e "${LYellow}\e[7m Updating linux packages & dependencies                                     \e[25m ${NC}"
         sudo apt-get update -y
         sudo apt-get upgrade -y
-        sudo apt-get --assume-yes install git unzip build-essential libboost﻿-all-dev libqrencode-d﻿ev libminiupnpc-dev libssl-﻿dev libdb++﻿-de﻿v autogen automake libtool
+        sudo apt-get --assume-yes install git unzip build-essential libboost﻿-all-dev libqrencode-d﻿ev libminiupnpc-dev libssl-﻿dev libdb++﻿-de﻿v autogen automake libtool htop figlet
 # Installing and preparing Firewall to D
 echo -e "${LYellow}\e[7m Setting Firewall                                                        \e[25m ${NC}"
         sudo ufw default deny incoming
@@ -121,8 +117,7 @@ else ((mfs=input)) && ((fsarr=1))
 	# Just to be sure we have all up to date - checks again for vps upgrade to do
 	echo -e "${LYellow}\e[7m Updating linux packages                                                   \e[25m ${NC}"
 	sudo apt-get update -y && sudo apt-get upgrade -y
-	sudo apt-get --assume-yes install git unzip build-essential libssl-dev libdb++-dev libboost-all-dev libqrencode-dev libminiupnpc-dev libevent-dev autogen automake libtool  obfs4proxy libqt5gui5 libqt5core5a libqt5dbus5 qttools5-dev qttools5-dev-tools qt5-default
-	# Starting installation of the wallet(s) and compilation of the daemon
+	sudo apt-get --assume-yes install git unzip build-essential libboost-all-dev libqrencode-dev libminiupnpc-dev libssl-dev libdb++-dev autogen automake libtool htop figlet
 	echo -e "${Green}\e[7m Installing Denarius Wallet                                                 \e[25m ${NC}"
 		if [ ! -d ~/denarius ]
 		then
@@ -265,14 +260,6 @@ NC="\033[0m";
 	echo -e "${LGreen}\e[7m Thank you for using this script, pls report bugs in D's Discord    \e[25m ${NC}"
 		;;
 4)
-	echo -e "${LGreen}\e[7m Ubunto 18.04 - Compile Daemon and Add node(s) - Coming soon         \e[25m ${NC}"
-	echo -e "${LGreen}\e[7m Thank you for using this script, pls report bugs in D's Discord    \e[25m ${NC}"
-		;;
-5)
-        echo -e "${LGreen}\e[7m Update and  Compile a New Daemon - Coming soon                      \e[25m ${NC}"
-        echo -e "${LGreen}\e[7m Thank you for using this script, pls report bugs in D's Discord    \e[25m ${NC}"
-		;;
-6)
 # Set Colors & other Variabilities
 Green="\033[0;32m";
 Red="\033[0;31m";
@@ -417,14 +404,6 @@ echo -e "${LGreen}  Thank you for using this script!  \r${NC}";
 # Closing the main while cycle.
 sleep 2
 done
-		;;
-7)
-        echo -e "${LGreen}\e[7m D-Config Autopopulate .conf with IPv4/6 & PrivKey - Working on it  \e[25m ${NC}"
-        echo -e "${LGreen}\e[7m Thank you for using this script, pls report bugs in D's Discord    \e[25m ${NC}"
-		;;
-8)
-        echo -e "${LGreen}\e[7m Suggestion?                                                        \e[25m ${NC}"
-        echo -e "${LGreen}\e[7m Thank you for using this script, pls report bugs in D's Discord    \e[25m ${NC}"
 		;;
 esac
 echo Selected $choice
