@@ -42,8 +42,6 @@ echo -e "\e[7m${LBlue}!!!                          D-Vps Installer              
 echo -e "\n"
 echo -e "${LGreen}\e[7m 1 - Setup VPS and install dependancies                                  \e[25m ${NC}"
 echo -e "${LYellow}\e[7m Updating linux packages & dependencies                                  \e[25m ${NC}"
-	if [[ `lsb_release -rs` == "18.04" ]];
-	then
 	sudo add-apt-repository main
 	sudo add-apt-repository universe
 	sudo add-apt-repository restricted
@@ -57,59 +55,62 @@ echo -e "${LYellow}\e[7m Updating linux packages & dependencies                 
        	sudo -- sh -c "echo 'deb http://security.ubuntu.com/ubuntu/ bionic-security multiverse main restricted universe' >> /etc/apt/sources.list";
 	sudo apt-get update -y;
        	sudo apt-get upgrade -y;
-echo -e "${LYellow} Installing GIT${NC}"
-       	sudo apt-get --assume-yes install git;
-echo -e "${LYellow} Installing Unzip${NC}"
-        sudo apt-get --assume-yes install unzip;
-echo -e "${LYellow} Installing Htop${NC}"
-        sudo apt-get --assume-yes install htop;
-echo -e "${LYellow} Installing JQ${NC}"
-        sudo apt-get --assume-yes install jq;
-echo -e "${LYellow} Installing Timeout${NC}"
-	sudo apt-get --assume-yes install timeout;
-echo -e "${LYellow} Installing Lib build-sssemtial${NC}"
-	sudo apt-get -y install build-essential;
-echo -e "${LYellow} Installing Lib libssl-dev${NC}"
-	sudo apt-get -y install libssl-dev;
-echo -e "${LYellow} Installing Lib libdb++-dev${NC}"
-	sudo apt-get -y install libdb++-dev;
-echo -e "${LYellow} Installing Lib libboost-all-dev${NC}"
-	sudo apt-get -y install libboost-all-dev;
-echo -e "${LYellow} Installing Lib libqrencode-dev${NC}"
-	sudo apt-get -y install libqrencode-dev;
-echo -e "${LYellow} Installing Lib libminiupnpc-dev${NC}"
-	sudo apt-get -y install libminiupnpc-dev;
-echo -e "${LYellow} Installing Lib libgmp-dev${NC}"
-	sudo apt-get -y install libgmp-dev;
-echo -e "${LYellow} Installing Lib libevent${NC}"
-	sudo apt-get -y install libevent-dev;
-echo -e "${LYellow} Installing autogen${NC}"
-	sudo apt-get -y install autogen;
-echo -e "${LYellow} Installing automake${NC}"
-	sudo apt-get -y install automake;
-echo -e "${LYellow} Installing libtool${NC}"
-	sudo apt-get -y install libtool;
-		echo -e "${Blue} Ubuntu 18.04 Detected - Downgrading libssl-dev to make FS node work      ${NC}"
-		sudo apt-get install make
-		wget https://www.openssl.org/source/openssl-1.0.1j.tar.gz
-		tar -xzvf openssl-1.0.1j.tar.gz > /dev/null 2>&1;
-		cd openssl-1.0.1j
-		./config > /dev/null 2>&1;
-		make depend
-		make sudo
-		make install
-		sudo ln -sf /usr/local/ssl/bin/openssl `which openssl`
-		cd ~
-		openssl version -v
-	        sudo apt-get update -y;
-                sudo apt-get update -y;
-	else
-		sudo apt-get update -y;
-                sudo apt-get update -y;
-                sudo apt-get --assume-yes install git unzip timeout htop jq build-essential libssl-dev libdb++-dev libboost-all-dev libqrencode-dev libminiupnpc-dev libgmp-dev libevent-dev autogen automake libtool;
+		echo -e "${LYellow} Installing GIT${NC}"
+       		sudo apt-get --assume-yes install git;
+		echo -e "${LYellow} Installing Unzip${NC}"
+        	sudo apt-get --assume-yes install unzip;
+		echo -e "${LYellow} Installing Htop${NC}"
+	        sudo apt-get --assume-yes install htop;
+		echo -e "${LYellow} Installing JQ${NC}"
+	        sudo apt-get --assume-yes install jq;
+		echo -e "${LYellow} Installing Timeout${NC}"
+		sudo apt-get --assume-yes install timeout;
+		echo -e "${LYellow} Installing Lib build-sssemtial${NC}"
+		sudo apt-get -y install build-essential;
+		echo -e "${LYellow} Installing Lib libssl-dev${NC}"
+		sudo apt-get -y install libssl-dev;
+		echo -e "${LYellow} Installing Lib libdb++-dev${NC}"
+		sudo apt-get -y install libdb++-dev;
+		echo -e "${LYellow} Installing Lib libboost-all-dev${NC}"
+		sudo apt-get -y install libboost-all-dev;
+		echo -e "${LYellow} Installing Lib libqrencode-dev${NC}"
+		sudo apt-get -y install libqrencode-dev;
+		echo -e "${LYellow} Installing Lib libminiupnpc-dev${NC}"
+		sudo apt-get -y install libminiupnpc-dev;
+		echo -e "${LYellow} Installing Lib libgmp-dev${NC}"
+		sudo apt-get -y install libgmp-dev;
+		echo -e "${LYellow} Installing Lib libevent${NC}"
+		sudo apt-get -y install libevent-dev;
+		echo -e "${LYellow} Installing autogen${NC}"
+		sudo apt-get -y install autogen;
+		echo -e "${LYellow} Installing automake${NC}"
+		sudo apt-get -y install automake;
+		echo -e "${LYellow} Installing libtool${NC}"
+		sudo apt-get -y install libtool;
+	if [[ `lsb_release -rs` == "18.04" ]];
+	then
+		if [ ! -e openssl-1.0.1j.tar.gz ]
+		then
+			echo -e "${Blue} Ubuntu 18.04 Detected - Downgrading libssl-dev to make FS node work${NC}"
+			sudo apt-get install make
+			wget https://www.openssl.org/source/openssl-1.0.1j.tar.gz
+			tar -xzvf openssl-1.0.1j.tar.gz > /dev/null 2>&1;
+			cd openssl-1.0.1j
+			./config > /dev/null 2>&1;
+			make depend
+			make sudo
+			make install
+			sudo ln -sf /usr/local/ssl/bin/openssl `which openssl`
+			cd ~
+			openssl version -v
+		else
+			echo -e "${Blue} Downgraded libssl-dev detected - skipping process${NC}"
+		fi
+	 	#sudo apt-get update -y;
+                sudo apt-get upgrade -y;
 	fi
         echo -e "\n"
-        echo -e "${LYellow} Done updating libraries and dependencies                                 ${NC}"
+        echo -e "${LYellow} Done updating libraries and dependencies${NC}"
 # Installing and preparing Firewall to D
 echo -e "\n"
 echo -e "${LYellow}\e[7m Setting Firewall                                                        \e[25m ${NC}"
@@ -131,7 +132,7 @@ swapsize=2048
 # does the swap file already exist? if not build 1 of 2g
 if [ ! -e /swapfile.img  ];
 then
-	echo -e "${LYellow}\e[7m Swapfile not found -  Adding 2G Swapfile                                   \e[25m ${NC}"
+	echo -e "${LYellow}\e[7m Swapfile not found -  Adding 2G Swapfile                                 \e[25m ${NC}"
 	fallocate -l ${swapsize}M /swapfile.img
 	chmod 600 /swapfile.img
 	mkswap /swapfile.img
