@@ -37,7 +37,7 @@ nano /etc/masternodes/denariusX.conf
 
 Edit the following lines: rpcpassword= & fortunastakeprivkey=***
  
-***In case of IPv6 usage, add the folliwing lines and use the form as suggested:***
+***In case of IPv6 usage, add the folliwing lines and use the form suggested:***
 
 bind=[xxxx:xxxx:xxxx:xxxx::xxx]:9999
 
