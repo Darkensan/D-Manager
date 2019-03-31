@@ -45,19 +45,19 @@ externalip=xxxx:xxxx:xxxx:xxxx::xxx
  
 - To start a daemon use the following command:
  
-denariusd -daemon -pid=/var/lib/masternodes/denariusX/denarius.pid -conf=/etc/masternodes/denariusX.conf -datadir=/var/lib/masternodes/denariusX
+denariusd -daemon -pid=/var/lib/masternodes/denarius***X***/denarius.pid -conf=/etc/masternodes/denarius***X***.conf -datadir=/var/lib/masternodes/denarius***X***
   
 - To stop any daemon use the following command:
  
-denariusd -conf=/etc/masternodes/denariusX.conf stop
+denariusd -conf=/etc/masternodes/denarius***X***.conf stop
   
 - To get informations of any deamon use the following command:
  
-denariusd -conf=/etc/masternodes/denariusX.conf getinfo
+denariusd -conf=/etc/masternodes/denarius***X***.conf getinfo
   
 - To check any FS's node status use the following command:
  
-denariusd -conf=/etc/masternodes/denariusX.conf fortunastake status
+denariusd -conf=/etc/masternodes/denarius***X***.conf fortunastake status
   
  ***Remember to change the X with the required node number: ...denarius1.conf***
 
