@@ -44,9 +44,17 @@ echo -e "${LGreen}\e[7m 1 - Setup VPS and install dependancies                  
 echo -e "${LYellow}\e[7m Updating linux packages & dependencies                                  \e[25m ${NC}"
 	if [[ `lsb_release -rs` == "18.04" ]];
 	then
-       	sudo -- sh -c "echo 'deb http://security.ubuntu.com/ubuntu/ bionic-security multiverse main restricted universe' >> /etc/apt/sources.list";
+	sudo add-apt-repository main
+	sudo add-apt-repository universe
+	sudo add-apt-repository restricted
+	sudo add-apt-repository multiverse
+        sudo -- sh -c "echo 'deb http://archive.ubuntu.com/ubuntu bionic main universe restricted multiverse' >> /etc/apt/sources.list";
+        sudo -- sh -c "echo 'deb http://archive.ubuntu.com/ubuntu bionic-updates main universe restricted multiverse' >> /etc/apt/sources.list";
+       	sudo -- sh -c "echo 'deb http://archive.ubuntu.com/ubuntu bionic-backports main universe restricted universe' >> /etc/apt/sources.list";
+       	sudo -- sh -c "echo 'deb http://archive.ubuntu.com/ubuntu bionic multiverse main restricted universe' >> /etc/apt/sources.list";
        	sudo -- sh -c "echo 'deb http://archive.ubuntu.com/ubuntu bionic-updates multiverse main restricted universe' >> /etc/apt/sources.list";
        	sudo -- sh -c "echo 'deb http://archive.ubuntu.com/ubuntu bionic-backports multiverse main restricted universe' >> /etc/apt/sources.list";
+       	sudo -- sh -c "echo 'deb http://security.ubuntu.com/ubuntu/ bionic-security multiverse main restricted universe' >> /etc/apt/sources.list";
 	sudo apt-get update -y;
        	sudo apt-get upgrade -y;
 echo -e "${LYellow} Installing GIT${NC}"
@@ -194,7 +202,7 @@ trap "trap_ctrlc" 2
 
 clear
 echo -e "\n"
-echo -e "${LGreen}\e[7m               U. 16.04: Compile and Add one or more FS nodes              \e[25m ${NC}"
+echo -e "${LGreen}\e[7m               U. 16.04: Compile and Add one or more FS nodes               \e[25m ${NC}"
 echo -e "${Blue}                               CTRL-C to exit ${NC}"
 echo -e "\n"
 # Count how many FS nodes are already installed and ask how many more to add
@@ -203,50 +211,40 @@ echo -e "${LGreen} $ifs node(s) already installed - How many more nodes to add? 
 read -t 10 input
 if [[ $? -ne 0 ]]
 then ((mfs=0)) && ((fsarr=0))
-	echo -e "${Red}\e[7m No selection was made - nothing was added                                 \e[25m ${NC}"
+	echo -e "${Red}\e[7m No selection was made - nothing was added                                  \e[25m${NC}"
 else ((mfs=input)) && ((fsarr=1))
-	echo -e "${LGreen}\e[7m Adding $input FS Nodes                                                         \e[25m ${NC}"
-
-	# Just to be sure we have all up to date - checks again for vps upgrade to do
-        if [[ `lsb_release -rs` == "18.04" ]];
-        then
-                sudo -- sh -c "echo 'deb http://security.ubuntu.com/ubuntu/ bionic-security multiverse main restricted universe' >> /etc/apt/sources.list";
-                sudo -- sh -c "echo 'deb http://archive.ubuntu.com/ubuntu bionic-updates multiverse main restricted universe' >> /etc/apt/sources.list";
-                sudo -- sh -c "echo 'deb http://archive.ubuntu.com/ubuntu bionic-backports multiverse main restricted universe' >> /etc/apt/sources.list";
-	fi
-	echo -e "${LYellow}\e[7m Updating linux packages                                                   \e[25m ${NC}"
-	sudo apt-get update -y && sudo apt-get upgrade -y
-        echo -e "${LYellow}\e[7m Installing Libs + timeout + htop + jq                                     \e[25m ${NC}"
-	sudo apt-get --assume-yes install git unzip build-essential libssl-dev libdb++-dev libboost﻿-all-dev libqrencode-d﻿ev libminiupnpc-dev libgmp-dev libevent-dev autogen automake libtool htop timeout jq
-	echo -e "${Green}\e[7m Installing Denarius Wallet                                                 \e[25m ${NC}"
+	echo -e "${LGreen}\e[7m Adding $input FS Nodes                                                           \e[25m${NC}"
+# Start the download of denarius repository if not present and check branch + updates
+	echo -e "${Green}\e[7m Installing Denarius Wallet                                                  \e[25m${NC}"
 		if [ ! -d ~/denarius ]
 		then
 			echo -e "${Blue} Downloading Denarius Git ${NC}"
 			git clone https://github.com/carsenk/denarius;
 		else
-			echo -e "${Green}\e[7m Denarius Git already Present - Checking for Updates                        \e[25m ${NC}"
+			echo -e "${Green}\e[7m Denarius Git already Present - Checking for Updates                         \e[25m${NC}"
 		fi
 	cd denarius
 	git checkout v3.4
 	git pull
-	echo -e "${Green}\e[7m Downloded latest v3.4 Branch - Start Compiling                             \e[25m ${NC}"
+	echo -e "${Green}\e[7m Downloded latest v3.4 Branch - Start Compiling                              \e[25m${NC}"
+	# Start to compile the daemon using downgraded lib if u.18 detected
 	cd src
         if [[ `lsb_release -rs` == "18.04" ]];
         then
                 echo -e "${Blue} Ubuntu 18.04 Detected - Using downgraded libssl-dev path to compile      ${NC}"
-		                if      [ ! -e ~/denarius/src/denariusd ]
-		                then
-                        	make clean -f makefile.unix >/dev/null 2>&1;
-				make -f makefile.unix "USE_UPNP=-" "USE_NATIVETOR=-" OPENSSL_INCLUDE_PATH=/usr/local/ssl/include OPENSSL_LIB_PATH=/usr/local/ssl/lib;
-                        	strip denariusd
-                        	sudo yes | cp -rf denariusd /usr/local/bin
-                        	echo -e "${Green}\e[7m Done Compiling Denarius FS Daemon                                          \e[25m ${NC}"
-                        	echo -e "${Green}\e[7m Copied to /usr/local/bin for ease of use                                   \e[25m ${NC}"
-                        	echo -e "\n"
-                		else
-                        	sudo yes | cp -rf denariusd /usr/local/bin
-                        	echo -e "${LYellow}\e[7m Daemon already compiled skipping process                                   \e[25m ${NC}"
-                		fi
+		if      [ ! -e ~/denarius/src/denariusd ]
+		then
+                make clean -f makefile.unix >/dev/null 2>&1;
+		make -f makefile.unix "USE_UPNP=-" "USE_NATIVETOR=-" OPENSSL_INCLUDE_PATH=/usr/local/ssl/include OPENSSL_LIB_PATH=/usr/local/ssl/lib;
+                strip denariusd
+                sudo yes | cp -rf denariusd /usr/local/bin
+                echo -e "${Green}\e[7m Done Compiling Denarius FS Daemon                                           \e[25m${NC}"
+                echo -e "${Green}\e[7m Copied to /usr/local/bin for ease of use                                    \e[25m${NC}"
+                echo -e "\n"
+                else
+                sudo yes | cp -rf denariusd /usr/local/bin
+                echo -e "${LYellow}\e[7m Daemon already compiled skipping process                                    \e[25m${NC}"
+                fi
 	else
 		if      [ ! -e ~/denarius/src/denariusd ]
 		then
@@ -254,26 +252,26 @@ else ((mfs=input)) && ((fsarr=1))
 			make -f makefile.unix "USE_UPNP=-" "USE_NATIVETOR=-"
 			strip denariusd
 			sudo yes | cp -rf denariusd /usr/local/bin
-			echo -e "${Green}\e[7m Done Compiling Denarius FS Daemon                                          \e[25m ${NC}"
-			echo -e "${Green}\e[7m Copied to /usr/local/bin for ease of use                                   \e[25m ${NC}"
+			echo -e "${Green}\e[7m Done Compiling Denarius FS Daemon                                           \e[25m${NC}"
+			echo -e "${Green}\e[7m Copied to /usr/local/bin for ease of use                                    \e[25m${NC}"
 			echo -e "\n"
 		else
 			sudo yes | cp -rf denariusd /usr/local/bin
-			echo -e "${LYellow}\e[7m Daemon already compiled skipping process                                   \e[25m ${NC}"
+			echo -e "${LYellow}\e[7m Daemon already compiled skipping process                                    \e[25m${NC}"
 		fi
 	fi
 	cd ..
 	echo -e "\n"
     # Checks and download Chaindata, store it for later use during node's datadir creation
-	echo -e "${Green}\e[7m Checking if Chaindata is already present                                   \e[25m ${NC}"
+	echo -e "${Green}\e[7m Checking if Chaindata is already present                                    \e[25m${NC}"
         if	[ -e ~/denarius/chaindata1701122.zip ]
         then
-		echo -e "${LYellow}\e[7m Chaindata already present - proceding...                                   \e[25m ${NC}"
+		echo -e "${LYellow}\e[7m Chaindata already present - proceding...                                    \e[25m${NC}"
 		echo -e "\n"
         else
-		echo -e "${Green}\e[7m Getting  a new Chaindata                           \e[25m ${NC}"
+		echo -e "${Green}\e[7m Getting  a new Chaindata                                                    \e[25m${NC}"
 		wget https://github.com/carsenk/denarius/releases/download/v3.3.7/chaindata1701122.zip
-		echo -e "${Green}\e[7m Chaindata Downloaded                               \e[25m ${NC}"
+		echo -e "${Green}\e[7m Chaindata Downloaded                                                        \e[25m${NC}"
 		echo -e "\n"
 	fi
     # Start main loop - Build Datadir, Create and populate config file for each FS nodes
@@ -282,8 +280,8 @@ else ((mfs=input)) && ((fsarr=1))
 	fsn=$((ifs+1))
 	while [ $n -lt $mfs ]
 	do
-        echo -e "${Green}\e[7m Now Installing FS node Number $((fsn))                                            \e[25m ${NC}"
-	echo -e "${Green}\e[7m Create and Populate denarius$((fsn)).conf file - Unzip Chaindata                  \e[25m ${NC}"
+        echo -e "${Green}\e[7m Now Installing FS node Number $((fsn))                                             \e[25m${NC}"
+	echo -e "${Green}\e[7m Create and Populate denarius$((fsn)).conf file - Unzip Chaindata                   \e[25m${NC}"
         cd ..
         mkdir /var/lib/masternodes/denarius$((fsn)) > /dev/null 2>&1;
         mkdir /etc/masternodes > /dev/null 2>&1;
@@ -293,7 +291,7 @@ else ((mfs=input)) && ((fsarr=1))
 	cd /var/lib/masternodes/denarius$((fsn))
     	unzip ~/denarius/chaindata1701122.zip
     # Update Firewall rules setting rpc port for the current node
-	echo -e "${LYellow}\e[7m Opening firewall port for FS node $((fsn))                                        \e[25m ${NC}"
+	echo -e "${LYellow}\e[7m Opening firewall port for FS node $((fsn))                                         \e[25m${NC}"
 	sudo ufw allow $((np))
 	sudo ufw allow $((np))/tcp
 	sudo ufw logging on
