@@ -3,7 +3,7 @@
 
 2 - D-Compile - Add one or more FS nodes - v3.4
 
-3 - D-Update  - Build denariusd with latest v3.4 Branch 
+3 - D-Update  - Build denariusd with latest v3.4 Branch commits
 
 4 - D-Monitor - Control & Reboot FS Nodes while you sleep
 
