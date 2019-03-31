@@ -1,4 +1,4 @@
-# D-Manager
+# D-Manager - U. 16.04 - 18.04
 1 - D-Setup   - Prepare Vps and install dependancies
 
 2 - D-Compile - Add one or more FS nodes - v3.4
