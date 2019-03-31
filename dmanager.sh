@@ -11,6 +11,17 @@ choice=`cat $TEMP`
 case $choice in
 #Start to process the menu options
 1)
+Green="\033[0;32m";
+Red="\033[0;31m";
+Yellow="\033[1;33m";
+Blue="\033[1;34m";
+LGreen="\e[92m";
+LRed="\e[91m";
+LYellow="\e[93m";
+LBlue="\e[94m";
+LMagenta="\e[95m";
+NC="\033[0m";
+
 # this function is called when Ctrl-C is sent
 function trap_ctrlc ()
 {
@@ -25,14 +36,6 @@ function trap_ctrlc ()
 # when signal 2 (SIGINT) is received
 trap "trap_ctrlc" 2
 
-Green="\033[0;32m";
-Red="\033[0;31m";
-Yellow="\033[1;33m";
-Blue="\033[1;34m";
-LGreen="\e[92m";
-LYellow="\e[93m";
-LBlue="\e[94m";
-NC="\033[0m";
 clear
 echo -e "\n"
 echo -e "\e[7m${LBlue}!!!                            D-Vps Installer                            !!!\e[25m${NC}";
@@ -94,20 +97,6 @@ echo -e "\n"
 echo -e "${LGreen}\e[7m Thank you for using this script, pls report bugs in D's Discord         \e[25m ${NC}"
 		;;
 2)
-# this function is called when Ctrl-C is sent
-function trap_ctrlc ()
-{
-    # perform cleanup here
-    echo -e "${Red}\e[7m Ctrl-C caught...performing clean up      \e[25m ${NC}"
-    echo -e "${Green}\e[7m Cleanup done                               \e[25m ${NC}"
-    # exit shell script with error code 2
-    # if omitted, shell script will continue execution
-    exit 2
-}
-# initialise trap to call trap_ctrlc function
-# when signal 2 (SIGINT) is received
-trap "trap_ctrlc" 2
-
 Green="\033[0;32m";
 Red="\033[0;31m";
 Yellow="\033[1;33m";
@@ -118,6 +107,23 @@ LYellow="\e[93m";
 LBlue="\e[94m";
 LMagenta="\e[95m";
 NC="\033[0m";
+
+# this function is called when Ctrl-C is sent
+function trap_ctrlc ()
+{
+    # perform cleanup here
+    echo -e "${Red}\e[7m Ctrl-C caught...performing clean up      \e[25m ${NC}"
+	rm -rf /var/lib/masternode/*
+	rm -rf /etc/masternodes/*
+	rm -rf /usr/local/bin/denariusd
+    echo -e "${Green}\e[7m Cleanup done                               \e[25m ${NC}"
+    # exit shell script with error code 2
+    # if omitted, shell script will continue execution
+    exit 2
+}
+# initialise trap to call trap_ctrlc function
+# when signal 2 (SIGINT) is received
+trap "trap_ctrlc" 2
 
 clear
 echo -e "\n"
@@ -158,6 +164,7 @@ else ((mfs=input)) && ((fsarr=1))
 			echo -e "${Green}\e[7m Copied to /usr/local/bin for ease of use                                   \e[25m ${NC}"
 			echo -e "\n"
 		else
+			sudo yes | cp -rf denariusd /usr/local/bin
 			echo -e "${LYellow}\e[7m Daemon already compiled skipping process                                   \e[25m ${NC}"
 		fi
 	cd ..
@@ -248,7 +255,6 @@ LBlue="\e[94m";
 Magenta="\e[35m";
 White="\e[97m";
 NC="\033[0m";
-declare -a nodesarray=("" "" "" "" "" "" "" "");
 # This function is called when Ctrl-C is sent to close the D-Monitor script - deleting variants tmp file... more to add.
 function trap_ctrlc ()
 {
@@ -309,7 +315,7 @@ function trap_ctrlc ()
 	clear
 	echo -e "${Red} Ctrl-C caught...performing clean up ${NC}"
 	echo -e $(rm -rf /var/lib/masternodes/variants/*.*) > /dev/null 2>&1;
-	echo -e "${Green}\e[7m Cleanup done                           \e[25m ${NC}";
+	echo -e "${LGreen}\e[7m Cleanup done                           \e[25m ${NC}";
 	# exit shell script with error code 2 if omitted, shell script will continue execution
 	exit 2
 }
@@ -344,8 +350,10 @@ do
 		pgrep -f "${daemon}" > /var/lib/masternodes/denarius$((n+1))/denarius.pid;
                 pid=$(</var/lib/masternodes/denarius$((n+1))/denarius.pid);
                 # Print Fs status and getinfo outputs to storage files
-		timeout 3 denariusd -conf=/etc/masternodes/denarius$((n+1)).conf fortunastake status > /var/lib/masternodes/variants/fs$((n+1))status.txt;
-                timeout 3 denariusd -conf=/etc/masternodes/denarius$((n+1)).conf getinfo > /var/lib/masternodes/variants/fs$((n+1))info.txt;
+		if timeout 3 denariusd -conf=/etc/masternodes/denarius$((n+1)).conf fortunastake status > /var/lib/masternodes/variants/fs$((n+1))status.txt;
+                then $(tm=1)
+		fi
+		timeout 3 denariusd -conf=/etc/masternodes/denarius$((n+1)).conf getinfo > /var/lib/masternodes/variants/fs$((n+1))info.txt;
 			# Check for "fortunastake started remotely" message presence, if false, then change nodesarray[$n] vaule to '1'
 			# This prevent the "out of sync" of the node bug, since that status changes if the node goes 2-300 blocks behind the blockchain
 			# Even if the daemon is running we need to be sure it to not go out of sync waiting for manuall fix
@@ -364,19 +372,19 @@ do
                 echo -e "${Red}\e[7mFS$((n+1)) Node just started - wait for refresh\e[25m${NC}";
                 elif    $(grep -q "sync in process" /var/lib/masternodes/variants/fs$((n+1))status.txt);
                 then
-                echo -e "${Yellow}\e[7m!FS$((n+1)) Node in sync - Wait until done!\e[25m${NC}";
+                echo -e "${LYellow}\e[7m!FS$((n+1)) Node in sync - Wait until done!\e[25m${NC}";
                 elif    $(grep -q "unconfigured" /var/lib/masternodes/variants/fs$((n+1))status.txt);
                 then
-                echo -e "${Yellow}\e[7m!FS$((n+1)) Node in sync - Wait until done!\e[25m${NC}";
-                echo -e "${Yellow}!If the status persist after sync is${NC}";
-                echo -e "${Yellow}done, check QT wallet - FS tab - and${NC}";
-                echo -e "${Yellow}start the node(s) from there.       ${NC}";
+                echo -e "${LYellow}\e[7m!FS$((n+1)) Node in sync - Wait until done!\e[25m${NC}";
+                echo -e "${LYellow}!If the status persist after sync is${NC}";
+                echo -e "${LYellow}done, check QT wallet - FS tab - and${NC}";
+                echo -e "${LYellow}start the node(s) from there.       ${NC}";
                 elif    $(grep -q "registered" /var/lib/masternodes/variants/fs$((n+1))status.txt);
                 then
                 echo -ne "${LGreen}\e[7m!!  Started FS$((n+1)) Node Now in Queue !!\e[25m${NC}"9;
                 elif    $(grep -q "fortunastake started remotely" /var/lib/masternodes/variants/fs$((n+1))status.txt);
                 then
-                echo -ne "${Green}\e[7m!!!  FS$((n+1)) Node Working Regularly  !!!\e[25m${NC}";
+                echo -ne "${LGreen}\e[7m!!!  FS$((n+1)) Node Working Regularly  !!!\e[25m${NC}";
                 fi;
                 echo -e "$(ps -p $pid -o lstart,etime)";
                 echo -e " $(grep "network_status" /var/lib/masternodes/variants/fs$((n+1))status.txt)";
@@ -397,31 +405,36 @@ do
             	while [ $x2 -gt 0 ];
             	do
             	sleep 1
-            	echo -ne "${Yellow} Starting FS$((n+1)) $x2 sec(s) until done!\r${NC}"
+            	echo -ne "${LYellow} Starting FS$((n+1)) $x2 sec(s) until done!\r${NC}"
             	x2=$(( $x2 - 1 ))
             	done;
 			# Once again, check status and getinfo outputs and print to files
-			timeout 3 denariusd -conf=/etc/masternodes/denarius$((n+1)).conf fortunastake status > /var/lib/masternodes/variants/fs$((n+1))status.txt;
+	                if timeout 3 denariusd -conf=/etc/masternodes/denarius$((n+1)).conf fortunastake status > /var/lib/masternodes/variants/fs$((n+1))status.txt;
+        	        then $(tm=1)
+                	fi
         		timeout 3 denariusd -conf=/etc/masternodes/denarius$((n+1)).conf getinfo > /var/lib/masternodes/variants/fs$((n+1))info.txt;
 			# According to storage files status, print relative outputs
                         if      $(grep -q "unknown" /var/lib/masternodes/variants/fs$((n+1))status.txt);
                         then
                         echo -ne "${Red}\e[7mFS$((n+1)) Node just started - wait for refresh\e[25m${NC}";
+			elif	[ -z $(grep -q "" /var/lib/masternodes/variants/fs$((n+1))status.txt) ];
+			then
+			echo -e "${Red}\e[7mFS$((n+1)) Daemon lagging - Wait for refresh   \e[25m${NC}";
 			elif	$(grep -q "sync in process" /var/lib/masternodes/variants/fs$((n+1))status.txt);
 		        then
-			echo -e "${Yellow}\e[7m!FS$((n+1)) Node in sync - Wait until done!\e[25m${NC}";
+			echo -e "${LYellow}\e[7m!FS$((n+1)) Node in sync - Wait until done!\e[25m${NC}";
 			elif    $(grep -q "unconfigured" /var/lib/masternodes/variants/fs$((n+1))status.txt);
                 	then
-			echo -e "${Yellow}\e[7m!FS$((n+1)) Node in sync - Wait until done!\e[25m${NC}";
-                       	echo -e "${Yellow}!If the status persist after sync is${NC}";
-                       	echo -e "${Yellow}done, check QT wallet - FS tab - and${NC}";
-			echo -e "${Yellow}start the node(s) from there.       ${NC}";
+			echo -e "${LYellow}\e[7m!FS$((n+1)) Node in sync - Wait until done!\e[25m${NC}";
+                       	echo -e "${LYellow}!If the status persist after sync is${NC}";
+                       	echo -e "${LYellow}done, check QT wallet - FS tab - and${NC}";
+			echo -e "${LYellow}start the node(s) from there.       ${NC}";
 			elif    $(grep -q "registered" /var/lib/masternodes/variants/fs$((n+1))status.txt);
                 	then
-			echo -ne "${LGreen}\e[7m!!  Started FS$((n+1)) Node Now in Queue !!\e[25m${NC}"9;
+			echo -e "${LGreen}\e[7m!!  Started FS$((n+1)) Node Now in Queue !!\e[25m${NC}";
 			elif	$(grep -q "fortunastake started remotely" /var/lib/masternodes/variants/fs$((n+1))status.txt);
                 	then
-			echo -ne "${Green}\e[7m!!!  FS$((n+1)) Node Working Regularly  !!!\e[25m${NC}";
+			echo -e "${LGreen}\e[7m!!!  FS$((n+1)) Node Working Regularly  !!!\e[25m${NC}";
 			fi;
 	# After restarting the node, replace the new pid on file to print the correct outputs
 	pgrep -f "${daemon}" > /var/lib/masternodes/denarius$((n+1))/denarius.pid;
