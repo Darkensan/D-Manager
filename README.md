@@ -1,17 +1,13 @@
 # D-Manager
-1 - Set-up Vps from scratch -
+1 - D-Setup   - Prepare Vps and install dependancies
 
-2 - Install from 1 to ~ Fs Nodes on U.16.04 -
+2 - D-Compile - Add one or more FS nodes - v3.4
 
-3 - Update Denarius daemon to latest v3.4 branch -
+3 - D-Update  - Build denariusd with latest v3.4 Branch 
 
-4 - TO DO U18.04 install procedure -
+4 - D-Monitor - Control & Reboot FS Nodes while you 
 
-5 - TO DO U18.04 update procedure -
-
-6 - Monitor and control nodes status && Reboot nodes in case of need - more to do -
-
-7 - TO DO Automatically populate denarius.conf with corrects IP and FS Privkey -
+5 - TO DO: Get ipv6 and populate nodes .conf / Ask privkey and populate nodes .conf -
  
  
 ***To add, and control node(s), it is suggested to install them using this script!***
@@ -47,19 +43,19 @@ bind=[xxxx:xxxx:xxxx:xxxx::xxxx]:9999
 
 externalip=xxxx:xxxx:xxxx:xxxx::xxx
  
-To start a daemon use the following command:
+- To start a daemon use the following command:
  
 denariusd -daemon -pid=/var/lib/masternodes/denariusX/denarius.pid -conf=/etc/masternodes/denariusX.conf -datadir=/var/lib/masternodes/denariusX
   
-To stop any daemon use the following command:
+- To stop any daemon use the following command:
  
 denariusd -conf=/etc/masternodes/denariusX.conf stop
   
-To get informations of any deamon use the following command:
+- To get informations of any deamon use the following command:
  
 denariusd -conf=/etc/masternodes/denariusX.conf getinfo
   
-To check any FS's node status use the following command:
+- To check any FS's node status use the following command:
  
 denariusd -conf=/etc/masternodes/denariusX.conf fortunastake status
   
