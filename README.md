@@ -5,7 +5,7 @@
 
 3 - D-Update  - Build denariusd with latest v3.4 Branch 
 
-4 - D-Monitor - Control & Reboot FS Nodes while you 
+4 - D-Monitor - Control & Reboot FS Nodes while you sleep
 
 5 - TO DO: Get ipv6 and populate nodes .conf / Ask privkey and populate nodes .conf -
  
