@@ -2,7 +2,7 @@
 
 # Setting a menu interface ( still to study and improve the general outputs  )
 TEMP=/tmp/answer$$
-whiptail --fb --title "[D] - Manager" --menu "      Ubuntu 16.04/18.04 Denarius's FS Nodes Manager :" 20 0 100\
+whiptail --fb --title "[D] - Manager" --menu "      Ubuntu 16.04/18.04 Denarius's FS Nodes Manager :" 20 0 0\
 					1 "D-Setup   - Prepare Vps and install dependancies"\
 					2 "D-Compile - Add one or more FS nodes - v3.4 Branch"\
 					3 "D-Update  - Build denariusd with latest v3.4 Branch commits"\
@@ -465,16 +465,15 @@ ifs=$(ls /etc/masternodes/ | grep 'denarius.*\.conf' | wc -l);
 echo -e "${LGreen}       Controlling $ifs FS Nodes     ${NC}";
 # Insert date and time
 echo -e "${LYellow}\e[1m    $(date)          \e[21m${NC}  ";
-#echo -e "\n";
+echo -e "${LGreen}------------------------------------\r${NC}";
 # Check if nodes are working - set/read array conditions - print outputs -  execute commands to stop & restart the daemon - check pids and write to tmp file
 while [ $n -lt $ifs ];
 do
 	# Set variabiles
         daemon="denariusd -daemon -pid=/var/lib/masternodes/denarius$((n+1))/denarius.pid -conf=/etc/masternodes/denarius$((n+1)).conf -datadir=/var/lib/masternodes/denarius$((n+1))";
-
 	# Checks for FS's nodes status, set array to '' or '1' and write outputs to storage files
         if      [  $(pgrep -f "${daemon}") ];
-        then    nodesarray[$n]='';
+        then    nodesarray[$n]=''
                 # If node stopped for any reason then restarted changing pid, replace the new pid on file, it avoids some useless node reboot
 		pgrep -f "${daemon}" > /var/lib/masternodes/denarius$((n+1))/denarius.pid;
                 pid=$(</var/lib/masternodes/denarius$((n+1))/denarius.pid);
@@ -482,6 +481,7 @@ do
 		if timeout 6 denariusd -conf=/etc/masternodes/denarius$((n+1)).conf fortunastake status > /var/lib/masternodes/variants/fs$((n+1))status.txt;
                 then $(tm=1)
 		fi
+		echo -e "Pid=${Blue} $pid ${NC}"
 		timeout 6 denariusd -conf=/etc/masternodes/denarius$((n+1)).conf getinfo > /var/lib/masternodes/variants/fs$((n+1))info.txt;
 			# Check for "fortunastake started remotely" message presence, if false, then change nodesarray[$n] vaule to '1'
 			# This prevent the "out of sync" of the node bug, since that status changes if the node goes 2-300 blocks behind the blockchain
@@ -496,28 +496,33 @@ do
 	if      [ ${#nodesarray[$n]} -eq 0 ];
         then
                 # According to storage files status, print out relative outputs
-		if      $(grep -q "unknown" /var/lib/masternodes/variants/fs$((n+1))status.txt);
+                if      $(grep -q "Unknown" /var/lib/masternodes/variants/fs$((n+1))status.txt);
                 then
-                	echo -e "${Red}\e[7mFS$((n+1)) Node just started - wait for refresh\e[25m${NC}";
+                echo -e "${Red}\e[7mFS$((n+1)) Node just started - wait for refresh\e[25m${NC}";
+                echo -e "${Red}If status persist manually stop!${NC}";
+                elif    [ ! -e $(grep -q "" /var/lib/masternodes/variants/fs$((n+1))status.txt) ];
+                then
+                echo -e "${Red}\e[7mFS$((n+1))Daemon lagging - Wait for refresh\e[25m${NC}";
+                echo -e "${Red}If status persist manually stop!${NC}";
                 elif    $(grep -q "sync in process" /var/lib/masternodes/variants/fs$((n+1))status.txt);
                 then
-                	echo -e "${LYellow}\e[7m!FS$((n+1)) Node in sync - Wait until done!\e[25m${NC}";
+                echo -e "${LYellow}\e[7m!FS$((n+1)) Node in sync - Wait until done!\e[25m${NC}";
                 elif    $(grep -q "unconfigured" /var/lib/masternodes/variants/fs$((n+1))status.txt);
                 then
-                	echo -e "${LYellow}\e[7m!FS$((n+1)) Node in sync - Wait until done!\e[25m${NC}";
-                	echo -e "${LYellow}!If the status persist after sync is${NC}";
-                	echo -e "${LYellow}done, check QT wallet - FS tab - and${NC}";
-                	echo -e "${LYellow}start the node(s) from there.       ${NC}";
+                echo -e "${LYellow}\e[7m!FS$((n+1)) Node in sync - Wait until done!\e[25m${NC}";
+                echo -e "${LYellow}!If the status persist after sync is${NC}";
+                echo -e "${LYellow}done, edit - .conf - file and set   ${NC}";
+                echo -e "${LYellow}fortustake=1 (default 0 to sync fast)${NC}";
                 elif    $(grep -q "registered" /var/lib/masternodes/variants/fs$((n+1))status.txt);
                 then
-                	echo -ne "${LGreen}\e[7m!!  Started FS$((n+1)) Node Now in Queue !!\e[25m${NC}"9;
+                echo -e "${LGreen}\e[7m!!  Started FS$((n+1)) Node Now in Queue !!\e[25m${NC}";
                 elif    $(grep -q "fortunastake started remotely" /var/lib/masternodes/variants/fs$((n+1))status.txt);
                 then
-                	echo -ne "${LGreen}\e[7m!!!  FS$((n+1)) Node Working Regularly  !!!\e[25m${NC}";
+                echo -e "${LGreen}\e[7m!!!  FS$((n+1)) Node Working Regularly  !!!\e[25m${NC}";
                 fi;
-                	echo -e "$(ps -p $pid -o lstart,etime)";
-                	echo -e " $(grep "network_status" /var/lib/masternodes/variants/fs$((n+1))status.txt)";
-                	echo -e "${LGreen}              $(grep "blocks" /var/lib/masternodes/variants/fs$((n+1))info.txt)${NC}";
+	        echo -e "$(ps -p $pid -o lstart,etime)";
+        	echo -e "$(grep "network_status" /var/lib/masternodes/variants/fs$((n+1))status.txt)";
+        	echo -e "${LGreen}             $(grep "blocks" /var/lib/masternodes/variants/fs$((n+1))info.txt)${NC}";
         # Else if the nodearray is set to '1' something is not working, warning outputs then stop- wait- start- wait- checks- the node print more outputs
         else
 		echo -ne "${Red}\e[7m!!FS$((n+1)) Node not Working - Rebooting!!\r\e[25m${NC}";
@@ -543,12 +548,14 @@ do
                 	fi
         		timeout 6 denariusd -conf=/etc/masternodes/denarius$((n+1)).conf getinfo > /var/lib/masternodes/variants/fs$((n+1))info.txt;
 			# According to storage files status, print relative outputs
-                        if      $(grep -q "unknown" /var/lib/masternodes/variants/fs$((n+1))status.txt);
+                        if      $(grep -q "Unknown" /var/lib/masternodes/variants/fs$((n+1))status.txt);
                         then
                         echo -e "${Red}\e[7mFS$((n+1)) Node just started - wait for refresh\e[25m${NC}";
-			elif	[ -z $(grep -q "" /var/lib/masternodes/variants/fs$((n+1))status.txt) ];
+	                echo -e "${Red}If status persist manually stop!${NC}";
+			elif	[ ! -e $(grep -q "" /var/lib/masternodes/variants/fs$((n+1))status.txt) ];
 			then
-			echo -e "${Red}\e[7mFS$((n+1)) Daemon lagging - Wait for refresh   \e[25m${NC}";
+			echo -e "${Red}\e[7mFS$((n+1))Daemon lagging - Wait for refresh\e[25m${NC}";
+			echo -e "${Red}If status persist manually stop!${NC}";
 			elif	$(grep -q "sync in process" /var/lib/masternodes/variants/fs$((n+1))status.txt);
 		        then
 			echo -e "${LYellow}\e[7m!FS$((n+1)) Node in sync - Wait until done!\e[25m${NC}";
@@ -570,11 +577,11 @@ do
         pid=$(</var/lib/masternodes/denarius$((n+1))/denarius.pid);
         echo -e "$(ps -p $pid -o lstart,etime)";
         echo -e "$(grep "network_status" /var/lib/masternodes/variants/fs$((n+1))status.txt)";
-        echo -e "${LGreen}              $(grep "blocks" /var/lib/masternodes/variants/fs$((n+1))info.txt)${NC}";
+        echo -e "${LGreen}             $(grep "blocks" /var/lib/masternodes/variants/fs$((n+1))info.txt)${NC}";
 	fi;
 	let n++
 	done
-echo -e "\n";
+echo -e "${LGreen}------------------------------------\r${NC}";
 echo -e "${LYellow}   Press CTRL+C to exit D-Monitor  \r${NC}";
 echo -e "${LGreen}  Thank you for using this script!  \r${NC}";
 # setting a timer before close the main "while" cycle - change the $t value to rise or lower it (default = 5 min)
