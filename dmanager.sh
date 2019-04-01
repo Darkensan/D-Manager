@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Setting a menu interface ( still to study and improve the general outputs  )
+# Setting a menu interface ( still to study and improve the general outputs  ) ~~~~~~~~~~~~~~~~~~~~   ~~ ~~ ~ ~~ ~ ~~ ~ ~~ ~ ~ ~
 TEMP=/tmp/answer$$
 whiptail --fb --title "[D] - Manager" --menu "      Ubuntu 16.04/18.04 Denarius's FS Nodes Manager :" 20 0 0\
 					1 "D-Setup   - Prepare Vps and install dependancies"\
@@ -46,13 +46,6 @@ echo -e "${LYellow}\e[7m Updating linux packages & dependencies                 
 	sudo add-apt-repository universe
 	sudo add-apt-repository restricted
 	sudo add-apt-repository multiverse
-        sudo -- sh -c "echo 'deb http://archive.ubuntu.com/ubuntu bionic main universe restricted multiverse' >> /etc/apt/sources.list";
-        sudo -- sh -c "echo 'deb http://archive.ubuntu.com/ubuntu bionic-updates main universe restricted multiverse' >> /etc/apt/sources.list";
-       	sudo -- sh -c "echo 'deb http://archive.ubuntu.com/ubuntu bionic-backports main universe restricted universe' >> /etc/apt/sources.list";
-       	sudo -- sh -c "echo 'deb http://archive.ubuntu.com/ubuntu bionic multiverse main restricted universe' >> /etc/apt/sources.list";
-       	sudo -- sh -c "echo 'deb http://archive.ubuntu.com/ubuntu bionic-updates multiverse main restricted universe' >> /etc/apt/sources.list";
-       	sudo -- sh -c "echo 'deb http://archive.ubuntu.com/ubuntu bionic-backports multiverse main restricted universe' >> /etc/apt/sources.list";
-       	sudo -- sh -c "echo 'deb http://security.ubuntu.com/ubuntu/ bionic-security multiverse main restricted universe' >> /etc/apt/sources.list";
 	sudo apt-get update -y;
        	sudo apt-get upgrade -y;
 		echo -e "${LYellow} Installing GIT${NC}"
@@ -132,7 +125,7 @@ swapsize=2048
 # does the swap file already exist? if not build 1 of 2g
 if [ ! -e /swapfile.img  ];
 then
-	echo -e "${LYellow}\e[7m Swapfile not found -  Adding 2G Swapfile                                 \e[25m ${NC}"
+	echo -e "${LYellow}\e[7m Swapfile not found -  Adding 2G Swapfile                                \e[25m ${NC}"
 	fallocate -l ${swapsize}M /swapfile.img
 	chmod 600 /swapfile.img
 	mkswap /swapfile.img
@@ -232,16 +225,26 @@ else ((mfs=input)) && ((fsarr=1))
 	cd src
         if [[ `lsb_release -rs` == "18.04" ]];
         then
-                echo -e "${Blue} Ubuntu 18.04 Detected - Using downgraded libssl-dev path to compile      ${NC}"
 		if      [ ! -e ~/denarius/src/denariusd ]
 		then
-                make clean -f makefile.unix >/dev/null 2>&1;
-		make -f makefile.unix "USE_UPNP=-" "USE_NATIVETOR=-" OPENSSL_INCLUDE_PATH=/usr/local/ssl/include OPENSSL_LIB_PATH=/usr/local/ssl/lib;
-                strip denariusd
-                sudo yes | cp -rf denariusd /usr/local/bin
-                echo -e "${Green}\e[7m Done Compiling Denarius FS Daemon                                           \e[25m${NC}"
-                echo -e "${Green}\e[7m Copied to /usr/local/bin for ease of use                                    \e[25m${NC}"
-                echo -e "\n"
+                echo -e "${Blue} Ubuntu 18.04 Detected - Using downgraded libssl-dev path to compile      ${NC}"
+		echo -e "${Yellow} Daemon compilation will take around 10~40 min - Procede?                 ${NC}"
+                	select yn in "Yes" "No"; do
+                	case $yn in
+                        	Yes )\
+	                	make clean -f makefile.unix >/dev/null 2>&1;
+        	        	make -f makefile.unix "USE_UPNP=-" "USE_NATIVETOR=-" OPENSSL_INCLUDE_PATH=/usr/local/ssl/include OPENSSL_LIB_PATH=/usr/local/ssl/lib;
+        	        	strip denariusd
+        	        	sudo yes | cp -rf denariusd /usr/local/bin
+        	        	echo -e "${Green}\e[7m Done Compiling Denarius FS Daemon                                           \e[25m${NC}"
+        	        	echo -e "${Green}\e[7m Copied to /usr/local/bin for ease of use                                    \e[25m${NC}"
+        	        	echo -e "\n"
+                        	break;;
+                        	No )\
+                        	echo -e "${Red} Aborting compilation  - Run the script again to build denariusd daemon ${NC}"
+                        	exit;;
+	                	esac
+        	        	done
                 else
                 sudo yes | cp -rf denariusd /usr/local/bin
                 echo -e "${LYellow}\e[7m Daemon already compiled skipping process                                    \e[25m${NC}"
@@ -249,13 +252,23 @@ else ((mfs=input)) && ((fsarr=1))
 	else
 		if      [ ! -e ~/denarius/src/denariusd ]
 		then
-			make clean -f makefile.unix >/dev/null 2>&1;
-			make -f makefile.unix "USE_UPNP=-" "USE_NATIVETOR=-"
-			strip denariusd
-			sudo yes | cp -rf denariusd /usr/local/bin
-			echo -e "${Green}\e[7m Done Compiling Denarius FS Daemon                                           \e[25m${NC}"
-			echo -e "${Green}\e[7m Copied to /usr/local/bin for ease of use                                    \e[25m${NC}"
-			echo -e "\n"
+                echo -e "${Yellow} Daemon compilation will take around 10~40 min - Procede?                 ${NC}"
+                        select yn in "Yes" "No"; do
+                        case $yn in
+                                Yes )\
+					make clean -f makefile.unix >/dev/null 2>&1;
+				make -f makefile.unix "USE_UPNP=-" "USE_NATIVETOR=-"
+				strip denariusd
+				sudo yes | cp -rf denariusd /usr/local/bin
+				echo -e "${Green}\e[7m Done Compiling Denarius FS Daemon                                           \e[25m${NC}"
+				echo -e "${Green}\e[7m Copied to /usr/local/bin for ease of use                                    \e[25m${NC}"
+				echo -e "\n"
+				break;;
+				 No )\
+                                echo -e "${Red} Aborting compilation  - Run the script again to build denariusd daemon ${NC}"
+				exit;;
+				esac
+				done
 		else
 			sudo yes | cp -rf denariusd /usr/local/bin
 			echo -e "${LYellow}\e[7m Daemon already compiled skipping process                                    \e[25m${NC}"
@@ -391,35 +404,48 @@ git checkout v3.4
 git pull
 echo -e "${Green}\e[7m Downloded latest v3.4 Branch - Start Compiling                      \e[25m ${NC}"
 cd src
-	if      [ ! -e ~/denarius/src/denariusd ]
+        if [[ `lsb_release -rs` == "18.04" ]];
         then
-		make -f makefile.unix "USE_UPNP=-" "USE_NATIVETOR=-"
-                strip denariusd
-                sudo yes | cp -rf denariusd /usr/local/bin
-                echo -e "${Green}\e[7m Done Compiling Denarius FS Daemon                                          \e[25m ${NC}"
-                echo -e "${Green}\e[7m Copied to /usr/local/bin for ease of use                                   \e[25m ${NC}"
-                echo -e "\n"
+                echo -e "${Blue} Ubuntu 18.04 Detected - Using downgraded libssl-dev path to compile      ${NC}"
+                echo -e "${Yellow} Daemon compilation will take around 10~40 min - Procede?                 ${NC}"
+                        select yn in "Yes" "No"; do
+                        case $yn in
+                                Yes )\
+				rm -rf denariusd > /dev/null 2>&1;
+                                make clean -f makefile.unix >/dev/null 2>&1;
+                                make -f makefile.unix "USE_UPNP=-" "USE_NATIVETOR=-" OPENSSL_INCLUDE_PATH=/usr/local/ssl/include OPENSSL_LIB_PATH=/usr/local/ssl/lib;
+                                strip denariusd
+                                sudo yes | cp -rf denariusd /usr/local/bin
+                                echo -e "${Green}\e[7m Done Compiling Denarius FS Daemon                                           \e[25m${NC}"
+                                echo -e "${Green}\e[7m Copied to /usr/local/bin for ease of use                                    \e[25m${NC}"
+                                echo -e "\n"
+                                break;;
+                                No )\
+                                echo -e "${Red} Aborting compilation  - Run the script again to build denariusd daemon ${NC}"
+                                exit;;
+                                esac
+                                done
         else
-                echo -e "${LYellow}\e[7m Detected compiled Daemon - Replace it?                               ${NC}"
-                select yn in "Yes" "No"; do
-                case $yn in
-                	Yes )\
-				rm -rf denariusd
-				make clean -f makefile.unix
-				make -f makefile.unix "USE_UPNP=-" "USE_NATIVETOR=-"
-				strip denariusd
-				sudo yes | cp -rf denariusd /usr/local/bin
-				echo -e "${Green}\e[7m Done Compiling Denarius FS Daemon                                          \e[25m ${NC}"
-				echo -e "${Green}\e[7m Copied to /usr/local/bin for ease of use                                   \e[25m ${NC}"
-				echo -e "\n"
-			break;;
-                	No )\
-			echo -e "${LGreen}\e[7m Thank you for using this script, pls report bugs in D's Discord    \e[25m ${NC}"
-			exit;;
-                esac
-                done
-
+                echo -e "${Yellow} Daemon compilation will take around 10~40 min - Procede?                 ${NC}"
+                        select yn in "Yes" "No"; do
+                        case $yn in
+                                Yes )\
+				rm -rf denariusd > /dev/null 2>&1;
+                                make clean -f makefile.unix > /dev/null 2>&1;
+                                make -f makefile.unix "USE_UPNP=-" "USE_NATIVETOR=-"
+                                strip denariusd
+                                sudo yes | cp -rf denariusd /usr/local/bin
+                                echo -e "${Green}\e[7m Done Compiling Denarius FS Daemon                                           \e[25m${NC}"
+                                echo -e "${Green}\e[7m Copied to /usr/local/bin for ease of use                                    \e[25m${NC}"
+                                echo -e "\n"
+                                break;;
+                                 No )\
+                                echo -e "${Red} Aborting compilation  - Run the script again to build denariusd daemon ${NC}"
+                                exit;;
+                                esac
+                                done
         fi
+echo -e "\n"
 echo -e "${Green}\e[7m Stop and restart the deamons to use the latest version              \e[25m ${NC}"
 echo -e "\n"
 echo -e "${LGreen}\e[7m Thank you for using this script, pls report bugs in D's Discord    \e[25m ${NC}"
