@@ -27,7 +27,7 @@ function trap_ctrlc ()
 {
     # perform cleanup here
     echo -e "${Red}\e[7m Ctrl-C caught...performing clean up      \e[25m ${NC}"
-    echo -e "${Green}\e[7m Cleanup done                               \e[25m ${NC}"
+    echo -e "${Green}\e[7m Cleanup done                                \e[25m${NC}"
     # exit shell script with error code 2
     # if omitted, shell script will continue execution
     exit 2
@@ -40,8 +40,8 @@ clear
 echo -e "\n"
 echo -e "\e[7m${LBlue}!!!                          D-Vps Installer                           !!!\e[25m${NC}";
 echo -e "\n"
-echo -e "${LGreen}\e[7m 1 - Setup VPS and install dependancies                                  \e[25m ${NC}"
-echo -e "${LYellow}\e[7m Updating linux packages & dependencies                                  \e[25m ${NC}"
+echo -e "${LGreen}\e[7m 1 - Setup VPS and install dependancies                                   \e[25m${NC}"
+echo -e "${LYellow}\e[7m Updating linux packages & dependencies                                   \e[25m${NC}"
 	sudo add-apt-repository main
 	sudo add-apt-repository universe
 	sudo add-apt-repository restricted
@@ -137,7 +137,7 @@ else
 fi
 echo -e "\n"
 # Installing Fail2ban
-echo -e "${LYellow}\e[7m More Safety!                                                             \e[25m${NC}"
+echo -e "${LYellow}\e[7m More Safety! - Installing Fail2ban                                       \e[25m${NC}"
         sudo apt-get install -y fail2ban
         sudo systemctl enable fail2ban
         sudo systemctl start fail2ban
@@ -162,6 +162,7 @@ echo -e "${Green} Building some directories to use installing nodes${NC}"
 		echo -ne $(mkdir /etc/masternodes > /dev/null 2>&1);
 	fi
 echo -e "\n"
+echo -e "${LGreen}\e[7m To compile denariusd daemon and install FS nodes run D-Manager once more \e[25m${NC}"
 echo -e "${LGreen}\e[7m Thank you for using this script, pls report bugs in D's Discord          \e[25m${NC}"
 		;;
 #-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -623,5 +624,6 @@ done
 sleep 2
 done
 	;;
+#--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 esac
 echo Selected $choice
