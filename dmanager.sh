@@ -315,18 +315,20 @@ else ((mfs=input)) && ((fsarr=1))
     	echo -e "\n"
 	echo -e "${LYellow}\e[7m Populate denarius$((fsn)).conf addnode= - with latest FS nodes from Coinexplorer   \e[25m${NC}"
 	echo -e "${Blue} Get Coinexplorer FS List${NC}"
-	wget https://www.coinexplorer.net/api/v1/D/masternode/list;
-	cat list | jq '.result[0].addr' | tr -d "\""  >> fspeers.txt;
-	cat list | jq '.result[1].addr' | tr -d "\""  >> fspeers.txt;
-	cat list | jq '.result[2].addr' | tr -d "\""  >> fspeers.txt;
-	echo -e "${Green} Adding nodes to denarius$((fsn)).conf - Done${NC}"
-	sed 's/^/addnode=/' fspeers.txt > addnode.txt;
-	cat addnode.txt >> /etc/masternodes/denarius$((fsn)).conf;
-	echo -e "\n"
+    # Get the nodes list from coinexplorer then eleborate the infos "catting" lines with addr and filtering it removing blanck spaces and onion addresses
+        wget https://www.coinexplorer.net/api/v1/D/masternode/list;
+        cat list | jq '.result[].addr' | tr -d "\""  >> fspeers.txt;
+        sed -i '/^$/d' fspeers.txt;
+        sed 's/^/addnode=/' fspeers.txt > addnode.txt;
+        sed -i '/onion:9999$/d' addnode.txt;
+    # Shuffle 25 random node out of the list and add them to denariusX.conf file
+        shuf -n 25 addnode.txt >> /etc/masternodes/denarius$((fsn)).conf;
+        echo -e "${Green} Adding nodes to denarius$((fsn)).conf - Done${NC}"
+        echo -e "\n"
 	echo -e "${Blue} Cleaning up temp files - Done${NC}"
-	rm list
-	rm fspeers.txt
-	rm addnode.tx
+	rm -rf list
+	rm -rf fspeers.txt
+	rm -rf addnode.txt
 	let n++
 	let np++
 	let fsn++
