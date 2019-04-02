@@ -295,7 +295,6 @@ else ((mfs=input)) && ((fsarr=1))
 	fsn=$((ifs+1))
 	while [ $n -lt $mfs ]
 	do
-
         echo -e "${Green}\e[7m Now Installing FS node Number $((fsn))                                             ${NC}"
 	echo -e "${Green}\e[7m Create and Populate denarius$((fsn)).conf file - Unzip Chaindata                   ${NC}"
         cd ..
@@ -320,18 +319,15 @@ else ((mfs=input)) && ((fsarr=1))
 	echo -e "${Blue} Get Coinexplorer FS List${NC}"
     # Get the nodes list from coinexplorer then eleborate the infos "catting" lines with addr and filtering it removing blanck spaces and onion addresses
         wget https://www.coinexplorer.net/api/v1/D/masternode/list;
-        cat list | jq '.result[].addr' | tr -d "\""  >> fspeers.txt;
-        sed -i '/^$/d' fspeers.txt;
-        sed 's/^/addnode=/' fspeers.txt > addnode.txt;
-        sed -i '/onion:9999$/d' addnode.txt;
-    # Shuffle 25 random node out of the list and add them to denariusX.conf file
-        shuf -n 25 addnode.txt >> /etc/masternodes/denarius$((fsn)).conf;
+        cat list | jq '.result[].addr' | tr -d "\""  >> list.txt;
+	sed -i -e '/^$/d;/onion:9999$/d;s/^/addnode=/' list.txt;
+    # Shuffle 25 random node out of the list and add them to denariusX.conf file, building nodes with randoms addnod= keep the network decentralized?? maybe it helps?
+        shuf -n 25 list.txt >> /etc/masternodes/denarius$((fsn)).conf;
         echo -e "${Green} Adding nodes to denarius$((fsn)).conf - Done${NC}"
         echo -e "\n"
 	echo -e "${Blue} Cleaning up temp files - Done${NC}"
 	rm -rf list
-	rm -rf fspeers.txt
-	rm -rf addnode.txt
+	rm list.txt
 	let n++
 	let np++
 	let fsn++
