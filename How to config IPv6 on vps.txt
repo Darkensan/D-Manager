@@ -1,12 +1,12 @@
 
 Example of an IPv6 network configuration:
 
-Use the belove to populate interfaces.conf
+Use the belove scheme to populate interfaces.conf
 	
 Edit .cfg file::
 nano /etc/network/interfaces.d/50-cloud-init.cfg
 
-Run this ommand to reset the network interfaces once done editing .cfg:
+Run this command to reset the network interfaces once done editing .cfg:
 systemctl restart networking
 
 -----------------------------------------------------------------------------------
