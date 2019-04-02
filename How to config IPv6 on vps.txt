@@ -1,0 +1,35 @@
+
+Example of an IPv6 network configuration:
+
+Use the belove to populate interfaces.conf
+	
+Edit .cfg file::
+nano /etc/network/interfaces.d/50-cloud-init.cfg
+
+Run this ommand to reset the network interfaces once done editing .cfg:
+systemctl restart networking
+
+-----------------------------------------------------------------------------------
+# This file is generated from information provided by
+# the datasource.  Changes to it will not persist across an instance.
+# To disable cloud-init's network configuration capabilities, write a file
+# /etc/cloud/cloud.cfg.d/99-disable-network-config.cfg with the following:
+# network: {config: disabled}
+auto lo
+iface lo inet loopback
+
+auto ens3
+iface ens3 inet dhcp
+iface ens3 inet6 static
+                        address a0f1:41d0:765:21a0:0:0:0:xxxx
+                        netmask 64
+                        up /sbin/ip -6 addr add dev ens3 2001:41d0:305:2100::yyy*
+                        up /sbin/ip -6 addr add dev ens3 2001:41d0:305:2100::yyy*
+                        up /sbin/ip -6 addr add dev ens3 2001:41d0:305:2100::yyy*
+						***add as many line as needed ***
+
+						
+y = any combination with numbers and letters ( a, b, c, d, - only as letters)
+
+-------------------------------------------------------------------------------
+						
