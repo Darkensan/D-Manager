@@ -5,7 +5,10 @@ whiptail --fb --title "[D] - Manager" --menu "      Ubuntu 16.04/18.04 Denarius'
 					1 "D-Setup   - Prepare Vps and install dependancies"\
 					2 "D-Compile - Add one or more FS nodes - v3.4 Branch"\
 					3 "D-Update  - Build denariusd with latest v3.4 Branch commits"\
-					4 "D-Monitor - Control & Reboot FS Nodes while you sleep" 2>$TEMP
+					4 "D-Keys    - Prompt for PrivKey - Populate denarius*X*.conf"\
+					5 "D-Start   - Start all installed FS nodes"\
+					6 "D-Stop    - Stops all installed nodes"\
+					7 "D-Monitor - Control & Reboot FS Nodes while you sleep" 2>$TEMP
 choice=`cat $TEMP`
 case $choice in
 #Start to process the menu options
@@ -467,6 +470,94 @@ echo -e "${LGreen}\e[7m Thank you for using this script, pls report bugs in D's 
 		;;
 #--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 4)
+# Set Colors & other Variabilities
+Green="\033[0;32m";
+Red="\033[0;31m";
+Yellow="\033[1;33m";
+Blue="\033[1;34m";
+LGreen="\e[92m";
+LYellow="\e[93m";
+LBlue="\e[94m";
+Magenta="\e[35m";
+White="\e[97m";
+NC="\e[0m";
+n=0
+ifs=$(ls /etc/masternodes/ | grep 'denarius.*\.conf' | wc -l)
+while [ $n -lt $ifs ]
+do
+PK=$(whiptail --title " [D] - Manager " --inputbox "Enter FSn $((n+1)) PrivKey here:" 8 60 3>&1 1>&2 2>&3)
+exitstatus=$?
+if [ $exitstatus -eq 0 ]
+then
+   sed -i "s/fortunastakeprivkey=.*/"fortunastakeprivkey=${PK}"/g" /etc/masternodes/denarius$((n+1)).conf
+   echo "${LGreen}Private Key for FS Node $((n+1)):${NC}" $PK
+else
+   echo "{LYellow}You chose Cancel - Manually edit node's PrivKey into .conf file"
+	exit 0
+fi
+sed -i 's/fortunastake=0/fortunastake=1/g' /etc/masternodes/denarius$((n+1)).conf
+let n++
+done
+		;;
+#--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+5)
+# Set Colors & other Variabilities
+Green="\033[0;32m";
+Red="\033[0;31m";
+Yellow="\033[1;33m";
+Blue="\033[1;34m";
+LGreen="\e[92m";
+LYellow="\e[93m";
+LBlue="\e[94m";
+Magenta="\e[35m";
+White="\e[97m";
+NC="\e[0m";
+
+n=0
+ifs=$(ls /etc/masternodes/ | grep 'denarius.*\.conf' | wc -l)
+echo -e "${LGreen}\e[7m! Detected $ifs FS Nodes - Starting daemons now      !${NC}"
+while [ $n -lt $ifs ]
+do
+denariusd -daemon -pid=/var/lib/masternodes/denarius$((n+1))/denarius.pid -conf=/etc/masternodes/denarius$((n+1)).conf -datadir=/var/lib/masternodes/denarius$((n+1))
+echo -e "\n"
+echo -e "${LGreen}! Starting FS Node $((n+1)) !${NC}"
+sleep 5s
+let n++
+done
+echo -e "\n"
+echo -e "${LGreen}!$((ifs)) FS Nodes Started - give it some to link blockchain  !${NC}"
+echo -e "${LGreen}\e[7m!  Thanks for using this script!                    !${NC}"
+		;;
+#--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+6)
+# Set Colors & other Variabilities
+Green="\033[0;32m";
+Red="\033[0;31m";
+Yellow="\033[1;33m";
+Blue="\033[1;34m";
+LGreen="\e[92m";
+LYellow="\e[93m";
+LBlue="\e[94m";
+Magenta="\e[35m";
+White="\e[97m";
+NC="\e[0m";
+n=0
+ifs=$(ls /etc/masternodes/ | grep 'denarius.*\.conf' | wc -l)
+echo -e "${Red}\e[7m! Detected $ifs FS Nodes - Stopping daemons now        !${NC}"
+while [ $n -lt $ifs ]
+do
+denariusd -conf=/etc/masternodes/denarius$((n+1)).conf stop
+echo -e "\n"
+echo -e "${Red}! Stopping FS Node $((n+1)) !${NC}"
+sleep 3s
+let n++
+done
+echo -e "\n"
+echo -e "${Red}!$((ifs)) FS Nodes Stopped give it some time before restart!${NC}"
+echo -e "${LGreen}\e[7m!  Thanks for using this script!                    !${NC}"
+		;;
+#--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+7)
 # Set Colors & other Variabilities
 Green="\033[0;32m";
 Red="\033[0;31m";
