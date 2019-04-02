@@ -11,8 +11,8 @@ if [ $exitstatus -eq 0 ]; then
    echo "FSn $((n+1)) PrivKey is:" $PK
 else
    echo "You chose Cancel - Manually edit node's PrivKey into .conf file"
-   sed -i 's/fortunastake=0/fortunastake=1/g' /etc/masternodes/denarius$((n+1)).conf;
 fi
+sed -i 's/fortunastake=0/fortunastake=1/g' /etc/masternodes/denarius$((n+1)).conf;
 let n++
 done
 
