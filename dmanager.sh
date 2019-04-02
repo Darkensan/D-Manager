@@ -1,5 +1,4 @@
 #!/bin/bash
-
 # Setting a menu interface ( still to study and improve the general outputs  ) ~~~~~~~~~~~~~~~~~~~~   ~~ ~~ ~ ~~ ~ ~~ ~ ~~ ~ ~ ~
 TEMP=/tmp/answer$$
 whiptail --fb --title "[D] - Manager" --menu "      Ubuntu 16.04/18.04 Denarius's FS Nodes Manager :" 20 0 0\
@@ -47,7 +46,7 @@ echo -e "${LYellow}\e[7m Updating linux packages & dependencies                 
 	sudo add-apt-repository restricted
 	sudo add-apt-repository multiverse
 	sudo apt-get update -y;
-  sudo apt-get upgrade -y;
+  	sudo apt-get upgrade -y;
 		echo -e "${LYellow} Installing GIT${NC}"
        		sudo apt-get --assume-yes install git;
 		echo -e "${LYellow} Installing Unzip${NC}"
@@ -55,31 +54,31 @@ echo -e "${LYellow}\e[7m Updating linux packages & dependencies                 
 		echo -e "${LYellow} Installing Htop${NC}"
 	        sudo apt-get --assume-yes install htop;
 		echo -e "${LYellow} Installing JQ${NC}"
-	        sudo apt-get --assume-yes install jq;
+	   	sudo apt-get --assume-yes install jq;
 		echo -e "${LYellow} Installing Timeout${NC}"
-					sudo apt-get --assume-yes install timeout;
+		sudo apt-get --assume-yes install timeout;
 		echo -e "${LYellow} Installing Lib build-sssemtial${NC}"
-					sudo apt-get -y install build-essential;
+		sudo apt-get -y install build-essential;
 		echo -e "${LYellow} Installing Lib libssl-dev${NC}"
-					sudo apt-get -y install libssl-dev;
+		sudo apt-get -y install libssl-dev;
 		echo -e "${LYellow} Installing Lib libdb++-dev${NC}"
-					sudo apt-get -y install libdb++-dev;
+		sudo apt-get -y install libdb++-dev;
 		echo -e "${LYellow} Installing Lib libboost-all-dev${NC}"
-					sudo apt-get -y install libboost-all-dev;
+		sudo apt-get -y install libboost-all-dev;
 		echo -e "${LYellow} Installing Lib libqrencode-dev${NC}"
-					sudo apt-get -y install libqrencode-dev;
+		sudo apt-get -y install libqrencode-dev;
 		echo -e "${LYellow} Installing Lib libminiupnpc-dev${NC}"
-					sudo apt-get -y install libminiupnpc-dev;
+		sudo apt-get -y install libminiupnpc-dev;
 		echo -e "${LYellow} Installing Lib libgmp-dev${NC}"
-					sudo apt-get -y install libgmp-dev;
+		sudo apt-get -y install libgmp-dev;
 		echo -e "${LYellow} Installing Lib libevent${NC}"
-					sudo apt-get -y install libevent-dev;
+		sudo apt-get -y install libevent-dev;
 		echo -e "${LYellow} Installing autogen${NC}"
-					sudo apt-get -y install autogen;
+		sudo apt-get -y install autogen;
 		echo -e "${LYellow} Installing automake${NC}"
-					sudo apt-get -y install automake;
+		sudo apt-get -y install automake;
 		echo -e "${LYellow} Installing libtool${NC}"
-					sudo apt-get -y install libtool;
+		sudo apt-get -y install libtool;
 	if [[ `lsb_release -rs` == "18.04" ]];
 	then
 		if [ ! -e openssl-1.0.1j.tar.gz ]
@@ -186,6 +185,8 @@ function trap_ctrlc ()
 	rm -rf /var/lib/masternode/*
 	rm -rf /etc/masternodes/*
 	rm -rf /usr/local/bin/denariusd
+	rm list
+	rm list.txt
     echo -e "${Green}\e[7m Cleanup done                                ${NC}"
     # exit shell script with error code 2
     # if omitted, shell script will continue execution
@@ -311,11 +312,12 @@ else ((mfs=input)) && ((fsarr=1))
 	sudo ufw --force enable
     	echo -e "${Green}\e[7m Done installing FS node number $((fsn))                                            ${NC}"
     	echo -e "\n"
-	echo -e "${LYellow}\e[7m Populate denarius$((fsn)).conf with 25 random addnode= and rpc password            ${NC}"
+	echo -e "${LYellow}\e[7m Populate denarius$((fsn)).conf with 25 random addnode= rpc password and IPv4       ${NC}"
     # Generate a random password for the rpc user to add to .conf file
         pw=$(pwgen 32 1)
-        echo -e "server=1 \nrpcuser=denariusrpc \nrpcpassword=${pw} \nrpcallowsip=127.0.0.1 \nrpcport=$((np)) \nlisten=1 \ndaemon=1 \nfortunastake=0 \nfortunastakeprivkey=XXX_privkey_XXX" > /etc/masternodes/denarius$((fsn)).conf
-        echo -e "\nbind=ipv:9999 \nexternalip=ipv\naddnode=denarius.host \naddnode=denarius.win \naddnode=denarius.pro \naddnode=triforce.black \n " >> /etc/masternodes/denarius$((fsn)).conf
+        ipv4="$(ifconfig | grep -A 1 'ens3' | tail -1 | cut -d ':' -f 2 | cut -d ' ' -f 1)"
+	echo -e "server=1 \nrpcuser=denariusrpc \nrpcpassword=${pw} \nrpcallowsip=127.0.0.1 \nrpcport=$((np)) \nlisten=1 \ndaemon=1 \nfortunastake=0 \nfortunastakeprivkey=XXX_key_XXX" > /etc/masternodes/denarius$((fsn)).conf
+        echo -e "\nbind=${ipv4}:9999 \nexternalip=${ipv4}\naddnode=denarius.host \naddnode=denarius.win \naddnode=denarius.pro \naddnode=triforce.black \n " >> /etc/masternodes/denarius$((fsn)).conf
 	echo -e "${Blue} Get Coinexplorer FS List${NC}"
     # Get the nodes list from coinexplorer then eleborate the infos "catting" lines with addr and filtering it removing blanck spaces and onion addresses
         wget https://www.coinexplorer.net/api/v1/D/masternode/list;
@@ -323,7 +325,9 @@ else ((mfs=input)) && ((fsarr=1))
 	sed -i -e '/^$/d;/onion:9999$/d;s/^/addnode=/' list.txt;
     # Shuffle 25 random node out of the list and add them to denariusX.conf file, building nodes with randoms addnod= keep the network decentralized?? maybe it helps?
         shuf -n 25 list.txt >> /etc/masternodes/denarius$((fsn)).conf;
-        echo -e "${Green} Adding nodes to denarius$((fsn)).conf - Done${NC}"
+        echo -e "${Green} Adding rpcpassword= to denarius$((fsn)).conf - Done${NC}"
+        echo -e "${Green} Adding IPv4 to denarius$((fsn)).conf - Done${NC}"
+        echo -e "${Green} Adding addnode= to denarius$((fsn)).conf - Done${NC}"
         echo -e "\n"
 	echo -e "${Blue} Cleaning up temp files - Done${NC}"
 	rm -rf list
@@ -345,11 +349,19 @@ fi
 		echo -e "${LYellow}-----------------------------------------------------------------------------${NC}"
         	echo -e "${LYellow}\e[7m\e[5m                               Important note:                               ${NC}"
         	echo -e "${LYellow} !!!   Every .conf file need to be edited and proper informations added   !!!${NC}"
-	        echo -e "${LYellow} Use the following command:${NC}"
-        	echo -e "${LGreen} nano /etc/masternodes/denarius*X*.conf${NC}"
-		echo -e "${Red} Remember to change the *X* with the required node number: ...denarius1.conf \e[0m"
+	        echo -e "${LGreen}       Use the following commands:${NC}"
+		n=0
+		ifs=$(ls /etc/masternodes/ | grep 'denarius.*\.conf' | wc -l)
+		echo -e "${LGreen} -------------------------------------- ${NC}"
+		while [ $n -lt $ifs ]
+		do
+	       	echo -e "${LGreen}| nano /etc/masternodes/denarius$((n+1)).conf |${NC}"
+		let n++
+		done
+		# echo -e "${Red} Remember to change the *X* with the required node number: ...denarius1.conf \e[0m"
+		echo -e "${LGreen} -------------------------------------- ${NC}"
 		echo -e " Edit Line: fortunastakeprivkey= and enter the node priv key"
-		echo -e " Edit & Uncomment Lines: bind=[ipv6]:9999 & externalip=ipv6 if using IPv6${NC}"
+		echo -e " Edit Lines: bind=[ipv6]:9999 & externalip=ipv6 if using IPv6 scheme"
                 echo -e "${LYellow}-----------------------------------------------------------------------------${NC}"
         	echo -e "\n"
         	echo -e "${LBlue} To start a daemon use the following command:${NC}"
@@ -557,7 +569,7 @@ do
         else
 		echo -e "${Red}\e[7m!!FS$((n+1)) Node not Working - Rebooting!!\r${NC}";
             	# Stop the daemon and wait for X seconds to try to restart
-		denariusd -conf=/etc/masternodes/denarius$((n+1)).conf.stop > /dev/null 2>&1;
+		denariusd -conf=/etc/masternodes/denarius$((n+1)).conf stop > /dev/null 2>&1;
             	while [ $x -gt 0 ];
             	do
             	sleep 1
