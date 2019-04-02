@@ -29,7 +29,11 @@ iface ens3 inet6 static
 						***add as many line as needed ***
 
 						
-y = any combination with numbers and letters ( a, b, c, d, - only as letters)
+y = any combination of numbers and letters ( a, b, c, d, - only as letters)
 
+i.e: ::d01 - ::d02 .... ::01d - :: 02d ... and so on
+
+QT Wallet: set the IPv6 of the node as follow: a0f1:41d0:765:21a0::xxxx:d01
+(replacing all the 0 with :: before last number then add the 3-4 extra code of choice)
 -------------------------------------------------------------------------------
 						
