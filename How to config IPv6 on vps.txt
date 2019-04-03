@@ -13,7 +13,7 @@ use this command:
 nano /etc/network/interfaces.d/50-cloud-init.cfg
 
 
-Once done editing, run this command to reset the network interfaces once done editing .cfg:
+Once done editing, run this command to reset the network interfaces and enable the new added IPs:
 
 systemctl restart networking
 
