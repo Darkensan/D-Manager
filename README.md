@@ -25,18 +25,9 @@ denariusd --> /usr/local/bin/
 Denarius data dir ( ./denarius ) --> /var/lib/masternodes/denarius1 ..2 ..3 
  
  
+ 
 ***Important note:***
 
-***Every .conf file need to be edited and proper informations added***
-
-To edit .conf file use the following command:
-
-nano /etc/masternodes/denariusX.conf
-
-***Remember to change the X with the required node number: ...denarius1.conf***
-
-Edit the following lines: rpcpassword= & fortunastakeprivkey=***
- 
 ***In case of IPv6 usage, add the folliwing lines and use the form suggested:***
 
 bind=[xxxx:xxxx:xxxx:xxxx::xxx]:9999
