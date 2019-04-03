@@ -5,9 +5,13 @@
 
 3 - D-Update  - Build denariusd with latest v3.4 Branch commits
 
-4 - D-Monitor - Control & Reboot FS Nodes while you watch porn
+4 - D-Keys    - Prompt for PrivKey - Populate denarius*X*.conf
+ 
+5 - D-Start   - Start all installed FS nodes                     
 
-5 - TO DO: Get ipv6 and populate nodes .conf / Ask privkey and populate nodes .conf -
+6 - D-Stop    - Stops all installed FS nodes                     
+
+7 - D-Monitor - Control & Reboot FS Nodes while you sleep
  
  
 ***To add, and control node(s), it is suggested to install them using this script!***
