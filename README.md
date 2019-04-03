@@ -7,7 +7,7 @@
 
 4 - D-Keys    - Prompt for PrivKey - Populate denarius*X*.conf
  
-5 - D-Start   - Start all installed FS nodes                     
+5 - D-Start   - Starts all installed FS nodes                     
 
 6 - D-Stop    - Stops all installed FS nodes                     
 
