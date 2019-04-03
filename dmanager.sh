@@ -63,6 +63,8 @@ echo -e "${LYellow} Updating linux packages & dependencies                      
 		sudo apt-get --assume-yes install timeout;
 		echo -e "${LYellow} Installing Pwgen${NC}"
                 sudo apt-get --assume-yes install pwgen;
+                echo -e "${LYellow} Installing dialog${NC}"
+                sudo apt-get --assume-yes install dialog;
 		echo -e "${LYellow} Installing Lib build-sssemtial${NC}"
 		sudo apt-get -y install build-essential;
 		echo -e "${LYellow} Installing Lib libssl-dev${NC}"
@@ -87,7 +89,7 @@ echo -e "${LYellow} Updating linux packages & dependencies                      
 		sudo apt-get -y install libtool;
 	if [[ `lsb_release -rs` == "18.04" ]];
 	then
-		if [ ! -e openssl-1.0.1j.tar.gz ]
+		if [ ! -e openssl-1.0.1j/ ]
 		then
 			echo -e "${Blue} Ubuntu 18.04 Detected - Downgrading libssl-dev to make FS node work${NC}"
 			sudo apt-get install make
@@ -99,16 +101,17 @@ echo -e "${LYellow} Updating linux packages & dependencies                      
 			make sudo
 			make install
 			sudo ln -sf /usr/local/ssl/bin/openssl `which openssl`
-			cd ~
+			cd ..
 			openssl version -v
+			rm -rf openssl-1.0.1j.tar.gz
 		else
 			echo -e "${Blue} Downgraded libssl-dev detected - skipping process${NC}"
 		fi
-	 	sudo apt-get update -y;
-    sudo apt-get upgrade -y;
+	sudo apt-get update -y;
+	sudo apt-get upgrade -y;
 	fi
-  echo -e "\n"
-  echo -e "${LYellow} Done updating libraries and dependencies${NC}"
+echo -e "\n"
+echo -e "${LYellow} Done updating libraries and dependencies${NC}"
 # Installing and preparing Firewall to D
 echo -e "\n"
 echo -e "${LYellow} Setting Firewall                                                         ${NC}"
@@ -128,14 +131,14 @@ echo -e "${LYellow} Configuring a swapfile of 2G if not present                 
 # size of swapfile in megabytes
 swapsize=2048
 # does the swap file already exist? if not build 1 of 2g
-if [ ! -e /swapfile.img  ];
+if [ ! -e ~/swapfile.img  ];
 then
 	echo -e "${LYellow} Swapfile not found -  Adding 2G Swapfile                                 ${NC}"
-	fallocate -l ${swapsize}M /swapfile.img
-	chmod 600 /swapfile.img
-	mkswap /swapfile.img
-	swapon /swapfile.img
-	echo '/swapfile.img	none	swap	sw	0 0' >> /etc/fstab
+	fallocate -l ${swapsize}M ~/swapfile.img
+	chmod 600 ~/swapfile.img
+	mkswap ~/swapfile.img
+	swapon ~/swapfile.img
+	echo '~/swapfile.img	none	swap	sw	0 0' >> /etc/fstab
 else
 	echo -e "\n"
 	echo -e "${LYellow} Swapfile found - No changes made                                         ${NC}"
@@ -151,8 +154,6 @@ echo -e "${LYellow} More Safety! - Installing Fail2ban                          
         echo -e "${LYellow} Fail2ban installed succesfully                                           ${NC}"
 # Last commands to build somedir to use later and print final output messages
 echo -e "\n"
-echo -e "${Green} Vps updated and ready - Run dmanager again to install nodes              ${NC}"
-echo -e "\n"
 echo -e "${Green} Building some directories to use installing nodes${NC}"
 	if [ ! -d "mkdir /var/lib/masternodes" ]
 	then
@@ -166,6 +167,8 @@ echo -e "${Green} Building some directories to use installing nodes${NC}"
 	then
 		echo -ne $(mkdir /etc/masternodes > /dev/null 2>&1);
 	fi
+echo -e "\n"
+echo -e "${Green} Vps updated and ready - Run dmanager again to install nodes              ${NC}"
 echo -e "\n"
 echo -e "${LGreen} To compile denariusd daemon and install FS nodes run D-Manager once more ${NC}"
 echo -e "${LGreen} Thank you for using this script, pls report bugs in D's Discord          ${NC}"
@@ -219,7 +222,7 @@ else ((mfs=input)) && ((fsarr=1))
 	echo -e "${LGreen} Adding $input FS Nodes                                                           ${NC}"
 # Start the download of denarius repository if not present and check branch + updates
 	echo -e "${Green} Installing Denarius Wallet                                                  ${NC}"
-		if [ ! -d ~/denarius ]
+		if [ ! -d ~/D-Manager/denarius ]
 		then
 			echo -e "${Blue} Downloading Denarius Git${NC}"
 			git clone https://github.com/carsenk/denarius;
@@ -234,7 +237,7 @@ else ((mfs=input)) && ((fsarr=1))
 	cd src
         if [[ `lsb_release -rs` == "18.04" ]];
         then
-		if      [ ! -e ~/denarius/src/denariusd ]
+		if      [ ! -e ~/D-Manager/denarius/src/denariusd ]
 		then
                 echo -e "${Blue} Ubuntu 18.04 Detected - Using downgraded libssl-dev path to compile${NC}"
 		echo -e "${Yellow} Daemon compilation will take around 10~40 min - Procede?${NC}"
@@ -259,7 +262,7 @@ else ((mfs=input)) && ((fsarr=1))
                 echo -e "${LYellow} Daemon already compiled skipping process                                    ${NC}"
                 fi
 	else
-		if      [ ! -e ~/denarius/src/denariusd ]
+		if      [ ! -e ~/D-Manager/denarius/src/denariusd ]
 		then
                 echo -e "${Yellow} Daemon compilation will take around 10~40 min - Procede?${NC}"
                         select yn in "Yes" "No"; do
@@ -287,7 +290,7 @@ else ((mfs=input)) && ((fsarr=1))
 	echo -e "\n"
     # Checks and download Chaindata, store it for later use during node's datadir creation
 	echo -e "${Green} Checking if Chaindata is already present                                    ${NC}"
-        if	[ -e ~/denarius/chaindata1701122.zip ]
+        if	[ -e ~/D-Manager/denarius/chaindata1701122.zip ]
         then
 		echo -e "${LYellow} Chaindata already present - proceding...                                    ${NC}"
 		echo -e "\n"
@@ -310,7 +313,7 @@ else ((mfs=input)) && ((fsarr=1))
         mkdir /etc/masternodes > /dev/null 2>&1;
 	# Unzip the previouse downloaded Chaindata
 	cd /var/lib/masternodes/denarius$((fsn))
-    	unzip ~/denarius/chaindata1701122.zip
+    	unzip ~/D-Manager/denarius/chaindata1701122.zip
     # Update Firewall rules setting rpc port for the current node
 	echo -e "${LYellow} Opening firewall port for FS node $((fsn))                                         ${NC}"
 	sudo ufw allow $((np))
@@ -350,7 +353,7 @@ fi
 		echo -e "${Red} $mfs FS Nodes were installed  - aborting                                      ${NC}"
 	else
 		echo -e "${Green} $mfs FS New Nodes installed succesfully - $((mfs+ifs)) available now                      ${NC}"
-		cd ~/denarius/src
+		cd ~/D-Manager/denarius/src
 		# Notes and commands to start - stop - and getinfos from nodes
         	echo -e "\n"
 		echo -e "${LYellow}-----------------------------------------------------------------------------${NC}"
@@ -417,7 +420,7 @@ trap "trap_ctrlc" 2
 clear
 echo -e "\n"
 echo -e "${Green} Ubuntu 16.04: Updating denariusd to latest v3.4 branch               ${NC}"
-	if [ ! -d ~/denarius ];
+	if [ ! -d ~/D-Manager/denarius ];
 	then
 		git clone https://github.com/carsenk/denarius > /dev/null 2>&1;
 	else
