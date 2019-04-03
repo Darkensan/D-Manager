@@ -3,11 +3,20 @@ Example of an IPv6 network configuration:
 
 Use the belove scheme to populate interfaces.conf
 	
-Edit .cfg file::
+How to edit .cfg file:
+- Some vps build has the file registered under a different name and folder.
+- Default: /etc/network/interfaces.cfg
+- VPS Build: /etc/network/interfaces.d/*.cfg
+
+use this command:
+
 nano /etc/network/interfaces.d/50-cloud-init.cfg
 
-Run this command to reset the network interfaces once done editing .cfg:
+
+Once done editing, run this command to reset the network interfaces once done editing .cfg:
+
 systemctl restart networking
+
 
 -----------------------------------------------------------------------------------
 # This file is generated from information provided by
