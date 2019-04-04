@@ -171,8 +171,8 @@ echo -e "${LYellow} - More Safety! - Installing Fail2ban ${NC}"
 # Last commands to build somedir to use later and print final output messages
 echo -e "\n"
 echo -e "${LYellow} - Building some directories to use installing nodes${NC}"
-	[ -d /var/lib/masternodes/variants ] || mkdir /var/lib/masternodes/variants > /dev/null 2>&1;
-	[ -d /etc/masternodes ] || mkdir /etc/masternodes > /dev/null 2>&1;
+	[ -d /var/lib/masternodes/variants ] || mkdir -p /var/lib/masternodes/variants > /dev/null 2>&1;
+	[ -d /etc/masternodes ] || mkdir -p /etc/masternodes > /dev/null 2>&1;
 	echo -e "${Green}Done${NC}"
 echo -e "\n"
 echo -e "${Green} - Vps updated and ready ${NC}"
@@ -305,8 +305,8 @@ do
 echo -e "${Green} Now Installing FS node Number $((fsn))                                             ${NC}"
 echo -e "${Green} Create and Populate denarius$((fsn)).conf file - Unzip Chaindata                   ${NC}"
 cd ..
-[ -d /var/lib/masternodes/variants ] || mkdir /var/lib/masternodes/variants > /dev/null 2>&1;
-[ -d /etc/masternodes ] || mkdir /etc/masternodes > /dev/null 2>&1;
+[ -d /var/lib/masternodes/variants ] || mkdir -p /var/lib/masternodes/variants > /dev/null 2>&1;
+[ -d /etc/masternodes ] || mkdir -p /etc/masternodes > /dev/null 2>&1;
 
 # Unzip the previouse downloaded Chaindata
 cd /var/lib/masternodes/denarius$((fsn))
@@ -521,7 +521,7 @@ echo -e "${LGreen}                   Thanks for using this script ${NC}"
 
 7)
 # Infobox explaining the process of option 5 that is about to begin
-whiptail --title "D-Start" --msgbox "This procedure will send a start command to all the installed FS Nodes daemon(s)" 8 78
+whiptail --title "D-Start" --msgbox "This procedure will send a start command to the installed FS Node's daemon(s) within a 5 sec delay" 8 78
 clear
 echo -e "${LGreen} Detected $ifs FS Nodes - Starting daemons now ${NC}"
 	# Start daemon(s) with 5 sec delay
@@ -542,7 +542,7 @@ echo -e "${LGreen}                   Thanks for using this script ${NC}"
 
 8)
 # Infobox explaining the process of option 6 that is about to begin
-whiptail --title "D-Stop" --infogbox "This procedure will send a Stop command to all the installed FS Nodes daemon(s)" 8 78
+whiptail --title "D-Stop" --infogbox "This procedure will send a Stop command to the installed FS Node's daemon(s) within a 3 sec delay" 8 78
 clear
 echo -e "${Red}Detected $ifs FS Nodes - Stopping daemons now ${NC}"
 	# Stop daemon(s) with 3 sec delay
