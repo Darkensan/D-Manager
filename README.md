@@ -5,9 +5,13 @@
 
 3 - D-Update  - Build denariusd with latest v3.4 Branch commits
 
-4 - D-Monitor - Control & Reboot FS Nodes while you watch porn
+4 - D-Keys    - Prompt for PrivKey - Populate denarius*X*.conf
+ 
+5 - D-Start   - Starts all installed FS nodes                     
 
-5 - TO DO: Get ipv6 and populate nodes .conf / Ask privkey and populate nodes .conf -
+6 - D-Stop    - Stops all installed FS nodes                     
+
+7 - D-Monitor - Control & Reboot FS Nodes while you sleep
  
  
 ***To add, and control node(s), it is suggested to install them using this script!***
@@ -25,18 +29,9 @@ denariusd --> /usr/local/bin/
 Denarius data dir ( ./denarius ) --> /var/lib/masternodes/denarius1 ..2 ..3 
  
  
+ 
 ***Important note:***
 
-***Every .conf file need to be edited and proper informations added***
-
-To edit .conf file use the following command:
-
-nano /etc/masternodes/denariusX.conf
-
-***Remember to change the X with the required node number: ...denarius1.conf***
-
-Edit the following lines: rpcpassword= & fortunastakeprivkey=***
- 
 ***In case of IPv6 usage, add the folliwing lines and use the form suggested:***
 
 bind=[xxxx:xxxx:xxxx:xxxx::xxx]:9999
