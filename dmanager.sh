@@ -229,20 +229,20 @@ else ((mfs=input)) && ((fsarr=1))
 			echo -e "${Blue} Downloading Denarius Git${NC}"
 			git clone https://github.com/carsenk/denarius;
 		else
-			echo -e "${Green} Denarius Git already Present - Checking for Updates                         ${NC}"
+			echo -e "${Green} Denarius Git already Present - Checking for Updates ${NC}"
 		fi
 	cd ~/denarius
 	git checkout v3.4
 	git pull
-	echo -e "${Green} Downloded latest v3.4 Branch - Start Compiling                              ${NC}"
+	echo -e "${Green} Downloded latest v3.4 Branch - Start Compiling ${NC}"
 	# Start to compile the daemon using downgraded lib if u.18 detected
 	cd src
         if [[ `lsb_release -rs` == "18.04" ]];
         then
 		if      [ ! -e ~/denarius/src/denariusd ]
 		then
-                echo -e "${Blue} Ubuntu 18.04 Detected - Using downgraded libssl-dev path to compile${NC}"
-		echo -e "${Yellow} Daemon compilation will take around 10~40 min - Procede?${NC}"
+                echo -e "${Blue} Ubuntu 18.04 Detected - Using downgraded libssl-dev path to compile ${NC}"
+		echo -e "${Yellow} Daemon compilation will take around 10~40 min - Procede? ${NC}"
                 	select yn in "Yes" "No";
 			do
                 		case $yn in
@@ -251,18 +251,18 @@ else ((mfs=input)) && ((fsarr=1))
         	        		make -f makefile.unix "USE_UPNP=-" "USE_NATIVETOR=-" OPENSSL_INCLUDE_PATH=/usr/local/ssl/include OPENSSL_LIB_PATH=/usr/local/ssl/lib;
         	        		strip denariusd
         	        		sudo yes | cp -rf denariusd /usr/local/bin
-        	        		echo -e "${Green} Done Compiling Denarius FS Daemon                                           ${NC}"
-        	        		echo -e "${Green} Copied to /usr/local/bin for ease of use                                    ${NC}"
+        	        		echo -e "${Green} Done Compiling Denarius FS Daemon ${NC}"
+        	        		echo -e "${Green} Copied to /usr/local/bin for ease of use ${NC}"
         	        		echo -e "\n"
                         		break;;
                         	No )\
-                        		echo -e "${Red} Aborting compilation  - Run the script again to build denariusd daemon${NC}"
+                        		echo -e "${Red} Aborting compilation  - Run the script again to build denariusd daemon ${NC}"
                         		exit;;
 	                	esac
         	        done
                 else
                 sudo yes | cp -rf denariusd /usr/local/bin
-                echo -e "${LYellow} Daemon already compiled skipping process                                    ${NC}"
+                echo -e "${LYellow} Daemon already compiled skipping process ${NC}"
                 fi
 	else
 		if      [ ! -e ~/denarius/src/denariusd ]
@@ -276,8 +276,8 @@ else ((mfs=input)) && ((fsarr=1))
 					make -f makefile.unix "USE_UPNP=-" "USE_NATIVETOR=-"
 					strip denariusd
 					sudo yes | cp -rf denariusd /usr/local/bin
-					echo -e "${Green} Done Compiling Denarius FS Daemon                                           ${NC}"
-					echo -e "${Green} Copied to /usr/local/bin for ease of use                                    ${NC}"
+					echo -e "${Green} Done Compiling Denarius FS Daemon ${NC}"
+					echo -e "${Green} Copied to /usr/local/bin for ease of use ${NC}"
 					echo -e "\n"
 					break;;
 				 No )\
@@ -287,30 +287,30 @@ else ((mfs=input)) && ((fsarr=1))
 			done
 		else
 			sudo yes | cp -rf denariusd /usr/local/bin
-			echo -e "${LYellow} Daemon already compiled skipping process                                    ${NC}"
+			echo -e "${LYellow} Daemon already compiled skipping process ${NC}"
 		fi
 	fi
 	cd ..
 	echo -e "\n"
 
 # Checks and download Chaindata, store it for later use during node's datadir creation
-echo -e "${Green} Checking if Chaindata is already present                                    ${NC}"
+echo -e "${Green} Checking if Chaindata is already present ${NC}"
 	if	[ -e ~/denarius/chaindata1701122.zip ]
 	then
-		echo -e "${LYellow} Chaindata already present - proceding...                                    ${NC}"
+		echo -e "${LYellow} Chaindata already present - proceding... ${NC}"
 		echo -e "\n"
 	else
-		echo -e "${Green} Getting  a new Chaindata                                                    ${NC}"
+		echo -e "${Green} Getting  a new Chaindata ${NC}"
 		wget https://github.com/carsenk/denarius/releases/download/v3.3.7/chaindata1701122.zip
-		echo -e "${Green} Chaindata Downloaded                                                        ${NC}"
+		echo -e "${Green} Chaindata Downloaded ${NC}"
 		echo -e "\n"
 	fi
 
 # Start main loop - Build Datadir, Create and populate config(s) file(s) for the installed FS node(s)s
 while [ $n -lt $mfs ]
 do
-	echo -e "${Green} Now Installing FS node Number $((fsn))                                             ${NC}"
-	echo -e "${Green} Create and Populate denarius$((fsn)).conf file - Unzip Chaindata                   ${NC}"
+	echo -e "${Green} Now Installing FS node Number $((fsn)) ${NC}"
+	echo -e "${Green} Create and Populate denarius$((fsn)).conf file - Unzip Chaindata ${NC}"
 	cd ..
 	[ -d /var/lib/masternodes/denarius$((fsn)) ] || mkdir -p /var/lib/masternodes/denarius$((fsn)) > /dev/null 2>&1;
 
@@ -319,14 +319,14 @@ do
 	unzip -u ~/denarius/chaindata1701122.zip
 
 	# Update Firewall rules setting rpc port for the current node
-	echo -e "${LYellow} Opening firewall port for FS node $((fsn))                                         ${NC}"
+	echo -e "${LYellow} Opening firewall port for FS node $((fsn)) ${NC}"
 	sudo ufw allow $((np))
 	sudo ufw allow $((np))/tcp
 	sudo ufw logging on
 	sudo ufw --force enable
-	echo -e "${Green} Done installing FS node number $((fsn))                                            ${NC}"
+	echo -e "${Green} Done installing FS node number $((fsn)) ${NC}"
 	echo -e "\n"
-	echo -e "${LYellow} Populate denarius$((fsn)).conf with 25 random addnode= rpc password and IPv4       ${NC}"
+	echo -e "${LYellow} Populate denarius$((fsn)).conf with 25 random addnode= rpc password and IPv4 ${NC}"
 
 	# Generate a fancy denarius*X*.conf files and add a random password for the rpc user, the ipv4 of the vps, set Fortunastake=0 for a faster sync, add default peers
 	echo -e "##############################" > /etc/masternodes/denarius$((fsn)).conf
@@ -341,7 +341,7 @@ do
 	echo -e "\n##############################" >> /etc/masternodes/denarius$((fsn)).conf
 	echo -e "\n##### Random Peers List ###### \n" >> /etc/masternodes/denarius$((fsn)).conf
 		# Get the nodes list from coinexplorer then eleborate the infos "catting" lines with addr and filtering it removing blanck spaces and onion addresses
-		echo -e "${Blue} Get Coinexplorer FS List${NC}"
+		echo -e "${Blue} Get Coinexplorer FS List ${NC}"
 		wget https://www.coinexplorer.net/api/v1/D/masternode/list;
 		cat list | jq '.result[].addr' | tr -d "\""  >> list.txt;
 		sed -i -e '/^$/d;/onion:9999$/d;s/^/addnode=/' list.txt;
@@ -352,7 +352,7 @@ do
 	echo -e "${Green} Adding IPv4 to denarius$((fsn)).conf - Done ${NC}"
 	echo -e "${Green} Adding 25 random nodes to denarius$((fsn)).conf - Done ${NC}"
 	echo -e "\n"
-	echo -e "${Blue} Cleaning up temp files - Done${NC}"
+	echo -e "${Blue} Cleaning up temp files - Done ${NC}"
 	echo -e "\n"
 	rm list list.txt
 	let n++
@@ -363,39 +363,39 @@ fi
 	# Prints outputs according to what done
 	if [[ $fsarr -eq 0 ]]
 	then
-		echo -e "${Red} $mfs FS Nodes were installed  - aborting                                      ${NC}"
+		echo -e "${Red} $mfs FS Nodes were installed  - aborting ${NC}"
 	else
-		echo -e "${Green} $mfs FS New Nodes installed succesfully - $((mfs+ifs)) available now                      ${NC}"
+		echo -e "${Green} $mfs FS New Nodes installed succesfully - $((mfs+ifs)) available now ${NC}"
 		# Notes and commands to start - stop - and getinfos from nodes
         	echo -e "\n"
-		echo -e "${LYellow}-----------------------------------------------------------------------------${NC}"
+		echo -e "${LYellow}----------------------------------------------------------------------------- ${NC}"
         	echo -e "${LYellow}${BK}                               Important note:                               ${NC}"
-        	echo -e "${LYellow} !!!   Every .conf file need to be edited and proper informations added   !!!${NC}"
+        	echo -e "${LYellow} !!!   Every .conf file need to be edited and proper informations added   !!! ${NC}"
         	echo -e "\n"
-		        echo -e "${LGreen}       Use the following commands:${NC}"
+		        echo -e "${LGreen}       Use the following commands: ${NC}"
 			echo -e "${LGreen} -------------------------------------- ${NC}"
 			n=0
 			ifs=$(ls /etc/masternodes/ | grep 'denarius.*\.conf' | wc -l)
 			while [ $n -lt $ifs ]
 			do
-	       		echo -e "${LGreen}| nano /etc/masternodes/denarius$((n+1)).conf |${NC}"
+	       		echo -e "${LGreen}| nano /etc/masternodes/denarius$((n+1)).conf | ${NC}"
 			let n++
 			done
 		echo -e "${LGreen} -------------------------------------- ${NC}"
 		echo -e " Edit Line : ...privkey= to enter the node priv key or run D-Manager again."
 		echo -e " Edit Lines: bind=[ipv6]:9999 & externalip=ipv6 if using an IPv6 scheme."
 		echo -e " Edit Lines: bind=ipv4:9999 & externalip=ipv4 if using more then one FS node."
-                echo -e "${LYellow}-----------------------------------------------------------------------------${NC}"
+                echo -e "${LYellow}----------------------------------------------------------------------------- ${NC}"
         	echo -e "\n"
-        	echo -e "${LBlue} To start a daemon use the following command:${NC}"
+        	echo -e "${LBlue} To start a daemon use the following command: ${NC}"
         	echo -e " denariusd -daemon -pid=/var/lib/masternodes/denarius*X*/denarius.pid -conf=/etc/masternodes/denarius*X*.conf -datadir=/var/lib/masternodes/denarius*X* "
-        	echo -e "${LBlue} To stop any daemon use the following command:${NC}"
+        	echo -e "${LBlue} To stop any daemon use the following command: ${NC}"
         	echo -e " denariusd -conf=/etc/masternodes/denarius*X*.conf stop "
-        	echo -e "${LBlue} To get informations of any deamon use the following command:${NC}"
+        	echo -e "${LBlue} To get informations of any deamon use the following command: ${NC}"
         	echo -e " denariusd -conf=/etc/masternodes/denarius*X*.conf getinfo "
         	echo -e "${LBlue} To check any FS's node status use the following command:${NC}"
         	echo -e " denariusd -conf=/etc/masternodes/denarius*X*.conf fortunastake status "
-		echo -e "${LBlue} To Tail debug.log use the following command:${NC}"
+		echo -e "${LBlue} To Tail debug.log use the following command: ${NC}"
                 echo -e " tail -f /var/lib/masternodes/denarius*X*/debug.log "
 		echo -e "${Red} Remember to change the *X* with the required node number: ...denarius1.conf"
 	fi
@@ -497,7 +497,7 @@ echo -e "${LGreen}             Thanks for using this script ${NC}"
 # Infobox explaining the process of option 4 that is about to begin
 whiptail --title "D-Keys" --msgbox "This procedure will prompt for a QT generated Private Key, then add the string to node(s) .conf file(s). Remember to use different Private Keys, one for each FS node(s) installed." 10 78
 clear
-echo -e "${LGreen}---------------------------------------------------------------------------------${NC}"
+echo -e "${LGreen}--------------------------------------------------------------------------------- ${NC}"
         while [ $n -lt $ifs ]
         do
         PK=$(whiptail --title " [D] - Manager " --inputbox "Paste the QT generated Private Key for FS Node $((n+1)) Here:" 8 60 3>&1 1>&2 2>&3)
@@ -522,12 +522,16 @@ echo -e "${LGreen}                   Thanks for using this script ${NC}"
 #--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 5)
+clear
+echo -e "${LGreen} Coming Soon ${NC}"
                 ;;
 
 #--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 #--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 6)
+clear
+echo -e "${LGreen} Coming Soon ${NC}"
                 ;;
 
 #--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -605,6 +609,8 @@ echo -e "${LGreen} Thanks for using this script ${NC}"
 #--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 9)
+clear
+echo -e "${Red} On Maintenance ${NC}"
                 ;;
 
 #--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
