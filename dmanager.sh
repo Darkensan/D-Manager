@@ -307,6 +307,7 @@ echo -e "${Green} Create and Populate denarius$((fsn)).conf file - Unzip Chainda
 cd ..
 [ -d /var/lib/masternodes/variants ] || mkdir -p /var/lib/masternodes/variants > /dev/null 2>&1;
 [ -d /etc/masternodes ] || mkdir -p /etc/masternodes > /dev/null 2>&1;
+[ -d /var/lib/masternodes/denarius$((fsn)) ] || mkdir -p /var/lib/masternodes/denarius$((fsn)) > /dev/null 2>&1;
 
 # Unzip the previouse downloaded Chaindata
 cd /var/lib/masternodes/denarius$((fsn))
@@ -323,9 +324,17 @@ echo -e "\n"
 echo -e "${LYellow} Populate denarius$((fsn)).conf with 25 random addnode= rpc password and IPv4       ${NC}"
 
 # Generate a random password for the rpc user to add to .conf file
-echo -e "server=1 \nrpcuser=denariusrpc \nrpcpassword=${pw} \nrpcallowsip=127.0.0.1 \nrpcport=$((np)) \nlisten=1 \ndaemon=1 \nfortunastake=0 \nfortunastakeprivkey=XXX_key_XXX" > /etc/masternodes/denarius$((fsn)).conf
-echo -e "\nbind=${ipv4}:9999 \nexternalip=${ipv4}\naddnode=denarius.host \naddnode=denarius.win \naddnode=denarius.pro \naddnode=triforce.black \n " >> /etc/masternodes/denarius$((fsn)).conf
-
+echo -e "##############################" > /etc/masternodes/denarius$((fsn)).conf
+echo -e "\nserver=1 \ndaemon=1 \nrpcuser=denariusrpc \nrpcpassword=${pw} \nrpcallowsip=127.0.0.1 \nrpcport=$((np))" >> /etc/masternodes/denarius$((fsn)).conf
+echo -e "daemon=1 \nlisten=1 \ndebug=1" >> /etc/masternodes/denarius$((fsn)).conf
+echo -e "\n##############################" >> /etc/masternodes/denarius$((fsn)).conf
+echo -e "\nbind=${ipv4}:9999 \nexternalip=${ipv4}" >> /etc/masternodes/denarius$((fsn)).conf
+echo -e "\n##############################" >> /etc/masternodes/denarius$((fsn)).conf
+echo -e "\nfortunastake=0 \nfortunastakeprivkey=XXX_key_XXX" >> /etc/masternodes/denarius$((fsn)).conf
+echo -e "\n##############################" >> /etc/masternodes/denarius$((fsn)).conf
+echo -e "\naddnode=denarius.host \naddnode=denarius.win \naddnode=denarius.pro \naddnode=triforce.black" >> /etc/masternodes/denarius$((fsn)).conf
+echo -e "\n##############################" >> /etc/masternodes/denarius$((fsn)).conf
+echo -e "\n###### Random Peers List ##### \n" >> /etc/masternodes/denarius$((fsn)).conf
 # Get the nodes list from coinexplorer then eleborate the infos "catting" lines with addr and filtering it removing blanck spaces and onion addresses
 echo -e "${Blue} Get Coinexplorer FS List${NC}"
 	wget https://www.coinexplorer.net/api/v1/D/masternode/list;
