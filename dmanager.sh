@@ -245,7 +245,7 @@ else ((mfs=input)) && ((fsarr=1))
                                         git checkout v3.4
                                         git pull
 					echo -e "${Green} Downloded latest v3.4 Branch Commits - Start Compiling ${NC}"
-                                        exit;;
+                                        break;;
                                 esac
                         done
 	# Start to compile the daemon using downgraded lib if u.18 detected
