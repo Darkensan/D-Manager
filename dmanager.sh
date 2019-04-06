@@ -24,9 +24,9 @@ dossl="OpenSSL 1.0.1j 15 Oct 2014"
 # Setting a menu interface ( still to study and improve the general outputs  )
 TEMP=/tmp/answer$$
 whiptail --fb --title "[D] - Manager" --menu "      Ubuntu 16.04/18.04 Denarius's FS Nodes Manager :" 20 0 0 \
-							1 "D-Setup   - Prepare Vps and install dependancies" \
-							2 "D-Nodes   - Build denariusd & Add node(s) - v3.4 Branch" \
-							3 "D-Update  - Update denariusd with latest v3.4 Branch commits" \
+							1 "D-Setup   - Prepare the Vps and install dependancies" \
+							2 "D-Nodes   - Compile Deamon & Build Node(s) - Master or v3.4 - Branch" \
+							3 "D-Update  - Update denariusd with latest - Master or v3.4 - Branch" \
                                                         4 "D-Keys    - Prompt for PrivKey - Populate denarius*X*.conf" \
                                                         5 "D-IPv6    - Coming soon - Populate .conf with IPv6 scheme"\
                                                         6 "D-Onion   - Coming soon - Populate .conf with onion scheme"\
@@ -231,10 +231,23 @@ else ((mfs=input)) && ((fsarr=1))
 		else
 			echo -e "${Green} Denarius Git already Present - Checking for Updates ${NC}"
 		fi
-	cd ~/denarius
-	git checkout v3.4
-	git pull
-	echo -e "${Green} Downloded latest v3.4 Branch - Start Compiling ${NC}"
+        cd ~/denarius
+        echo -e "${LYellow} Wich branch to install? ${NC}"
+                        select yn in "Master/Origin" "v3.4_Dev_Commits";
+                        do
+                                case $yn in
+                                Master/Origin )\
+                                        git checkout master
+                                        git pull
+					echo -e "${Green} Downloded latest Master/Orinig release - Start Compiling ${NC}"
+                                        break;;
+                                v3.4_Dev_Commits )\
+                                        git checkout v3.4
+                                        git pull
+					echo -e "${Green} Downloded latest v3.4 Branch Commits - Start Compiling ${NC}"
+                                        exit;;
+                                esac
+                        done
 	# Start to compile the daemon using downgraded lib if u.18 detected
 	cd src
         if [[ `lsb_release -rs` == "18.04" ]];
@@ -422,10 +435,11 @@ echo -e "${LGreen}                   Thanks for using this script ${NC}"
         # initialise trap to call trap_ctrlc function when signal 2 (SIGINT) is received
         trap "trap_ctrlc" 2
 # Infobox explaining the process of option 3 that is about to begin
-whiptail --title "D-Update" --msgbox "This procedure will delete the old daemon and build a new one with latest v3.4 commits. A prompt will ask for a confirmation before to start." 8 78;
+whiptail --title "D-Update" --msgbox "This procedure will delete the old daemon and compile a new one with latest Master/Origin release or v3.4 commits. A prompt will ask wich Branch to update, and again ask for a confirmation before to start." 8 78;
 clear
 echo -e "\n"
 echo -e "${Green} Ubuntu 16.04: Updating denariusd to latest v3.4 branch ${NC}"
+echo -e "${Blue}                        CTRL-C to exit ${NC}"
 echo -e "\n"
 cd ~
         if [ ! -d ~/denarius ];
@@ -434,9 +448,23 @@ cd ~
         else
                 echo -e "${LYellow} denarius repository already Present - Checking for Updates ${NC}"
         fi
-cd ~/denarius
-git checkout v3.4
-git pull
+        cd ~/denarius
+        echo -e "${LYellow} Wich branch to install? ${NC}"
+                        select yn in "Master/Origin" "v3.4_Dev-Commits";
+                        do
+                                case $yn in
+                                Master/Origin )\
+                                        git checkout master
+                                        git pull
+                                        echo -e "${Green} Downloded latest Master/Orinig release - Start Compiling ${NC}"
+                                        break;;
+                                v3.4_Dev_Commits )\
+                                        git checkout v3.4
+                                        git pull
+                                        echo -e "${Green} Downloded latest v3.4 Branch Commits - Start Compiling ${NC}"
+                                        exit;;
+                                esac
+                        done
 echo -e "${Green} Downloded latest v3.4 Branch - Start Compiling ${NC}"
 cd src
         if [[ `lsb_release -rs` == "18.04" ]];
@@ -518,6 +546,7 @@ echo -e "${LGreen} Private Keys for $((ifs)) FS Nodes has been inserted into rel
 echo -e "\n"
 echo -e "${LGreen}                   Thanks for using this script ${NC}"
 		;;
+
 #--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 #--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -599,7 +628,7 @@ echo -e "${Red} Detected $ifs FS Nodes - Stopping daemons now ${NC}"
         done
 xn=$(wc -w < x)
 echo -e "\n"
-echo -e "${Red} $((xn)) FS Nodes Stopped - give it some time before restart${NC}"
+echo -e "${Red} $((xn)) FS Nodes Stopped - give it some time before restart ${NC}"
 rm x > /dev/null 2>&1;
 echo -e "\n"
 echo -e "${LGreen} Thanks for using this script ${NC}"
