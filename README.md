@@ -1,7 +1,7 @@
 # D-Manager - U. 16.04 - 18.04
 1 - D-Setup   - Prepare Vps and install dependancies
 
-2 - D-Compile - Add one or more FS nodes - v3.4
+2 - D-Nodes   - Compile Daemon & Add one or more FS nodes - Master orv 3.4 Branch
 
 3 - D-Update  - Build denariusd with latest Master/origin or v3.4 Branch Commits
 
