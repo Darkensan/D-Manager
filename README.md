@@ -3,15 +3,19 @@
 
 2 - D-Compile - Add one or more FS nodes - v3.4
 
-3 - D-Update  - Build denariusd with latest v3.4 Branch commits
+3 - D-Update  - Build denariusd with latest Master/origin or v3.4 Branch Commits
 
 4 - D-Keys    - Prompt for PrivKey - Populate denarius*X*.conf
  
-5 - D-Start   - Starts all installed FS nodes                     
+5 - Coming soon ... Ipv6 auotonfiguration (u.16)
+ 
+6 - Coming not so soon ... Onion autoconfiguration
 
-6 - D-Stop    - Stops all installed FS nodes                     
+7 - D-Start   - Starts all installed FS nodes                     
 
-7 - D-Monitor - Control & Reboot FS Nodes while you sleep
+8 - D-Stop    - Stops all installed FS nodes                     
+
+9 - D-Monitor - Control & Reboot FS Nodes while you sleep - Maintenance
  
  
 ***To add, and control node(s), it is suggested to install them using this script!***
