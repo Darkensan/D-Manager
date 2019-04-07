@@ -6,18 +6,15 @@ Use the belove scheme to populate interfaces.conf
 How to edit .cfg file:
 - Some vps build has the file registered under a different name and folder.
 - Default: /etc/network/interfaces.cfg
-- VPS Build: /etc/network/interfaces.d/*.cfg
+- VPS Build: /etc/network/interfaces.d/50-cloud-init.cfg
 
-use this command:
+use this command to edit the .cfg file:
 
 nano /etc/network/interfaces.d/50-cloud-init.cfg
 
 
-Once done editing, run this command to reset the network interfaces and enable the new added IPs:
 
-systemctl restart networking
-
-
+Add lines according to the scheme belove:
 -----------------------------------------------------------------------------------
 # This file is generated from information provided by
 # the datasource.  Changes to it will not persist across an instance.
@@ -32,18 +29,30 @@ iface ens3 inet dhcp
 iface ens3 inet6 static
                         address xxxx:xxxx:xxx:xxxx:0:0:0:xxxx
                         netmask 64
-                        up /sbin/ip -6 addr add dev ens3 xxx:xxx:xxx:xxxx::yyy*
+                        up /sbin/ip -6 addr add dev ens3 xxxx:xxxx:xxx:xxxx::yyy*
                         up /sbin/ip -6 addr add dev ens3 xxxx:xxxx:xxx:xxxx::yyy*
                         up /sbin/ip -6 addr add dev ens3 xxxx:xxxx:xxx:xxxx::yyy*
 						***add as many line as needed ***
 
-						
-*yyy = any combination of numbers some letters ( a, b, c, d, - only worked for me)
+*xxxx = your vps ipv6 - if ":0:" not present, replace the example line above with the vps ipv6 digits,
+	and extend the ip lines as folloving: xxxx:xxxx:xxx:xxxx:xxxx:xxxx:xxxx:xxxx:yyy* - 
+
+*yyy = any combination of numbers [0-9] and some letters (-  a  b  c  d  - only worked for me)
 
 i.e: ::d01 - ::ad1 - ::3bd - ::02d  and so on
 
-QT Wallet: set the IPv6 of the node as follow: xxxx:xxxx:xxx:xxxx::xxxx:d01
-(replacing all the 0 with :: before last number then add the 3-4 extra code of choice)
+Once done editing, run this command to reset the network interfaces and enable the new added IPs:
+
+' systemctl restart networking '
+
+Reboot the Vps: ' rebbot now '
+
+
+
+***QT Wallet:***
+
+set the IPv6 of the node as follow: xxxx:xxxx:xxx:xxxx::' last 4 digit of vps ipv6 ':d01
+(replacing all the 0 with :: before last 4 digits then add the 3-4 extra code choosen .. :d01 .. d02 ..)
 
 
 -------------------------------------------------------------------------------
