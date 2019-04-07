@@ -358,7 +358,7 @@ do
 		wget https://www.coinexplorer.net/api/v1/D/masternode/list;
 		cat list | jq '.result[].addr' | tr -d "\""  >> list.txt;
 		sed -i -e '/^$/d;/onion:9999$/d;s/^/addnode=/' list.txt;
-		# Shuffle 25 random node out of the list and add them to denariusX.conf file, building nodes with randoms addnod= keep the network decentralized?? maybe it helps?
+		# Shuffle 25 random node out of the list and add them to denariusX.conf file, building nodes with randoms addnode= keep the network decentralized?? maybe it helps?
 		shuf -n 25 list.txt >> /etc/masternodes/denarius$((fsn)).conf;
 	# Print ending messages
 	echo -e "${Green} Adding rpcpassword= to denarius$((fsn)).conf - Done ${NC}"
@@ -379,7 +379,7 @@ fi
 		echo -e "${Red} $mfs FS Nodes were installed  - aborting ${NC}"
 	else
 		echo -e "${Green} $mfs FS New Nodes installed succesfully - $((mfs+ifs)) available now ${NC}"
-		# Notes and commands to start - stop - and getinfos from nodes
+		# Notes and Commands to start - stop - and getinfos from nodes
         	echo -e "\n"
 		echo -e "${LYellow}----------------------------------------------------------------------------- ${NC}"
         	echo -e "${LYellow}${BK}                               Important note:                               ${NC}"
@@ -553,7 +553,7 @@ echo -e "${LGreen}                   Thanks for using this script ${NC}"
 5)
 # Infobox explaining the process of option 5 that is about to begin
 clear
-whiptail --title "D-Keys" --msgbox "This procedure will prompt for the Vps Ipv6, set the network interfaces and populate the FS Node(s) .conf file(s). \n \nIt is mandatory to paste the IPv6 in his extended form: xxxx:xxxx:xxxx:xxxx:xxxx:xxxx:xxxx:xxxx . \n \nBackup copy of original network interface.cfg can be found in /etc/network/interfaces.d/*.bck." 16 78
+whiptail --title "D-Keys" --msgbox "This procedure will prompt for the Vps Ipv6, set the network interfaces and populate the FS Node(s) .conf file(s). \n \nIt is mandatory to paste the IPv6 in his extended form: xxxx:xxxx:xxxx:xxxx:xxxx:xxxx:xxxx:xxxx . \n \nBackup copy of original network interface.cfg can be found in /etc/network/interfaces.d/*.bck. \n \nReboot the Vps after the procedure is complete: ' reboot now ' ." 16 78
 if [ -f /etc/network/interfaces.d/50-cloud-init.cfg ]
 then
                 if [ ! -f /etc/network/interfaces.d/50-cloud-init.bck ]
@@ -564,42 +564,53 @@ then
         exitstatus=$?
         if [ $exitstatus -eq 0 ]
         then
-		echo -e "\n"
-		echo -e "${Blue} !!! D - IPv6 Configurator Script !!! ${NC}"
                 while [[ $ipv6 =~ $regex ]]
                 do
+                        sed -i '/inet6/,$d' /etc/network/interfaces.d/50-cloud-init.cfg > /dev/null 2>&1;
+                        echo -e "\niface ens3 inet6 static \n                           address $ipv6 \n                                netmask 64" >> /etc/network/interfaces.d/50-cloud-init.cfg;
                         uipv6=$(sed 's/.\{10\}$//' <<< "$ipv6")
-                        echo -e "\niface ens3 inet6 static \n                   address $ipv6 \n                        netmask 64" >> /etc/network/interfaces.d/50-cloud-init.cfg;
                                 while [ $n -lt $ifs ]
                                 do
-                                        fip="d0$((n+1))"
-                                        echo -e "                       up /sbin/ip -6 addr add dev ens3 :$uipv6:$fip" >> /etc/network/interfaces.d/50-cloud-init.cfg;
-                                        sed -i -e "s/bind=.*/bind=$uipv6:$fip/;s/externalip=.*/externalip=$uipv6:$fip/" /etc/masternodes/denarius$((n+1)).conf
+                                        fip=d$(printf "%02d" $((n+1)))
+                                        echo -e "                               up /sbin/ip -6 addr add dev ens3 $uipv6:$fip" >> /etc/network/interfaces.d/50-cloud-init.cfg;
+                                        sed -i -e "s/bind=.*/bind=[$uipv6:$fip]:9999/;s/externalip=.*/externalip=$uipv6:$fip/" /etc/masternodes/denarius$((n+1)).conf
                                         echo -e "\n"
                                         echo -e "${LYellow} FS Node $((n+1)) IPv6 configured - processing next one ${NC}"
                                 let n++
                                 done
                         echo -e "\n"
-                        echo -e "${LGreen} IPv6 configuration done for all FS Node(s) installed. ${NC}"
+                        echo -e "${LGreen} IPv6 configuratione done for all FS Node(s) installed. ${NC}"
+                        echo -e "\n"
                         echo -e "${LGreen} Thanks for using this script, pls report bugs in D's Discord ${NC}"
                         systemctl restart networking > /dev/null 2>&1;
-                exit 0
-		done
-		echo -e "\n"
-                echo -e "${Red} Wrong IPv6 format - Correct format : xxxx:xxxx:xxxx:xxxx:xxxx:xxxx:xxxx:xxxx ${NC}"
-                echo -e "${Red} Run D-Manager again and repeat the Procedure ${NC}"
+                        echo -e "\n"
+                        echo -e "${Red}\e[4m!!!   Reboot the Vps now using: ' reboot now ' command    !!!${NC}"
+                        echo -e "\n"
+                        exit 0
+                        done
+                        echo -e "\n"
+                        echo -e "${Red}! Warning wrong IPv6 format - Use the correct format: ! ${NC}"
+                        echo -e "\n"
+                        echo -e "${Red}        xxxx:xxxx:xxxx:xxxx:xxxx:xxxx:xxxx:xxxx ${NC}"
+                        echo -e "\n"
+                        echo -e "${Red}     Run D-Manager again and repeat the Procedure. ${NC}"
+                        echo -e "\n"
+                        echo -e "${LGreen} Thanks for using this script, pls report bugs in D's Discord ${NC}"
+                        echo -e "\n"
+        else
+                echo -e "\n"
+                echo -e "${LYellow} You chose Cancel - Manually edit network .cfg file ${NC}"
                 echo -e "\n"
                 echo -e "${LGreen} Thanks for using this script, pls report bugs in D's Discord ${NC}"
-        else
-                echo -e "${LGreen} You chose Cancel - Manually edit network .cfg file ${NC}"
+                echo -e "\n"
         exit 0
         fi
 else
         echo -e "Different Network interfaces - procede manually to setup the interfaces and edit FS Node(s) .conf file(s)"
         echo -e "\n"
         echo -e "${LGreen} Thanks for using this script, pls report bugs in D's Discord ${NC}"
+        echo -e "\n"
 fi
-#echo -e "${LGreen} Coming Soon ${NC}"
                 ;;
 
 #--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
