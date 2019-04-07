@@ -19,7 +19,7 @@ pw=$(pwgen 32 1)
 ipv4="$(wget http://ipecho.net/plain -O - -q ; echo)"
 t=60
 dossl="OpenSSL 1.0.1j 15 Oct 2014"
-
+regex='^([0-9a-fA-F]{0,4}:){1,7}[0-9a-fA-F]{0,4}$'
 
 # Setting a menu interface ( still to study and improve the general outputs  )
 TEMP=/tmp/answer$$
@@ -28,7 +28,7 @@ whiptail --fb --title "[D] - Manager" --menu "      Ubuntu 16.04/18.04 Denarius'
 							2 "D-Nodes   - Compile Deamon & Build Node(s) - Master or v3.4 - Branch" \
 							3 "D-Update  - Update denariusd with latest - Master or v3.4 - Branch" \
                                                         4 "D-Keys    - Prompt for PrivKey - Populate denarius*X*.conf" \
-                                                        5 "D-IPv6    - Coming soon - Populate .conf with IPv6 scheme"\
+                                                        5 "D-IPv6    - Populate .conf with IPv6 scheme and Set Network interfaces"\
                                                         6 "D-Onion   - Coming soon - Populate .conf with onion scheme"\
                                                         7 "D-Start   - Start all installed FS nodes" \
                                                         8 "D-Stop    - Stops all installed FS nodes" \
@@ -280,7 +280,7 @@ else ((mfs=input)) && ((fsarr=1))
 	else
 		if      [ ! -e ~/denarius/src/denariusd ]
 		then
-                echo -e "${Yellow} Daemon compilation will take around 10~40 min - Procede?${NC}"
+                echo -e "${Yellow} Daemon compilation will take around 10~40 min - Procede anyway? ${NC}"
                         select yn in "Yes" "No";
 			do
                   		case $yn in
@@ -300,7 +300,7 @@ else ((mfs=input)) && ((fsarr=1))
 			done
 		else
 			sudo yes | cp -rf denariusd /usr/local/bin
-			echo -e "${LYellow} Daemon already compiled skipping process ${NC}"
+			echo -e "${LYellow} Detected an already compiled daemon - skipping process ${NC}"
 		fi
 	fi
 	cd ..
@@ -313,16 +313,16 @@ echo -e "${Green} Checking if Chaindata is already present ${NC}"
 		echo -e "${LYellow} Chaindata already present - proceding... ${NC}"
 		echo -e "\n"
 	else
-		echo -e "${Green} Getting  a new Chaindata ${NC}"
+		echo -e "${LYellow} Chaindata not found - downloading a new archive ${NC}"
 		wget https://github.com/carsenk/denarius/releases/download/v3.3.7/chaindata1701122.zip
-		echo -e "${Green} Chaindata Downloaded ${NC}"
+		echo -e "${Green} Chaindata Downloaded - proceding... ${NC}"
 		echo -e "\n"
 	fi
 
 # Start main loop - Build Datadir, Create and populate config(s) file(s) for the installed FS node(s)s
 while [ $n -lt $mfs ]
 do
-	echo -e "${Green} Now Installing FS node Number $((fsn)) ${NC}"
+	echo -e "${Green} Installing FS node Number $((fsn)) ${NC}"
 	echo -e "${Green} Create and Populate denarius$((fsn)).conf file - Unzip Chaindata ${NC}"
 	cd ..
 	[ -d /var/lib/masternodes/denarius$((fsn)) ] || mkdir -p /var/lib/masternodes/denarius$((fsn)) > /dev/null 2>&1;
@@ -551,8 +551,55 @@ echo -e "${LGreen}                   Thanks for using this script ${NC}"
 #--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 5)
+# Infobox explaining the process of option 5 that is about to begin
 clear
-echo -e "${LGreen} Coming Soon ${NC}"
+whiptail --title "D-Keys" --msgbox "This procedure will prompt for the Vps Ipv6, set the network interfaces and populate the FS Node(s) .conf file(s). \n \nIt is mandatory to paste the IPv6 in his extended form: xxxx:xxxx:xxxx:xxxx:xxxx:xxxx:xxxx:xxxx . \n \nBackup copy of original network interface.cfg can be found in /etc/network/interfaces.d/*.bck." 16 78
+if [ -f /etc/network/interfaces.d/50-cloud-init.cfg ]
+then
+                if [ ! -f /etc/network/interfaces.d/50-cloud-init.bck ]
+                then
+                        cp -rf /etc/network/interfaces.d/50-cloud-init.cfg /etc/network/interfaces.d/50-cloud-init.bck
+                fi
+        ipv6=$(whiptail --title " [D] - Ipv6 " --inputbox "Paste your Vps IPv6 address here:" 20 80 3>&1 1>&2 2>&3)
+        exitstatus=$?
+        if [ $exitstatus -eq 0 ]
+        then
+		echo -e "\n"
+		echo -e "${Blue} !!! D - IPv6 Configurator Script !!! ${NC}"
+                while [[ $ipv6 =~ $regex ]]
+                do
+                        uipv6=$(sed 's/.\{10\}$//' <<< "$ipv6")
+                        echo -e "\niface ens3 inet6 static \n                   address $ipv6 \n                        netmask 64" >> /etc/network/interfaces.d/50-cloud-init.cfg;
+                                while [ $n -lt $ifs ]
+                                do
+                                        fip="d0$((n+1))"
+                                        echo -e "                       up /sbin/ip -6 addr add dev ens3 :$uipv6:$fip" >> /etc/network/interfaces.d/50-cloud-init.cfg;
+                                        sed -i -e "s/bind=.*/bind=$uipv6:$fip/;s/externalip=.*/externalip=$uipv6:$fip/" /etc/masternodes/denarius$((n+1)).conf
+                                        echo -e "\n"
+                                        echo -e "${LYellow} FS Node $((n+1)) IPv6 configured - processing next one ${NC}"
+                                let n++
+                                done
+                        echo -e "\n"
+                        echo -e "${LGreen} IPv6 configuration done for all FS Node(s) installed. ${NC}"
+                        echo -e "${LGreen} Thanks for using this script, pls report bugs in D's Discord ${NC}"
+                        systemctl restart networking > /dev/null 2>&1;
+                exit 0
+		done
+		echo -e "\n"
+                echo -e "${Red} Wrong IPv6 format - Correct format : xxxx:xxxx:xxxx:xxxx:xxxx:xxxx:xxxx:xxxx ${NC}"
+                echo -e "${Red} Run D-Manager again and repeat the Procedure ${NC}"
+                echo -e "\n"
+                echo -e "${LGreen} Thanks for using this script, pls report bugs in D's Discord ${NC}"
+        else
+                echo -e "${LGreen} You chose Cancel - Manually edit network .cfg file ${NC}"
+        exit 0
+        fi
+else
+        echo -e "Different Network interfaces - procede manually to setup the interfaces and edit FS Node(s) .conf file(s)"
+        echo -e "\n"
+        echo -e "${LGreen} Thanks for using this script, pls report bugs in D's Discord ${NC}"
+fi
+#echo -e "${LGreen} Coming Soon ${NC}"
                 ;;
 
 #--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -560,6 +607,7 @@ echo -e "${LGreen} Coming Soon ${NC}"
 
 6)
 clear
+# Infobox explaining the process of option 6 that is about to begin
 echo -e "${LGreen} Coming Soon ${NC}"
                 ;;
 
@@ -567,7 +615,7 @@ echo -e "${LGreen} Coming Soon ${NC}"
 #--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 7)
-# Infobox explaining the process of option 5 that is about to begin
+# Infobox explaining the process of option 7 that is about to begin
 whiptail --title "D-Start" --msgbox "This procedure will send a start command to the installed FS Node's daemon(s) within a 5 sec delay" 8 78
 clear
 echo -e "${LGreen} Detected $ifs FS Nodes - Starting sleeping daemons now ${NC}"
