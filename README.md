@@ -28,9 +28,9 @@ Oher vps test coming soon...
 
 3 - D-Update  - Build denariusd with latest Master/origin or v3.4 Branch Commits
 
-4 - D-Keys    - Prompt for PrivKey - Populate denarius*X*.conf
+4 - D-Ipv4    - Multi Ipv4 network interface auotonfiguration and .conf file population (U.16.04 only)
  
-5 - D-Ipv6    - Multi Ipv6 network interface auotonfiguration and .conf file population  (U.16.04 only)
+5 - D-Ipv6    - Multi Ipv6 network interface auotonfiguration and .conf file population (U.16.04 only)
  
 6 - D-Onion   - Coming soon or later... Onion autoconfiguration
 
@@ -38,8 +38,14 @@ Oher vps test coming soon...
 
 8 - D-Stop    - Stops all installed FS nodes                     
 
-9 - D-Monitor - Control & Reboot FS Nodes while you sleep - Maintenance
+9 - D-Keys    - Prompt for PrivKey - Populate denarius*X*.conf
+
+0 - D-Monitor - Control & Reboot FS Nodes while you sleep - Maintenance
  
+ 
+ 
+ NOTE: Once D-IPv6 is used, you can not go back to an IPv4 scheme, unless using first ddelete.sh, to delete all files and folders crated; and dmanager.sh, to install all nodes once more. Network .cfg will be compromised otherwise, and will need a manual editing.
+Also denarius1.conf will be compromised and a manual edit necessary. 
  
 ***To add, and control node(s), it is suggested to install them using this script!***
  
