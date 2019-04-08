@@ -574,30 +574,29 @@ then
                 let n++
                 done
                 echo -e "${LGreen}--------------------------------------------------------------------------------- ${NC}"
-	# If U.18 detected start the procedure to edit Network interfaces .yaml and denarius*X*.conf files with the correct parameters
+		# Resetting the Network to make the changes done in the configuration load
+        	systemctl restart networking > /dev/null 2>&1;
+        	echo -e "${LYellow} Network Interfaces Edited ${NC}"
+        	echo -e "\n"
+        	echo -e "${LGreen} IPv4 configuration done for all installed FS Node(s). ${NC}"
+        	echo -e "\n"
+        	echo -e "${LGreen} Thanks for using this script, pls report bugs in D's Discord ${NC}"
+        	echo -e "\n"
+        	echo -e "${Red}\e[4m! It is suggested to reboot the Vps !  use: ' reboot now ' command ! ${NC}"
+        	echo -e "\n"
+        # If U.18 detected start the procedure to edit Network interfaces .yaml and denarius*X*.conf files with the correct parameters
         elif [[ `lsb_release -rs` == "18.04" ]]
         then
-		echo -e "\n"
+                echo -e "\n"
                 echo -e "${Red}--------------------------------------------------------------------------------- ${NC}"
-		echo -e "\n"
-		echo -e "${Red}!- D-Ipv4 not compatible with Ubuntu 18.04 system - !${NC}"
-		echo -e "\n"
-		echo -e "${Red}--------------------------------------------------------------------------------- ${NC}"
-		echo -e "\n"
-		echo -e "$(LGreen)! Coming soon !$(NC)"
-		echo -e "\n"
+                echo -e "\n"
+                echo -e "${Red}!- D-Ipv4 not compatible with Ubuntu 18.04 system - !${NC}"
+                echo -e "\n"
+                echo -e "${Red}--------------------------------------------------------------------------------- ${NC}"
+                echo -e "\n"
+                echo -e "$(LGreen)! Coming soon !$(NC)"
+                echo -e "\n"
         fi
-	# Resetting the Network to make the changes done in the configuration load
-        systemctl restart networking > /dev/null 2>&1;
-        echo -e "${LYellow} Network Interfaces Edited ${NC}"
-        echo -e "\n"
-        echo -e "${LGreen} IPv4 configuration done for all installed FS Node(s). ${NC}"
-        echo -e "\n"
-        echo -e "${LGreen} Thanks for using this script, pls report bugs in D's Discord ${NC}"
-        echo -e "\n"
-        echo -e "${Red}\e[4m! It is suggested to reboot the Vps !  use: ' reboot now ' command ! ${NC}"
-        echo -e "\n"
-
 else
         echo -e "Different Network interfaces - procede manually to setup the interfaces and edit FS Node(s) .conf file(s)"
         echo -e "\n"
