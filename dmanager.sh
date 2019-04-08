@@ -12,10 +12,10 @@ LMagenta="\e[95m";
 NC="\e[0m";
 BK="\e[7m";
 ifs=$(ls /etc/masternodes/ | grep 'denarius.*\.conf' | wc -l)
+ifs2=$((ifs-1))
 n=0
 np=$((ifs+32360))
 fsn=$((ifs+1))
-pw=$(pwgen 32 1)
 ipv4="$(wget http://ipecho.net/plain -O - -q ; echo)"
 t=60
 dossl="OpenSSL 1.0.1j 15 Oct 2014"
@@ -23,16 +23,17 @@ regex='^([0-9a-fA-F]{0,4}:){1,7}[0-9a-fA-F]{0,4}$'
 
 # Setting a menu interface ( still to study and improve the general outputs  )
 TEMP=/tmp/answer$$
-whiptail --fb --title "[D] - Manager" --menu "      Ubuntu 16.04/18.04 Denarius's FS Nodes Manager :" 20 0 0 \
-							1 "D-Setup   - Prepare the Vps and install dependancies" \
-							2 "D-Nodes   - Compile Deamon & Build Node(s) - Master or v3.4 - Branch" \
-							3 "D-Update  - Update denariusd with latest - Master or v3.4 - Branch" \
-                                                        4 "D-Keys    - Prompt for PrivKey - Populate denarius*X*.conf" \
-                                                        5 "D-IPv6    - Populate .conf with IPv6 scheme and Set Network interfaces"\
-                                                        6 "D-Onion   - Coming soon - Populate .conf with onion scheme"\
+whiptail --fb --title "[D] - Manager" --menu "      Ubuntu 16.04/18.04 Denarius's FS Node(s) Manager :" 21 0 0 \
+							1 "D-Setup   - Prepare the Vps and install dependancies and utilities" \
+							2 "D-Nodes   - Compile Deamon & Build Node(s) - Master or v3.4 - Branch Commits" \
+							3 "D-Update  - Update denariusd with latest - Master or v3.4 - Branch Commits" \
+                                                        4 "D-IPv4    - (U.16.04 only) Setting up Network & .conf file(s) with a multi IPv4 scheme"\
+                                                        5 "D-IPv6    - (U.16.04 only) Setting up Network & .conf file(s) with a multi IPv6 scheme"\
+                                                        6 "D-Onion   - Coming soon or later - Populate .conf with onion scheme"\
                                                         7 "D-Start   - Start all installed FS nodes" \
                                                         8 "D-Stop    - Stops all installed FS nodes" \
-                                                        9 "D-Monitor - Control FS Nodes while you sleep" 2>$TEMP
+      							9 "D-Keys    - Prompt for PrivKey - Populate denarius*X*.conf" \
+							0 "D-Monitor - Control FS Nodes while you sleep" 2>$TEMP
 choice=`cat $TEMP`
 case $choice in
 
@@ -182,7 +183,9 @@ echo -e "\n"
 echo -e "${Green} - Vps updated and ready ${NC}"
 echo -e "\n"
 echo -e "${LGreen} To compile denariusd daemon and install FS nodes run D-Manager once more ${NC}"
-echo -e "${LGreen}       Thanks for using this script, pls report bugs in D's Discord ${NC}"
+echo -e "\n"
+echo -e "${LGreen} Thanks for using this script, pls report bugs in D's Discord ${NC}"
+echo -e "\n"
 		;;
 
 #--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -192,19 +195,19 @@ echo -e "${LGreen}       Thanks for using this script, pls report bugs in D's Di
 	# this function is called when Ctrl-C is sent
 	function trap_ctrlc ()
 	{
-	    # perform cleanup here
-	    echo -e "${Red} Ctrl-C caught...performing clean up${NC}"
-		# rm -rf /var/lib/masternodes/* /etc/masternodes/* /usr/local/bin/denariusd ~/list ~/list.txt > /dev/null 2>&1;
-	    echo -e "${Green} Cleanup done${NC}"
-   	# exit shell script with error code 2
-    	# if omitted, shell script will continue execution
-    	exit 2
+		# perform cleanup here
+		echo -e "${Red} Ctrl-C caught...performing clean up${NC}"
+	    	# rm -rf /var/lib/masternodes/* /etc/masternodes/* /usr/local/bin/denariusd ~/list ~/list.txt > /dev/null 2>&1;
+	    	echo -e "${Green} Cleanup done${NC}"
+   		# exit shell script with error code 2
+    		# if omitted, shell script will continue execution
+    		exit 2
 	}
 	# initialise trap to call trap_ctrlc function
 	# when signal 2 (SIGINT) is received
 	trap "trap_ctrlc" 2
 # Infobox explaining the process of option 2 that is about to begin
-whiptail --title "D-Compile" --msgbox "This procedure will compile a daemon if not present, create and populate folder(s) and file(s) for the number of node(s) choosen. Chaindata will be downloaded and unzipped into node folder(s) for a faster syncronization. Denarius*X*.conf files will be populated adding 25 random peers to each .conf file, aswell as adding rpcpassword, rpcport and ip. ( so far it populate only ipv4 - that is valid to run 1 node - ipv6 and onion coming soon )." 12 78
+whiptail --title "D-Compile" --msgbox "This procedure will compile a daemon if not present, create and populate folder(s) and file(s) for the number of node(s) choosen. \n \nChaindata will be downloaded and unzipped into node folder(s) for a faster syncronization. \n \nDenarius*X*.conf files will be populated adding 25 random peers to each .conf file, aswell as adding rpcpassword, rpcport and ip. \n \nSo far: \n Automatization for 1 node in Ipv4 both u.16 and u.18 . \n Multi Ipv4 and IPv6 scheme compatible with u.16.04 only. \n Working on u.18.04 and onion scheme." 22 78 0
 clear
 echo -e "\n"
 echo -e "${LGreen}${BK}               U. 16.04: Compile and Add one or more FS nodes                ${NC}"
@@ -308,13 +311,13 @@ else ((mfs=input)) && ((fsarr=1))
 
 # Checks and download Chaindata, store it for later use during node's datadir creation
 echo -e "${Green} Checking if Chaindata is already present ${NC}"
-	if	[ -e ~/denarius/chaindata1701122.zip ]
+	if	[ -e ~/denarius/chaindata1799510.zip ]
 	then
 		echo -e "${LYellow} Chaindata already present - proceding... ${NC}"
 		echo -e "\n"
 	else
 		echo -e "${LYellow} Chaindata not found - downloading a new archive ${NC}"
-		wget https://github.com/carsenk/denarius/releases/download/v3.3.7/chaindata1701122.zip
+		wget https://github.com/carsenk/denarius/releases/download/v3.3.7/chaindata1799510.zip
 		echo -e "${Green} Chaindata Downloaded - proceding... ${NC}"
 		echo -e "\n"
 	fi
@@ -329,7 +332,7 @@ do
 
 	# Unzip the previouse downloaded Chaindata
 	cd /var/lib/masternodes/denarius$((fsn))
-	unzip -u ~/denarius/chaindata1701122.zip
+	unzip -u ~/denarius/chaindata1799510.zip
 
 	# Update Firewall rules setting rpc port for the current node
 	echo -e "${LYellow} Opening firewall port for FS node $((fsn)) ${NC}"
@@ -342,6 +345,7 @@ do
 	echo -e "${LYellow} Populate denarius$((fsn)).conf with 25 random addnode= rpc password and IPv4 ${NC}"
 
 	# Generate a fancy denarius*X*.conf files and add a random password for the rpc user, the ipv4 of the vps, set Fortunastake=0 for a faster sync, add default peers
+	pw=$(pwgen 32 1)
 	echo -e "##############################" > /etc/masternodes/denarius$((fsn)).conf
 	echo -e "\nserver=1 \ndaemon=1 \nrpcuser=denariusrpc \nrpcpassword=${pw} \nrpcallowsip=127.0.0.1 \nrpcport=$((np))" >> /etc/masternodes/denarius$((fsn)).conf
 	echo -e "daemon=1 \nlisten=1 \ndebug=1" >> /etc/masternodes/denarius$((fsn)).conf
@@ -413,7 +417,8 @@ fi
 		echo -e "${Red} Remember to change the *X* with the required node number: ...denarius1.conf"
 	fi
 echo -e "\n"
-echo -e "${LGreen}                   Thanks for using this script ${NC}"
+echo -e "${LGreen} Thanks for using this script, pls report bugs in D's Discord ${NC}"
+echo -e "\n"
 		;;
 
 #--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -438,19 +443,21 @@ echo -e "${LGreen}                   Thanks for using this script ${NC}"
 whiptail --title "D-Update" --msgbox "This procedure will delete the old daemon and compile a new one with latest Master/Origin release or v3.4 commits. A prompt will ask wich Branch to update, and again ask for a confirmation before to start." 8 78;
 clear
 echo -e "\n"
-echo -e "${Green} Ubuntu 16.04: Updating denariusd to latest v3.4 branch ${NC}"
-echo -e "${Blue}                        CTRL-C to exit ${NC}"
+echo -e "${Green} Ubuntu 16.04 / 18.04: Updating denariusd to latest Master/Origin or v3.4 branch commits ${NC}"
+echo -e "${Blue}                                    CTRL-C to exit ${NC}"
 echo -e "\n"
 cd ~
-        if [ ! -d ~/denarius ];
+        # check if denairus folder exist then download a new git repository
+	if [ ! -d ~/denarius ];
         then
                 git clone https://github.com/carsenk/denarius > /dev/null 2>&1;
         else
                 echo -e "${LYellow} denarius repository already Present - Checking for Updates ${NC}"
         fi
+	# ask wich branch to compile and start the process
         cd ~/denarius
         echo -e "${LYellow} Wich branch to install? ${NC}"
-                        select yn in "Master/Origin" "v3.4_Dev-Commits";
+                        select yn in "Master/Origin" "v3.4/Branch";
                         do
                                 case $yn in
                                 Master/Origin )\
@@ -458,15 +465,15 @@ cd ~
                                         git pull
                                         echo -e "${Green} Downloded latest Master/Orinig release - Start Compiling ${NC}"
                                         break;;
-                                v3.4_Dev_Commits )\
+                                v3.4/Branch )\
                                         git checkout v3.4
                                         git pull
                                         echo -e "${Green} Downloded latest v3.4 Branch Commits - Start Compiling ${NC}"
-                                        exit;;
+                                        break;;
                                 esac
                         done
-echo -e "${Green} Downloded latest v3.4 Branch - Start Compiling ${NC}"
 cd src
+	#check for u.18.04 release to decide if necessary to use a downgraded lib
         if [[ `lsb_release -rs` == "18.04" ]];
         then
                 echo -e "${Blue} Ubuntu 18.04 Detected - Using downgraded libssl-dev path to compile ${NC}"
@@ -491,6 +498,7 @@ cd src
                                 esac
                         done
         else
+		# Complie deamon under u.16 build
                 echo -e "${Yellow} Daemon compilation will take around 10~40 min - Procede? ${NC}"
                         select yn in "Yes" "No";
                         do
@@ -515,7 +523,8 @@ cd ~
 echo -e "\n"
 echo -e "${Green} Stop and restart the deamons to use the latest version ${NC}"
 echo -e "\n"
-echo -e "${LGreen}             Thanks for using this script ${NC}"
+echo -e "${LGreen} Thanks for using this script, pls report bugs in D's Discord ${NC}"
+echo -e "\n"
                 ;;
 
 #--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -523,28 +532,78 @@ echo -e "${LGreen}             Thanks for using this script ${NC}"
 
 4)
 # Infobox explaining the process of option 4 that is about to begin
-whiptail --title "D-Keys" --msgbox "This procedure will prompt for a QT generated Private Key, then add the string to node(s) .conf file(s). Remember to use different Private Keys, one for each FS node(s) installed." 10 78
+whiptail --title "D-Keys" --msgbox "This procedure will prompt for the Vps Ipv4 FailoverIP addresses, starting from the first additional IP ( never count the default Vps IPv4 ). \n  \nAll the time a new FS Node(s) will be installed, run 'D-IPv4' again and paste all the FailoverIP once more. \n \nBe prepared with a list of all the IPv4, one for each FS Node(s) to configure." 16 78
 clear
-echo -e "${LGreen}--------------------------------------------------------------------------------- ${NC}"
-        while [ $n -lt $ifs ]
-        do
-        PK=$(whiptail --title " [D] - Manager " --inputbox "Paste the QT generated Private Key for FS Node $((n+1)) Here:" 8 60 3>&1 1>&2 2>&3)
-        exitstatus=$?
-                if [ $exitstatus -eq 0 ]
-                then
-                        sed -i "s/fortunastakeprivkey=.*/"fortunastakeprivkey=${PK}"/g" /etc/masternodes/denarius$((n+1)).conf
-                        echo -e "${LGreen} Private Key for FS Node $((n+1)) :${NC}" "$PK  ${LGreen} | ${NC}"
-                else
-                        echo -e "${LGreen} You chose Cancel - Manually edit node's PrivKey into .conf file ${NC}"
-                        exit 0
-                fi
-        sed -i 's/fortunastake=0/fortunastake=1/g' /etc/masternodes/denarius$((n+1)).conf
-        let n++
-        done
-echo -e "${LGreen}--------------------------------------------------------------------------------- ${NC}"
-echo -e "${LGreen} Private Keys for $((ifs)) FS Nodes has been inserted into relative .conf file(s) ${NC}"
-echo -e "\n"
-echo -e "${LGreen}                   Thanks for using this script ${NC}"
+if [ -f /etc/network/interfaces.d/50-cloud-init.cfg ]
+then
+	# Making backup of Network intercae .cfg file
+        if [[ ! -f /etc/network/interfaces.d/50-cloud-init.bck ]]
+        then
+        cp -rf /etc/network/interfaces.d/50-cloud-init.cfg /etc/network/interfaces.d/50-cloud-init.bck
+        echo -e "${LGreen}Backup Copy of /etc/network/interfaces.d/50-cloud-init.cfg created: .../50-cloud-init.bck ${NC}"
+        fi
+	# Check for u.16.04 build
+        if [[ `lsb_release -rs` == "16.04" ]]
+        then
+		# Start the procedure to edit Network interfaces .cfg and denarius*X*.conf files with the correct parameters
+                echo -e "${LGreen}--------------------------------------------------------------------------------- ${NC}"
+                sed -i '/auto ens3:.*/,$d' /etc/network/interfaces.d/50-cloud-init.cfg > /dev/null 2>&1;
+                while [ $n -lt $ifs2 ]
+                do
+                        ipv4=$(whiptail --title " [D] - Ipv4 " --inputbox "Paste your FS Node $((n+2)) IPv4 address here:" 20 80 3>&1 1>&2 2>&3)
+                        exitstatus=$?
+                                if [ $exitstatus -eq 0 ]
+                                then
+                                        echo -e "auto ens3:$n \niface ens3:$n inet static \naddress $ipv4  \nnetmask 255.255.255.255" >> /etc/network/interfaces.d/50-cloud-init.cfg
+                                        sed -i -e "s/bind=.*/bind=$ipv4:9999/;s/externalip=.*/externalip=$ipv4/" /etc/masternodes/denarius$((n+2)).conf
+                                        echo -e "\n"
+                                        echo -e "${LYellow} FS Node $((n+2)) IPv4 configured - processing next one ${NC}"
+                                        sleep 1s
+                                        echo -e "\n"
+                                else
+					# Restoring backup copy to default .cgf .
+                                        cp -rf /etc/network/interfaces.d/50-cloud-init.bck /etc/network/interfaces.d/50-cloud-init.cfg
+                                        rm /etc/network/interfaces.d/50-cloud-init.bck
+                                        echo -e "\n"
+                                        echo -e "${LYellow} You chose Cancel - Manually edit network .cfg file ${NC}"
+                                        echo -e "\n"
+                                        echo -e "${LGreen} Thanks for using this script, pls report bugs in D's Discord ${NC}"
+                                        echo -e "\n"
+                                exit 0
+                                fi
+                let n++
+                done
+                echo -e "${LGreen}--------------------------------------------------------------------------------- ${NC}"
+	# If U.18 detected start the procedure to edit Network interfaces .yaml and denarius*X*.conf files with the correct parameters
+        elif [[ `lsb_release -rs` == "18.04" ]]
+        then
+		echo -e "\n"
+                echo -e "${Red}--------------------------------------------------------------------------------- ${NC}"
+		echo -e "\n"
+		echo -e "${Red}!- D-Ipv4 not compatible with Ubuntu 18.04 system - !${NC}"
+		echo -e "\n"
+		echo -e "${Red}--------------------------------------------------------------------------------- ${NC}"
+		echo -e "\n"
+		echo -e "$(LGreen)! Coming soon !$(NC)"
+		echo -e "\n"
+        fi
+	# Resetting the Network to make the changes done in the configuration load
+        systemctl restart networking > /dev/null 2>&1;
+        echo -e "${LYellow} Network Interfaces Edited ${NC}"
+        echo -e "\n"
+        echo -e "${LGreen} IPv4 configuration done for all installed FS Node(s). ${NC}"
+        echo -e "\n"
+        echo -e "${LGreen} Thanks for using this script, pls report bugs in D's Discord ${NC}"
+        echo -e "\n"
+        echo -e "${Red}\e[4m! It is suggested to reboot the Vps !  use: ' reboot now ' command ! ${NC}"
+        echo -e "\n"
+
+else
+        echo -e "Different Network interfaces - procede manually to setup the interfaces and edit FS Node(s) .conf file(s)"
+        echo -e "\n"
+        echo -e "${LGreen} Thanks for using this script, pls report bugs in D's Discord ${NC}"
+        echo -e "\n"
+fi
 		;;
 
 #--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -564,40 +623,54 @@ then
         exitstatus=$?
         if [ $exitstatus -eq 0 ]
         then
-                while [[ $ipv6 =~ $regex ]]
-                do
-                        sed -i '/inet6/,$d' /etc/network/interfaces.d/50-cloud-init.cfg > /dev/null 2>&1;
-                        echo -e "\niface ens3 inet6 static \n                           address $ipv6 \n                                netmask 64" >> /etc/network/interfaces.d/50-cloud-init.cfg;
-                        uipv6=$(sed 's/.\{10\}$//' <<< "$ipv6")
-                                while [ $n -lt $ifs ]
-                                do
-                                        fip=d$(printf "%02d" $((n+1)))
-                                        echo -e "                               up /sbin/ip -6 addr add dev ens3 $uipv6:$fip" >> /etc/network/interfaces.d/50-cloud-init.cfg;
-                                        sed -i -e "s/bind=.*/bind=[$uipv6:$fip]:9999/;s/externalip=.*/externalip=$uipv6:$fip/" /etc/masternodes/denarius$((n+1)).conf
-                                        echo -e "\n"
-                                        echo -e "${LYellow} FS Node $((n+1)) IPv6 configured - processing next one ${NC}"
-                                let n++
-                                done
-                        echo -e "\n"
-                        echo -e "${LGreen} IPv6 configuratione done for all FS Node(s) installed. ${NC}"
-                        echo -e "\n"
-                        echo -e "${LGreen} Thanks for using this script, pls report bugs in D's Discord ${NC}"
-                        systemctl restart networking > /dev/null 2>&1;
-                        echo -e "\n"
-                        echo -e "${Red}\e[4m!!!   Reboot the Vps now using: ' reboot now ' command    !!!${NC}"
-                        echo -e "\n"
-                        exit 0
-                        done
-                        echo -e "\n"
-                        echo -e "${Red}! Warning wrong IPv6 format - Use the correct format: ! ${NC}"
-                        echo -e "\n"
-                        echo -e "${Red}        xxxx:xxxx:xxxx:xxxx:xxxx:xxxx:xxxx:xxxx ${NC}"
-                        echo -e "\n"
-                        echo -e "${Red}     Run D-Manager again and repeat the Procedure. ${NC}"
-                        echo -e "\n"
-                        echo -e "${LGreen} Thanks for using this script, pls report bugs in D's Discord ${NC}"
-                        echo -e "\n"
-        else
+		if [[ `lsb_release -rs` == "16.04" ]]
+                then
+			while [[ $ipv6 =~ $regex ]]
+                	do
+                        	sed -i '/inet6/,$d' /etc/network/interfaces.d/50-cloud-init.cfg > /dev/null 2>&1;
+                        	echo -e "\niface ens3 inet6 static \n                           address $ipv6 \n                                netmask 64" >> /etc/network/interfaces.d/50-cloud-init.cfg;
+                        	uipv6=$(sed 's/.\{10\}$//' <<< "$ipv6")
+                        	        while [ $n -lt $ifs ]
+                        	        do
+                        	                fip=d$(printf "%02d" $((n+1)))
+                        	                echo -e "                               up /sbin/ip -6 addr add dev ens3 $uipv6:$fip" >> /etc/network/interfaces.d/50-cloud-init.cfg;
+                        	                sed -i -e "s/bind=.*/bind=[$uipv6:$fip]:9999/;s/externalip=.*/externalip=$uipv6:$fip/" /etc/masternodes/denarius$((n+1)).conf
+                        	                echo -e "\n"
+                        	                echo -e "${LYellow} FS Node $((n+1)) IPv6 configured - processing next one ${NC}"
+                        	        let n++
+                        	        done
+                        	echo -e "\n"
+                        	echo -e "${LGreen} IPv6 configuratione done for all FS Node(s) installed. ${NC}"
+                        	echo -e "\n"
+                        	echo -e "${LGreen} Thanks for using this script, pls report bugs in D's Discord ${NC}"
+                        	systemctl restart networking > /dev/null 2>&1;
+                        	echo -e "\n"
+                        	echo -e "${Red}\e[4m!!!   Reboot the Vps now using: ' reboot now ' command    !!!${NC}"
+                        	echo -e "\n"
+                	exit 0
+                	done
+                        	echo -e "\n"
+                        	echo -e "${Red}! Warning wrong IPv6 format - Use the correct format: ! ${NC}"
+                        	echo -e "\n"
+                        	echo -e "${Red}        xxxx:xxxx:xxxx:xxxx:xxxx:xxxx:xxxx:xxxx ${NC}"
+                        	echo -e "\n"
+                        	echo -e "${Red}     Run D-Manager again and repeat the Procedure. ${NC}"
+                        	echo -e "\n"
+                        	echo -e "${LGreen} Thanks for using this script, pls report bugs in D's Discord ${NC}"
+                        	echo -e "\n"
+        	elif [[ `lsb_release -rs` == "18.04" ]]
+		then
+	                echo -e "\n"
+	                echo -e "${Red}--------------------------------------------------------------------------------- ${NC}"
+        	        echo -e "\n"
+        	        echo -e "${Red}!- D-Ipv6 not compatible with Ubuntu 18.04 system - !${NC}"
+        	        echo -e "\n"
+        	        echo -e "${Red}--------------------------------------------------------------------------------- ${NC}"
+        	        echo -e "\n"
+        	        echo -e "$(LGreen)! Coming soon !$(NC)"
+        	        echo -e "\n"
+		fi
+	else
                 echo -e "\n"
                 echo -e "${LYellow} You chose Cancel - Manually edit network .cfg file ${NC}"
                 echo -e "\n"
@@ -619,7 +692,13 @@ fi
 6)
 clear
 # Infobox explaining the process of option 6 that is about to begin
+echo -e "\n"
+echo -e "D-Onion  - Configurator for oinion address(es) FS Node(s)"
+echo -e "\n"
 echo -e "${LGreen} Coming Soon ${NC}"
+echo -e "\n"
+echo -e "${LGreen} Thanks for using this script, pls report bugs in D's Discord ${NC}"
+echo -e "\n"
                 ;;
 
 #--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -651,17 +730,18 @@ echo -e "${LGreen} Detected $ifs FS Nodes - Starting sleeping daemons now ${NC}"
         done
 xn=$(wc -w < x)
 echo -e "\n"
-echo -e "${LGreen} $((xn)) FS Nodes Started - give it some to link blockchain ${NC}"
+echo -e "${LGreen} $((xn)) FS Nodes Started - give it some time to link blockchain ${NC}"
 rm x > /dev/null 2>&1;
 echo -e "\n"
-echo -e "${LGreen}                   Thanks for using this script ${NC}"
-                ;;
+echo -e "${LGreen} Thanks for using this script, pls report bugs in D's Discord ${NC}"
+echo -e "\n"
+	     ;;
 
 #--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 #--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 8)
-# Infobox explaining the process of option 6 that is about to begin
+# Infobox explaining the process of option 8 that is about to begin
 whiptail --title "D-Stop" --infogbox "This procedure will send a Stop command to the installed FS Node's daemon(s) within a 5 sec delay" 8 78
 clear
 echo -e "${Red} Detected $ifs FS Nodes - Stopping daemons now ${NC}"
@@ -690,15 +770,50 @@ echo -e "\n"
 echo -e "${Red} $((xn)) FS Nodes Stopped - give it some time before restart ${NC}"
 rm x > /dev/null 2>&1;
 echo -e "\n"
-echo -e "${LGreen} Thanks for using this script ${NC}"
+echo -e "${LGreen} Thanks for using this script, pls report bugs in D's Discord ${NC}"
+echo -e "\n"
                 ;;
 
 #--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 #--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 9)
+# Infobox explaining the process of option 9 that is about to begin
+whiptail --title "D-Keys" --msgbox "This procedure will prompt for a QT generated Private Key, then add the string to node(s) .conf file(s). Remember to use different Private Keys, one for each FS node(s) installed." 10 78
 clear
+echo -e "${LGreen}--------------------------------------------------------------------------------- ${NC}"
+        while [ $n -lt $ifs ]
+        do
+        PK=$(whiptail --title " [D] - Manager " --inputbox "Paste the QT generated Private Key for FS Node $((n+1)) Here:" 8 60 3>&1 1>&2 2>&3)
+        exitstatus=$?
+                if [ $exitstatus -eq 0 ]
+                then
+                        sed -i "s/fortunastakeprivkey=.*/"fortunastakeprivkey=${PK}"/g" /etc/masternodes/denarius$((n+1)).conf
+                        echo -e "${LGreen} Private Key for FS Node $((n+1)) :${NC}" "$PK  ${LGreen} | ${NC}"
+                else
+                        echo -e "${LGreen} You chose Cancel - Manually edit node's PrivKey into .conf file ${NC}"
+                exit 0
+                fi
+        sed -i 's/fortunastake=0/fortunastake=1/g' /etc/masternodes/denarius$((n+1)).conf
+        let n++
+        done
+echo -e "${LGreen}--------------------------------------------------------------------------------- ${NC}"
+echo -e "${LGreen} Private Keys for $((ifs)) FS Nodes has been inserted into relative .conf file(s) ${NC}"
+echo -e "\n"
+echo -e "${LGreen} Thanks for using this script, pls report bugs in D's Discord ${NC}"
+echo -e "\n"
+                ;;
+
+#--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+#--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+0)
+clear
+echo -e "\n"
 echo -e "${Red} On Maintenance ${NC}"
+echo -e "\n"
+echo -e "${LGreen} Thanks for using this script, pls report bugs in D's Discord ${NC}"
+echo -e "\n"
                 ;;
 
 #--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
