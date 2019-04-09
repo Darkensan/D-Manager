@@ -40,7 +40,9 @@ Oher vps test coming soon...
 
 9 - D-Keys    - Prompt for PrivKey - Populate denarius*X*.conf
 
-0 - D-Monitor - Control & Reboot FS Nodes while you sleep - Maintenance
+0 - D-Reset - Reset the selected FS Node DB to the lastest chaindat blocks
+
+11? D-Monitor - Control & reboot FS Node(s) - In maintenance till FS bugs will be fixed or i find a different solution for some outputs - "broken" version is working for some part, will share in D's discord if asked too.
  
 
 NOTE:
