@@ -28,7 +28,7 @@ Oher vps test coming soon...
 
 3 - D-Update  - Build denariusd with latest Master/origin or v3.4 Branch Commits
 
-4 - D-Ipv4    - Multi Ipv4 network interface autoconfiguration and .conf file population (U.16.04 only)
+4 - D-Ipv4    - Multi Ipv4 network interface autoconfiguration and .conf file population
  
 5 - D-Ipv6    - Multi Ipv6 network interface autoconfiguration and .conf file population (U.16.04 only)
  
