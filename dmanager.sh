@@ -33,7 +33,7 @@ whiptail --fb --title "[D] - Manager" --menu "                   Ubuntu 16.04/18
                                                         7 "D-Start   - Start all installed FS nodes" \
                                                         8 "D-Stop    - Stops all installed FS nodes" \
       							9 "D-Keys    - Prompt for PrivKey - Populate denarius*X*.conf" \
-							0 "D-Reset   - Reset the FS Node(s) back to latest chaindata blocks" 2>$TEMP
+							0 "D-Reset   - Reset selected FS Node back to latest chaindata blocks" 2>$TEMP
 choice=`cat $TEMP`
 case $choice in
 
@@ -612,14 +612,14 @@ fi
 5)
 # Infobox explaining the process of option 5 that is about to begin
 clear
-whiptail --title "D-Keys" --msgbox "This procedure will prompt for the Vps Ipv6, set the network interfaces and populate the FS Node(s) .conf file(s). \n \nIt is mandatory to paste the IPv6 in his extended form: xxxx:xxxx:xxxx:xxxx:xxxx:xxxx:xxxx:xxxx . \n \nBackup copy of original network interface.cfg can be found in /etc/network/interfaces.d/*.bck. \n \nReboot the Vps after the procedure is complete: ' reboot now ' ." 16 78
+whiptail --title "D-IPv6" --msgbox "This procedure will prompt for the Vps Ipv6, set the network interfaces and populate the FS Node(s) .conf file(s). \n \nIt is mandatory to paste the IPv6 in his extended form: xxxx:xxxx:xxxx:xxxx:xxxx:xxxx:xxxx:xxxx . \n \nBackup copy of original network interface.cfg can be found in /etc/network/interfaces.d/*.bck. \n \nReboot the Vps after the procedure is complete: ' reboot now ' ." 16 78
 if [ -f /etc/network/interfaces.d/50-cloud-init.cfg ]
 then
                 if [ ! -f /etc/network/interfaces.d/50-cloud-init.bck ]
                 then
                         cp -rf /etc/network/interfaces.d/50-cloud-init.cfg /etc/network/interfaces.d/50-cloud-init.bck
                 fi
-        ipv6=$(whiptail --title " [D] - Ipv6 " --inputbox "Paste your Vps IPv6 address here:" 20 80 3>&1 1>&2 2>&3)
+        ipv6=$(whiptail --title "D-Ipv6" --inputbox "Paste your Vps IPv6 address here:" 20 80 3>&1 1>&2 2>&3)
         exitstatus=$?
         if [ $exitstatus -eq 0 ]
         then
@@ -742,7 +742,7 @@ echo -e "\n"
 
 8)
 # Infobox explaining the process of option 8 that is about to begin
-whiptail --title "D-Stop" --infogbox "This procedure will send a Stop command to the installed FS Node's daemon(s) within a 5 sec delay" 8 78
+whiptail --title "D-Stop" --msgbox "This procedure will send a Stop command to the installed FS Node's daemon(s) within a 5 sec delay" 8 78
 clear
 echo -e "${Red} Detected $ifs FS Nodes - Stopping daemons now ${NC}"
         # Stop daemon(s) with 5 sec delay
@@ -808,12 +808,62 @@ echo -e "\n"
 #--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 0)
+# Infobox explaining the process of option 0 that is about to begin
+whiptail --title "D-Reset" --msgbox "This procedure will prompt for the FS Node number to reset, deleting cores files from his folder. \n \nDownload Latest Chaindata.zip, then unzip it for a faster sync into th$
 clear
-echo -e "\n"
-echo -e "${Red} On Maintenance ${NC}"
-echo -e "\n"
-echo -e "${LGreen} Thanks for using this script, pls report bugs in D's Discord ${NC}"
-echo -e "\n"
+# Ask wich Node to reset
+r=$(whiptail --title "D-Reset" --inputbox "Wich FS Node do you want to reset?" 10 78 3>&1 1>&2 2>&3)
+exitstatus=$?
+	if [ $exitstatus -eq 0 ]
+        then
+        	daemon="denariusd -daemon -pid=/var/lib/masternodes/denarius$r/denarius.pid -conf=/etc/masternodes/denarius$r.conf -datadir=/var/lib/masternodes/denarius$r"
+        	if [ ! $(pgrep -f "${daemon}") ]
+        	then
+        		echo -e "\n"
+        		echo -e "${LYellow} Resetting FS Node $r DB ${NC}"
+        		cd /var/lib/masternodes/denarius$r || exit
+        		rm -rf database txleveldb smsgDB peers.dat > /dev/null 2>&1;
+        		echo -e "\n"
+        		echo -e "${LYellow} Proceding unzipping latest chaindata... ${NC}"
+        		echo -e "\n"
+        		# Checks and download Chaindata, store it for later use during node's db resetting
+        		echo -e "${LYellow} Checking if Chaindata is already present ${NC}"
+        		echo -e "\n"
+                		if      [ -e ~/denarius/chaindata1799510.zip ]
+                                then
+                                	echo -e "${LGreen} Chaindata already present - proceding... ${NC}"
+                                	echo -e "\n"
+                                else
+                                	echo -e "${LYellow} Chaindata not found - downloading a new archive ${NC}"
+                                	cd ~/denarius
+                                	wget https://github.com/carsenk/denarius/releases/download/v3.3.7/chaindata1799510.zip
+                                	echo -e "${Green} Chaindata Downloaded - proceding... ${NC}"
+                                	echo -e "\n"
+                                	cd ~
+                                fi
+                        unzip -u ~/denarius/chaindata1799510.zip
+                        sleep 1s
+                        echo -e "\n"
+                        echo -e "${LGreen} Reset for FS Node $r done.${NC}"
+                        echo -e "\n"
+                        echo -e "${LGreen} Thanks for using this script, pls report bugs in D's Discord ${NC}"
+                        echo -e "\n"
+                else
+                        echo -e ""
+                        echo -e "${LRed} Detected running process for FS Node $r - Stop running FS Node before reset. ${NC}"
+                        echo -e ""
+                        echo -e "${LRed} Use: ' daemon="denariusd -conf=/etc/masternodes/denarius$r.conf stop" ' ${NC}"
+                        echo -e ""
+                        cd ~
+                exit 0
+                fi
+        else
+                echo -e "\n"
+                echo -e "${LYellow} No input or wrong input. Run the process again. ${NC}"
+                echo -e "\n"
+                echo -e "${LGreen} Thanks for using this script, pls report bugs in D's Discord ${NC}"
+                echo -e "\n"
+        fi
                 ;;
 
 #--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
