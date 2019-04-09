@@ -1,7 +1,7 @@
 # D-Manager - U. 16.04 - 18.04
 This script is made from an amateur with a really tiny knowledge about coding overall, not material for advanced user.
 
-The main intention of this work, was to collect a bunch of commands, making them execute automatically,  and give a more accesible and comfortable experience to the majority of the amateur users as the writer same feel to be.
+The main intention of this work, was to collect a bunch of commands, making them execute automatically,  and give a more accesible and comfortable experience to the majority of the amateur users as the writer himself feel to be.
 
 Starting from the great work made by @Buzzkillb with his guides and scripts, ( thank you sensei!!! ), and mixing it with other code found around the git ( thank you google!!! ), made up this work in the hope that it will be helpfull for someone.
 
@@ -28,9 +28,9 @@ Oher vps test coming soon...
 
 3 - D-Update  - Build denariusd with latest Master/origin or v3.4 Branch Commits
 
-4 - D-Ipv4    - Multi Ipv4 network interface auotonfiguration and .conf file population (U.16.04 only)
+4 - D-Ipv4    - Multi Ipv4 network interface autoconfiguration and .conf file population (U.16.04 only)
  
-5 - D-Ipv6    - Multi Ipv6 network interface auotonfiguration and .conf file population (U.16.04 only)
+5 - D-Ipv6    - Multi Ipv6 network interface autoconfiguration and .conf file population (U.16.04 only)
  
 6 - D-Onion   - Coming soon or later... Onion autoconfiguration
 
