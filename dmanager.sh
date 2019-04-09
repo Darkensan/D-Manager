@@ -809,7 +809,7 @@ echo -e "\n"
 
 0)
 # Infobox explaining the process of option 0 that is about to begin
-whiptail --title "D-Reset" --msgbox "This procedure will prompt for the FS Node number to reset, deleting cores files from his folder. \n \nDownload Latest Chaindata.zip, then unzip it for a faster sync into th$
+whiptail --title "D-Reset" --msgbox "This procedure will prompt for the FS Node number to reset, deleting cores files from his folder. \n \nDownload Latest Chaindata.zip, then unzip it for a faster sync into the correct FS Node folder." 10 78
 clear
 # Ask wich Node to reset
 r=$(whiptail --title "D-Reset" --inputbox "Wich FS Node do you want to reset?" 10 78 3>&1 1>&2 2>&3)
