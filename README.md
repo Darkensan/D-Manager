@@ -1,5 +1,5 @@
 # D-Manager - U. 16.04 - 18.04
-This script is made from an amateur with a really tiny knowledge about coding overall, not material for advanced user.
+This script is made from an amateur with a really tiny knowledge about coding overall, not material for normal or advanced user.
 
 The main intention of this work, was to collect a bunch of commands, making them execute automatically,  and give a more accesible and comfortable experience to the majority of the amateur users as the writer himself feel to be.
 
