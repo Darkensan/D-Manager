@@ -23,7 +23,7 @@ regex='^([0-9a-fA-F]{0,4}:){1,7}[0-9a-fA-F]{0,4}$'
 
 # Setting a menu interface ( still to study and improve the general outputs  )
 TEMP=/tmp/answer$$
-whiptail --fb --title "[D] - Manager" --menu "      Ubuntu 16.04/18.04 Denarius's FS Node(s) Manager :" 21 0 0 \
+whiptail --fb --title "[D] - Manager" --menu "                   Ubuntu 16.04/18.04 Denarius's FS Node(s) Manager :" 21 0 0 \
 							1 "D-Setup   - Prepare the Vps and install dependancies and utilities" \
 							2 "D-Nodes   - Compile Deamon & Build Node(s) - Master or v3.4 - Branch Commits" \
 							3 "D-Update  - Update denariusd with latest - Master or v3.4 - Branch Commits" \
@@ -33,7 +33,7 @@ whiptail --fb --title "[D] - Manager" --menu "      Ubuntu 16.04/18.04 Denarius'
                                                         7 "D-Start   - Start all installed FS nodes" \
                                                         8 "D-Stop    - Stops all installed FS nodes" \
       							9 "D-Keys    - Prompt for PrivKey - Populate denarius*X*.conf" \
-							0 "D-Monitor - Control FS Nodes while you sleep" 2>$TEMP
+							0 "D-Reset   - Reset the FS Node(s) back to latest chaindata blocks" 2>$TEMP
 choice=`cat $TEMP`
 case $choice in
 
@@ -573,10 +573,11 @@ then
                                 fi
                 let n++
                 done
-                echo -e "${LGreen}--------------------------------------------------------------------------------- ${NC}"
 		# Resetting the Network to make the changes done in the configuration load
         	systemctl restart networking > /dev/null 2>&1;
         	echo -e "${LYellow} Network Interfaces Edited ${NC}"
+        	echo -e "\n"
+                echo -e "${LGreen}--------------------------------------------------------------------------------- ${NC}"
         	echo -e "\n"
         	echo -e "${LGreen} IPv4 configuration done for all installed FS Node(s). ${NC}"
         	echo -e "\n"
