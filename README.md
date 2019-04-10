@@ -101,7 +101,7 @@ denariusd -conf=/etc/masternodes/denarius***X***.conf fortunastake status
 
 If you like my work and find it usefull to manage your node(s), feel free to send a lil tip to this D address:
 
-- DDbrmCVKLNzEyCzV9VNAU3mpUvsD5daa91
+- DRT81x8zwYGdkJkjKBrc3dZLsZpLn8XcGd
 
 All donations collected will be used for community projects supported, time to time, from D's dev team
 
