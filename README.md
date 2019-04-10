@@ -30,8 +30,8 @@ Oher vps test coming soon...
 
 4 - D-Ipv4    - Multi Ipv4 network interface autoconfiguration and .conf file population
  
-5 - D-Ipv6    - Multi Ipv6 network interface autoconfiguration and .conf file population (U.16.04 only)
- 
+5 - D-Ipv6    - Multi Ipv6 network interface autoconfiguration and .conf file population 
+
 6 - D-Onion   - Coming soon or later... Onion autoconfiguration
 
 7 - D-Start   - Starts all installed FS nodes                     
