@@ -1,10 +1,10 @@
 # D-Manager - U. 16.04 - 18.04
 This script is made by an amateur with little knowledge about coding overall. It is not designed for normal or advanced user.
 
-The main intention of this work, was to collect a bunch of commands, making them execute automatically,  and give a more accesible and comfortable experience to the majority of the amateur users as the writer himself feel to be.
+The main intention of this work, was to combine a bunch of commands, making them execute automatically,  and make it a more accesible and comfortable experience to the majority of the amateur users as the writer himself feel to be.
 
 Starting from the great work made by @Buzzkillb with his guides and scripts, ( arigato gosaimasu Buzzk sensei!!! ), and mixing it with other code found around the net ( thank you google!!! ), made up this work in the hope that it will be helpfull for someone.
-A last and special thanks goes to @manosv, for his patience and support during the development of this project. Thank you m8!!!
+Special thanks goes to @manosv, for his patience and support during the development of this project. Thank you m8!!!
 
 The entire script was written directly from the vps using nano as editor, the commands and functions used are the only one learned so far. Will keep updating the script with more functionality and better overall coding language, as soon as i manage to dig more into scripting and unix :).
 
@@ -46,7 +46,7 @@ Oher vps test coming soon...
 11- D-Monitor - Control & reboot FS Node(s) - In maintenance till FS bugs will be fixed or i find a different solution for some outputs - "broken" version is working for some part, will share in D's discord if asked too.
  
 
-NOTE:
+IMPORTANT NOTE:
 
 Once D-IPv6 is used, you can not go back to an IPv4 scheme, unless using first:
 ddelete.sh: to delete all files and folders created;
@@ -62,7 +62,7 @@ or
  
 ***It is mandatory to change folder and name to core files:***
 
-move your existing node's files into those dir:
+move your existing node's files into those directory:
 
 denarius.conf --> /etc/masternodes/denarius1.conf ...2.conf ...3.coonf
 
@@ -105,7 +105,7 @@ If you like my work and find it usefull to manage your node(s), feel free to sen
 
 All donations collected will be used for community projects supported, time to time, from D's dev team
 
-A 10% will go to support the poor beggars of discord community!!! Imho also Soy have the right to fullfill his dremas !!!
+A 10% will go to support the poor beggars of discord community!!! Imho also Soy have the right to fullfill his dreams !!!
 
 
 
