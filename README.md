@@ -105,7 +105,7 @@ If you like my work and find it usefull to manage your node(s), feel free to sen
 
 All donations collected will be used for community projects supported, time to time, from D's dev team
 
-A 10% will go to support the poor beggars of discord community!!! Imho also Soy have the right to eat!
+A 10% will go to support the poor beggars of discord community!!! Imho also Soy have the right to fullfill his dremas !!!
 
 
 
