@@ -3,7 +3,8 @@ This script is made from an amateur with a really tiny knowledge about coding ov
 
 The main intention of this work, was to collect a bunch of commands, making them execute automatically,  and give a more accesible and comfortable experience to the majority of the amateur users as the writer himself feel to be.
 
-Starting from the great work made by @Buzzkillb with his guides and scripts, ( thank you sensei!!! ), and mixing it with other code found around the git ( thank you google!!! ), made up this work in the hope that it will be helpfull for someone.
+Starting from the great work made by @Buzzkillb with his guides and scripts, ( arigato gosaimasu Buzzk sensei!!! ), and mixing it with other code found around the net ( thank you google!!! ), made up this work in the hope that it will be helpfull for someone.
+A last and special thanks goes to @manosv, for his patience and support during the development of this project. Thank you m8!!!
 
 The entire script was written directly from the vps using nano as editor, the commands and functions used are the only one learned so far. Will keep updating the script with more functionality and better overall coding language, as soon as i manage to dig more into scripting and unix :).
 
@@ -24,25 +25,25 @@ Oher vps test coming soon...
 
 1 - D-Setup   - Prepare Vps and install dependancies
 
-2 - D-Nodes   - Compile Daemon & Add one or more FS nodes - Master orv 3.4 Branch
+2 - D-Nodes   - Compile Daemon & Add one or more FS nodes - Master or v 3.4 Branch
 
 3 - D-Update  - Build denariusd with latest Master/origin or v3.4 Branch Commits
 
-4 - D-Ipv4    - Multi Ipv4 network interface autoconfiguration and .conf file population
+4 - D-Reset - Reset the selected FS Node DB to the lastest chaindat blocks
+
+5 - D-Ipv4    - Multi Ipv4 network interface autoconfiguration and .conf file population
  
-5 - D-Ipv6    - Multi Ipv6 network interface autoconfiguration and .conf file population 
+6 - D-Ipv6    - Multi Ipv6 network interface autoconfiguration and .conf file population 
 
-6 - D-Onion   - Coming soon or later... Onion autoconfiguration
+7 - D-Onion   - Coming soon or later... Onion autoconfiguration
 
-7 - D-Start   - Starts all installed FS nodes                     
+8 - D-Keys    - Prompt for PrivKey - Populate denarius*X*.conf
 
-8 - D-Stop    - Stops all installed FS nodes                     
+9 - D-Start   - Starts all installed FS nodes                     
 
-9 - D-Keys    - Prompt for PrivKey - Populate denarius*X*.conf
+0 - D-Stop    - Stops all installed FS nodes                     
 
-0 - D-Reset - Reset the selected FS Node DB to the lastest chaindat blocks
-
-11? D-Monitor - Control & reboot FS Node(s) - In maintenance till FS bugs will be fixed or i find a different solution for some outputs - "broken" version is working for some part, will share in D's discord if asked too.
+11- D-Monitor - Control & reboot FS Node(s) - In maintenance till FS bugs will be fixed or i find a different solution for some outputs - "broken" version is working for some part, will share in D's discord if asked too.
  
 
 NOTE:
@@ -71,13 +72,9 @@ Denarius data dir ( ./denarius ) --> /var/lib/masternodes/denarius1 ..2 ..3
  
  
  
-***Important note:***
-
-***In case of IPv6 usage, add the folliwing lines and use the form suggested:***
-
-bind=[xxxx:xxxx:xxxx:xxxx::xxx]:9999
-
-externalip=xxxx:xxxx:xxxx:xxxx::xxx
+ 
+ 
+***Coomands List:***
  
 - To start a daemon use the following command:
  
@@ -98,3 +95,22 @@ denariusd -conf=/etc/masternodes/denarius***X***.conf fortunastake status
  ***Remember to change the X with the required node number: ...denarius1.conf***
 
 
+
+
+
+
+If you like my work and find it usefull to manage your node(s), feel free to send a lil tip to this D address:
+
+- DDbrmCVKLNzEyCzV9VNAU3mpUvsD5daa91
+
+All donations collected will be used for community projects supported, time to time, from D's dev team
+
+A 10% will go to support the poor beggars of discord community!!! Imho also Soy have the right to eat!
+
+
+
+Thank you for reading and using this script :).
+
+
+
+.
