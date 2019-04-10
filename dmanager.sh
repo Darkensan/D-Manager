@@ -27,13 +27,13 @@ whiptail --fb --title "[D] - Manager" --menu "                   Ubuntu 16.04/18
 							1 "D-Setup   - Prepare the Vps and install dependancies and utilities" \
 							2 "D-Nodes   - Compile Deamon & Build Node(s) - Master or v3.4 - Branch Commits" \
 							3 "D-Update  - Update denariusd with latest - Master or v3.4 - Branch Commits" \
-                                                        4 "D-IPv4    - Setting up Network & .conf file(s) with a multi IPv4 scheme"\
-                                                        5 "D-IPv6    - (U.16.04 only) Setting up Network & .conf file(s) with a multi IPv6 scheme"\
-                                                        6 "D-Onion   - Coming soon or later - Populate .conf with onion scheme"\
-                                                        7 "D-Start   - Start all installed FS nodes" \
-                                                        8 "D-Stop    - Stops all installed FS nodes" \
-      							9 "D-Keys    - Prompt for PrivKey - Populate denarius*X*.conf" \
-							0 "D-Reset   - Reset selected FS Node back to latest chaindata blocks" 2>$TEMP
+							4 "D-Reset   - Reset selected FS Node back to latest chaindata blocks" \
+                                                        5 "D-IPv4    - Setting up Network & .conf file(s) with a multi IPv4 scheme"\
+                                                        6 "D-IPv6    - Setting up Network & .conf file(s) with a multi IPv6 scheme"\
+                                                        7 "D-Onion   - Coming soon or later - Populate .conf with onion scheme"\
+      							8 "D-Keys    - Prompt for PrivKey - Populate denarius*X*.conf" \
+                                                        9 "D-Start   - Start all installed FS nodes" \
+                                                        0 "D-Stop    - Stops all installed FS nodes" 2>$TEMP
 choice=`cat $TEMP`
 case $choice in
 
@@ -56,10 +56,8 @@ case $choice in
 		# initialise trap to call trap_ctrlc function
 		# when signal 2 (SIGINT) is received
 		trap "trap_ctrlc" 2
-# Infobox explaining the process of option 1 that is about to begin
-
-whiptail --title "D-Compile" --msgbox "This procedure will prepare the VPS to run D daemon(s) - installing and updating all the libraries and dependancies required. Compatible with U.16.04 & U.18.04." 12 78;
-
+# Infobox explaining D-Setup process that is about to begin
+whiptail --title "D-Setup" --msgbox "This procedure will prepare the VPS to run D daemon(s) - installing and updating all the libraries and dependancies required. Compatible with U.16.04 & U.18.04." 12 78;
 clear
 echo -e "\n"
 echo -e "${LBlue}${BK}!!!                          D-Vps Installer                           !!!${NC}";
@@ -206,8 +204,8 @@ echo -e "\n"
 	# initialise trap to call trap_ctrlc function
 	# when signal 2 (SIGINT) is received
 	trap "trap_ctrlc" 2
-# Infobox explaining the process of option 2 that is about to begin
-whiptail --title "D-Compile" --msgbox "This procedure will compile a daemon if not present, create and populate folder(s) and file(s) for the number of node(s) choosen. \n \nChaindata will be downloaded and unzipped into node folder(s) for a faster syncronization. \n \nDenarius*X*.conf files will be populated adding 25 random peers to each .conf file, aswell as adding rpcpassword, rpcport and ip. \n \nSo far: \n Automatization for 1 node in Ipv4 both u.16 and u.18 . \n Multi Ipv4 and IPv6 scheme compatible with u.16.04 only. \n Working on u.18.04 and onion scheme." 22 78 0
+# Infobox explaining D-Nodes process that is about to begin
+whiptail --title "D-Nodes" --msgbox "This procedure will compile a daemon if not present, create and populate folder(s) and file(s) for the number of node(s) choosen. \n \nChaindata will be downloaded and unzipped into node folder(s) for a faster syncronization. \n \nDenarius*X*.conf files will be populated adding 25 random peers to each .conf file, aswell as adding rpcpassword, rpcport and ip. \n \nSo far: \n Automatization for 1 node in Ipv4 both u.16 and u.18 . \n Multi Ipv4 and IPv6 scheme compatible with u.16.04 only. \n Working on u.18.04 and onion scheme." 22 78 0
 clear
 echo -e "\n"
 echo -e "${LGreen}${BK}               U. 16.04: Compile and Add one or more FS nodes                ${NC}"
@@ -439,7 +437,7 @@ echo -e "\n"
 	}
         # initialise trap to call trap_ctrlc function when signal 2 (SIGINT) is received
         trap "trap_ctrlc" 2
-# Infobox explaining the process of option 3 that is about to begin
+# Infobox explaining D-Update process that is about to begin
 whiptail --title "D-Update" --msgbox "This procedure will delete the old daemon and compile a new one with latest Master/Origin release or v3.4 commits. A prompt will ask wich Branch to update, and again ask for a confirmation before to start." 8 78;
 clear
 echo -e "\n"
@@ -530,9 +528,9 @@ echo -e "\n"
 #--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 #--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-4)
-# Infobox explaining the process of option 4 that is about to begin
-whiptail --title "D-Keys" --msgbox "This procedure will prompt for the Vps Ipv4 FailoverIP addresses, starting from the first additional IP ( never count the default Vps IPv4 ). \n  \nAll the time a new FS Node(s) will be installed, run 'D-IPv4' again and paste all the FailoverIP once more. \n \nBe prepared with a list of all the IPv4, one for each FS Node(s) to configure." 16 78
+5)
+# Infobox explaining D-IPv4 process that is about to begin
+whiptail --title "D-IPv4" --msgbox "This procedure will prompt for the Vps Ipv4 FailoverIP addresses, starting from the first additional IP ( never count the default Vps IPv4 ). \n  \nAll the time a new FS Node(s) will be installed, run 'D-IPv4' again and paste all the FailoverIP once more. \n \nBe prepared with a list of all the IPv4, one for each FS Node(s) to configure." 16 78
 clear
 if [ -f /etc/network/interfaces.d/50-cloud-init.cfg ] || [ -f /etc/netplan/50-cloud-init.yaml ]
 then
@@ -625,67 +623,93 @@ fi
 #--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 #--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-5)
-# Infobox explaining the process of option 5 that is about to begin
-clear
+6)
+# Infobox explaining D-IPv6 process that is about to begin
 whiptail --title "D-IPv6" --msgbox "This procedure will prompt for the Vps Ipv6, set the network interfaces and populate the FS Node(s) .conf file(s). \n \nIt is mandatory to paste the IPv6 in his extended form: xxxx:xxxx:xxxx:xxxx:xxxx:xxxx:xxxx:xxxx . \n \nBackup copy of original network interface.cfg can be found in /etc/network/interfaces.d/*.bck. \n \nReboot the Vps after the procedure is complete: ' reboot now ' ." 16 78
-if [ -f /etc/network/interfaces.d/50-cloud-init.cfg ]
+#clear
+if [ -f /etc/network/interfaces.d/50-cloud-init.cfg ] || [ -f /etc/netplan/50-cloud-init.yaml ]
 then
-                if [ ! -f /etc/network/interfaces.d/50-cloud-init.bck ]
-                then
-                        cp -rf /etc/network/interfaces.d/50-cloud-init.cfg /etc/network/interfaces.d/50-cloud-init.bck
-                fi
-        ipv6=$(whiptail --title "D-Ipv6" --inputbox "Paste your Vps IPv6 address here:" 20 80 3>&1 1>&2 2>&3)
+                # Start the procedure to edit Network interfaces .cfg and denarius*X*.conf files with the correct parameters
+                echo -e "${LGreen}--------------------------------------------------------------------------------- ${NC}"
+       		sed -i -e '/inte6/,$d;/addresses:/,$d' /etc/network/interfaces.d/50-cloud-init.cfg > /dev/null 2>&1;
+		#sed -i '/inet6/,$d' /etc/network/interfaces.d/50-cloud-init.cfg > /dev/null 2>&1;
+		sed -i -e '/dhcp6:.*/d;/gateway6:.*/d;/addresses:.*/,$d' /etc/netplan/50-cloud-init.yaml > /dev/null 2>&1;
+	ipv6=$(whiptail --title "D-Ipv6" --inputbox "Paste your Vps IPv6 address here:" 20 80 3>&1 1>&2 2>&3)
         exitstatus=$?
         if [ $exitstatus -eq 0 ]
         then
-		if [[ `lsb_release -rs` == "16.04" ]]
-                then
-			while [[ $ipv6 =~ $regex ]]
-                	do
-                        	sed -i '/inet6/,$d' /etc/network/interfaces.d/50-cloud-init.cfg > /dev/null 2>&1;
-                        	echo -e "\niface ens3 inet6 static \n                           address $ipv6 \n                                netmask 64" >> /etc/network/interfaces.d/50-cloud-init.cfg;
-                        	uipv6=$(sed 's/.\{10\}$//' <<< "$ipv6")
-                        	        while [ $n -lt $ifs ]
-                        	        do
-                        	                fip=d$(printf "%02d" $((n+1)))
-                        	                echo -e "                               up /sbin/ip -6 addr add dev ens3 $uipv6:$fip" >> /etc/network/interfaces.d/50-cloud-init.cfg;
-                        	                sed -i -e "s/bind=.*/bind=[$uipv6:$fip]:9999/;s/externalip=.*/externalip=$uipv6:$fip/" /etc/masternodes/denarius$((n+1)).conf
-                        	                echo -e "\n"
-                        	                echo -e "${LYellow} FS Node $((n+1)) IPv6 configured - processing next one ${NC}"
-                        	        let n++
-                        	        done
+		while [[ $ipv6 =~ $regex ]]
+               	do
+                       	if [[ `lsb_release -rs` == "16.04" ]]
+	                then
+                                if [[ ! -f /etc/network/interfaces.d/50-cloud-init.bck ]]
+                                then
+                                # Making backup of Network interfaces .cfg file
+				cp -rf /etc/network/interfaces.d/50-cloud-init.cfg /etc/network/interfaces.d/50-cloud-init.bck > /dev/null 2>&1;
+                                echo -e "${LGreen}Backup Copy of /etc/network/interfaces.d/50-cloud-init.cfg created: .../50-cloud-init.bck ${NC}"
+				fi
+	                       	echo -e "\niface ens3 inet6 static \n                           address $ipv6 \n                                netmask 64" >> /etc/network/interfaces.d/50-cloud-init.cfg;
+	                   	uipv6=$(sed 's/.\{10\}$//' <<< "$ipv6")
+                  	        while [ $n -lt $ifs ]
+                      	        do
+                    	                fip=d$(printf "%02d" $((n+1)))
+                       	                echo -e "                               up /sbin/ip -6 addr add dev ens3 $uipv6:$fip" >> /etc/network/interfaces.d/50-cloud-init.cfg;
+                       	                sed -i -e "s/bind=.*/bind=[$uipv6:$fip]:9999/;s/externalip=.*/externalip=$uipv6:$fip/" /etc/masternodes/denarius$((n+1)).conf
+                       	                echo -e "\n"
+                       	                echo -e "${LYellow} FS Node $((n+1)) IPv6 configured - processing next one ${NC}"
+                       	        let n++
+                       	        done
                         	echo -e "\n"
                         	echo -e "${LGreen} IPv6 configuratione done for all FS Node(s) installed. ${NC}"
                         	echo -e "\n"
                         	echo -e "${LGreen} Thanks for using this script, pls report bugs in D's Discord ${NC}"
-                        	systemctl restart networking > /dev/null 2>&1;
                         	echo -e "\n"
-                        	echo -e "${Red}\e[4m!!!   Reboot the Vps now using: ' reboot now ' command    !!!${NC}"
-                        	echo -e "\n"
-                	exit 0
-                	done
-                        	echo -e "\n"
-                        	echo -e "${Red}! Warning wrong IPv6 format - Use the correct format: ! ${NC}"
-                        	echo -e "\n"
-                        	echo -e "${Red}        xxxx:xxxx:xxxx:xxxx:xxxx:xxxx:xxxx:xxxx ${NC}"
-                        	echo -e "\n"
-                        	echo -e "${Red}     Run D-Manager again and repeat the Procedure. ${NC}"
-                        	echo -e "\n"
-                        	echo -e "${LGreen} Thanks for using this script, pls report bugs in D's Discord ${NC}"
-                        	echo -e "\n"
-        	elif [[ `lsb_release -rs` == "18.04" ]]
-		then
-	                echo -e "\n"
-	                echo -e "${Red}--------------------------------------------------------------------------------- ${NC}"
-        	        echo -e "\n"
-        	        echo -e "${Red}!- D-Ipv6 not compatible with Ubuntu 18.04 system - !${NC}"
-        	        echo -e "\n"
-        	        echo -e "${Red}--------------------------------------------------------------------------------- ${NC}"
-        	        echo -e "\n"
-        	        echo -e "$(LGreen)! Coming soon !$(NC)"
-        	        echo -e "\n"
-		fi
+		        elif [[ `lsb_release -rs` == "18.04" ]]
+               		then
+				if [[ ! -f /etc/netplan/50-cloud-init.yaml ]]
+                                then
+                                # Making backup of Netplan interfaces .yaml file
+                                cp -rf /etc/netplan/50-cloud-init.yaml /etc/netplan/50-cloud-init.bck > /dev/null 2>&1;
+                                echo -e "${LGreen}Backup Copy of /etc/netplan/50-cloud-init.yaml created: .../50-cloud-init.bck ${NC}"
+                                fi
+				uipv6=$(sed 's/.\{10\}$//' <<< "$ipv6")
+				uipv26=$(sed 's/:0:0:0:/::/' <<< "$ipv6")
+	                        echo -e "            addresses:\n            - $uipv26/64" >> /etc/netplan/50-cloud-init.yaml
+                                sed -i "/dhcp4:.*/a \            dhcp6: false\n            gateway6: $uipv6:1" /etc/netplan/50-cloud-init.yaml
+				 	while [ $n -lt $ifs ]
+                                	do
+                                        	fip=d$(printf "%02d" $((n+1)))
+						echo -e "            - $uipv6:$fip/64" >> /etc/netplan/50-cloud-init.yaml
+                                        	sed -i -e "s/bind=.*/bind=[$uipv6:$fip]:9999/;s/externalip=.*/externalip=$uipv6:$fip/" /etc/masternodes/denarius$((n+1)).conf
+                                        	echo -e "\n"
+                                        	echo -e "${LYellow} FS Node $((n+1)) IPv6 configured - processing next one ${NC}"
+                                	let n++
+                                	done
+	                # Resetting the Network to make the changes done in the configuration load
+        	        if [[ `lsb_release -rs` == "16.04" ]]
+        	        then
+        	                systemctl restart networking > /dev/null 2>&1;
+        	        elif [[ `lsb_release -rs` == "18.04" ]]
+        	        then
+        	                netplan --debug apply > /dev/null 2>&1;
+        	        fi
+			echo -e "\n"
+                        echo -e "${LGreen} IPv6 configuratione done for all FS Node(s) installed. ${NC}"
+                        echo -e "\n"
+                        echo -e "${LGreen} Thanks for using this script, pls report bugs in D's Discord ${NC}"
+                        echo -e "\n"
+               		fi
+               	exit 0
+               	done
+                       	echo -e "\n"
+                       	echo -e "${Red}! Warning wrong IPv6 format - Use the correct format: ! ${NC}"
+                       	echo -e "\n"
+                       	echo -e "${Red}        xxxx:xxxx:xxxx:xxxx:xxxx:xxxx:xxxx:xxxx ${NC}"
+                       	echo -e "\n"
+                       	echo -e "${Red}     Run D-Manager again and repeat the Procedure. ${NC}"
+                       	echo -e "\n"
+                       	echo -e "${LGreen} Thanks for using this script, pls report bugs in D's Discord ${NC}"
+                       	echo -e "\n"
 	else
                 echo -e "\n"
                 echo -e "${LYellow} You chose Cancel - Manually edit network .cfg file ${NC}"
@@ -695,7 +719,12 @@ then
         exit 0
         fi
 else
-        echo -e "Different Network interfaces - procede manually to setup the interfaces and edit FS Node(s) .conf file(s)"
+        echo -e "\n"
+        echo -e "${Red}--------------------------------------------------------------------------------- ${NC}"
+        echo -e "\n"
+        echo -e "${Red}!- D-Ipv4 not compatible with current Network system - !${NC}"
+        echo -e "\n"
+        echo -e "${Red}--------------------------------------------------------------------------------- ${NC}"
         echo -e "\n"
         echo -e "${LGreen} Thanks for using this script, pls report bugs in D's Discord ${NC}"
         echo -e "\n"
@@ -705,9 +734,9 @@ fi
 #--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 #--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-6)
+7)
 clear
-# Infobox explaining the process of option 6 that is about to begin
+# Infobox explaining D-Onion process that is about to begin
 echo -e "\n"
 echo -e "D-Onion  - Configurator for oinion address(es) FS Node(s)"
 echo -e "\n"
@@ -720,8 +749,8 @@ echo -e "\n"
 #--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 #--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-7)
-# Infobox explaining the process of option 7 that is about to begin
+9)
+# Infobox explaining D-Start process that is about to begin
 whiptail --title "D-Start" --msgbox "This procedure will send a start command to the installed FS Node's daemon(s) within a 5 sec delay" 8 78
 clear
 echo -e "${LGreen} Detected $ifs FS Nodes - Starting sleeping daemons now ${NC}"
@@ -756,8 +785,8 @@ echo -e "\n"
 #--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 #--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-8)
-# Infobox explaining the process of option 8 that is about to begin
+0)
+# Infobox explaining D-Stop process that is about to begin
 whiptail --title "D-Stop" --msgbox "This procedure will send a Stop command to the installed FS Node's daemon(s) within a 5 sec delay" 8 78
 clear
 echo -e "${Red} Detected $ifs FS Nodes - Stopping daemons now ${NC}"
@@ -793,8 +822,8 @@ echo -e "\n"
 #--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 #--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-9)
-# Infobox explaining the process of option 9 that is about to begin
+8)
+# Infobox explaining D-Keys process that is about to begin
 whiptail --title "D-Keys" --msgbox "This procedure will prompt for a QT generated Private Key, then add the string to node(s) .conf file(s). Remember to use different Private Keys, one for each FS node(s) installed." 10 78
 clear
 echo -e "${LGreen}--------------------------------------------------------------------------------- ${NC}"
@@ -823,8 +852,8 @@ echo -e "\n"
 #--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 #--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-0)
-# Infobox explaining the process of option 0 that is about to begin
+4)
+# Infobox explaining D-Reset process that is about to begin
 whiptail --title "D-Reset" --msgbox "This procedure will prompt for the FS Node number to reset, deleting cores files from his folder. \n \nDownload Latest Chaindata.zip, then unzip it for a faster sync into the correct FS Node folder." 10 78
 clear
 # Ask wich Node to reset
