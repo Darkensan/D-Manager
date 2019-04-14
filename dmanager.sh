@@ -550,9 +550,10 @@ then
 		echo -e "\n"
 		sleep 2
 	fi
+        sed -i -r '/auto.*:.*/,${d}' /etc/network/interfaces > /dev/null 2>&1;
 elif [[ `lsb_release -rs` == "18.04" ]]
 then
-        if [[ ! -f /etc/netplan/50-cloud-init.yaml ]]
+        if [[ ! -f /etc/netplan/50-cloud-init.bck ]]
         then
         # Making backup of Netplan interfaces .yaml file
         cp -rf /etc/netplan/50-cloud-init.yaml /etc/netplan/50-cloud-init.bck > /dev/null 2>&1;
@@ -560,9 +561,9 @@ then
 	echo -e "${LGreen}Backup Copy of /etc/netplan/50-cloud-init.yaml created: .../50-cloud-init.bck ${NC}"
 	echo -e "\n"
 	fi
+	sed -i '/inet6/,$d' /etc/network/interfaces > /dev/null 2>&1;
 fi
 	# Start the procedure to edit Network interfaces: clearing previouse adds and populating denarius*X*.conf files with the correct parameters
-        sed -i -r '/auto.*:.*/,${d}' /etc/network/interfaces > /dev/null 2>&1;
         while [ $n -lt $ifs2 ]
         do
         	ipv4=$(whiptail --title " [D] - Ipv4 " --inputbox "Paste your FS Node $((n+2)) IPv4 address here:" 20 80 3>&1 1>&2 2>&3)
