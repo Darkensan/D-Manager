@@ -15,7 +15,7 @@ OVH - Done - Working as intended
 
 Vultr - 1/2 Done - Auto IPv4 working as intended - Testing IPv6 protocoll.
 
-Oher vps test coming soon...
+Oher vps test coming soon... (should now be full compatible with most vps provider but still to test on field)
 
 
 
