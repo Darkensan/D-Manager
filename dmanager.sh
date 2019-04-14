@@ -540,37 +540,41 @@ clear
 net=$(ip link | awk -F: '$0 !~ "lo|vir|wl|^[^0-9]"{print $2a;getline}')
 if [[ `lsb_release -rs` == "16.04" ]]
 then
+	# Making backup of Network interfaces and preparing it for further population.
 	if [[ ! -f /etc/network/interfaces.bck ]]
 	then
-		# Making backup of Network interfaces and preparing it for further population.
         	cp -rf /etc/network/interfaces /etc/network/interfaces.bck > /dev/null 2>&1;
-			# Replace Interfaces file with 50-cloud-init-cfg, if the vps setup use that configuration
 		echo -e "\n"
         	echo -e "${LYello}Backup Copy of /etc/network/interfaces created in /etc/network/interfaces.bck ${NC}"
 		echo -e "\n"
 	fi
+	# Replace Interfaces file with 50-cloud-init-cfg, if the vps setup use that configuration
 	if [[ -f /etc/network/interfaces.d/50-cloud-init.cfg ]]
 	then
 		cp -rf /etc/network/interfaces.d/50-cloud-init.cfg /etc/network/interfaces
 		echo -e "iface $net inet6 auto \n" >> /etc/network/interfaces
 	fi
+	# Delete all previously added lines
         sed -i -r '/auto.*:.*/,${d}' /etc/network/interfaces > /dev/null 2>&1;
 	sleep 2
 elif [[ `lsb_release -rs` == "18.04" ]]
 then
-        if [[ ! -f /etc/netplan/50-cloud-init.bck ]]
-        then
-	        # Making backup of Netplan interfaces .yaml file
-	        cp -rf /etc/netplan/50-cloud-init.yaml /etc/netplan/50-cloud-init.bck > /dev/null 2>&1;
-	        echo -e "\n"
-		echo -e "${LGreen}Backup Copy of /etc/netplan/50-cloud-init.yaml created: .../50-cloud-init.bck ${NC}"
-		echo -e "\n"
-	fi
+        echo -e "\n"
+	cd /etc/netplan
+	find . -type f -empty -delete
+	cd ~
 	for i in /etc/netplan/*.yaml
 	do
+		# Making backup of Netplan interfaces .yaml file
+		if [[ ! -f $i.bck ]]
+		then
+		        cp -rf $i $i.bck > /dev/null 2>&1;
+		fi
+		# Delete all previously added lines
 		sed -i '/addresses:.*/,$d' "$i" > /dev/null 2>&1;
+		echo -e "${LYellow}Backup Copy of $i created in $i.bck ${NC}"
 	done
-	sleep 2
+	sleep 1
 fi
 	# Start the procedure to edit Network interfaces: clearing previouse adds and populating denarius*X*.conf files with the correct parameters
         while [ $n -lt $ifs2 ]
@@ -589,6 +593,7 @@ fi
 					# Check all kind of .cfg file(s) (names can be different from providers to providers) and add the neccesary lines with correct spaces
 					for i in /etc/netplan/*.yaml
 					do
+						sed -i -e '/^[[:blank:]]*$/d' $i
 						tag0=$( tail -n 1 $i )
 						tag1=$( expr match "$tag0" " *" )
 						echo -e "addresses:\n- $ipv4/32" | { perl -pe "s/^/' 'x$tag1/e" ; } >> $i
@@ -609,8 +614,11 @@ fi
 	        	                rm /etc/network/interfaces.bck  > /dev/null 2>&1;
                 		elif [[ `lsb_release -rs` == "18.04" ]]
 				then
-                                	cp -rf /etc/netplan/50-cloud-init.bck /etc/netplan/50-cloud-init.yaml > /dev/null 2>&1;
-                                        rm /etc/netplan/50-cloud-init.bck  > /dev/null 2>&1;
+                                	for i in /etc/netplan/*.yaml
+					do
+					cp -rf $i.bck $i > /dev/null 2>&1;
+                                        rm $i.bck  > /dev/null 2>&1;
+					done
 				fi
 		                echo -e "\n"
                 	        echo -e "${LYellow} You chose Cancel - Manually edit network .cfg file ${NC}"
