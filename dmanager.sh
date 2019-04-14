@@ -146,12 +146,12 @@ echo -e "${LYellow} - Confirguring a Firewall ${NC}"
         echo -e "${LYellow} - Firewall settings done - D port open ${NC}"
 # Checks if a swapfile already exist, if not build one
 echo -e "\n"
-echo -e "${LYellow} - Configuring a swapfile of 2G if not present ${NC}"
+echo -e "${LYellow} - Configuring a swapfile of 4G if not present ${NC}"
 # Size of swapfile in megabytes
-swapsize=2048
+swapsize=4096
 if [ ! -e ~/swapfile.img  ];
 then
-	echo -e "${LYellow} - Swapfile not found -  Adding 2G Swapfile ${NC}"
+	echo -e "${LYellow} - Swapfile not found -  Adding 4G Swapfile ${NC}"
 	fallocate -l ${swapsize}M ~/swapfile.img
 	chmod 600 ~/swapfile.img
 	mkswap ~/swapfile.img
@@ -532,92 +532,96 @@ echo -e "\n"
 # Infobox explaining D-IPv4 process that is about to begin
 whiptail --title "D-IPv4" --msgbox "This procedure will prompt for the Vps Ipv4 FailoverIP addresses, starting from the first additional IP ( never count the default Vps IPv4 ). \n  \nAll the time a new FS Node(s) will be installed, run 'D-IPv4' again and paste all the FailoverIP once more. \n \nBe prepared with a list of all the IPv4, one for each FS Node(s) to configure." 16 78
 clear
-if [ -f /etc/network/interfaces.d/50-cloud-init.cfg ] || [ -f /etc/netplan/50-cloud-init.yaml ]
+if [[ `lsb_release -rs` == "16.04" ]]
 then
-		# Start the procedure to edit Network interfaces .cfg and denarius*X*.conf files with the correct parameters
-                echo -e "${LGreen}--------------------------------------------------------------------------------- ${NC}"
-                sed -i '/auto ens3:.*/,$d' /etc/network/interfaces.d/50-cloud-init.cfg > /dev/null 2>&1;
-		sed -i '/addresses:.*/,$d' /etc/netplan/50-cloud-init.yaml > /dev/null 2>&1;
-                while [ $n -lt $ifs2 ]
-                do
-                        ipv4=$(whiptail --title " [D] - Ipv4 " --inputbox "Paste your FS Node $((n+2)) IPv4 address here:" 20 80 3>&1 1>&2 2>&3)
-                        exitstatus=$?
-                                if [ $exitstatus -eq 0 ]
-                                then
-				        if [[ `lsb_release -rs` == "16.04" ]]
-        				then
-						if [[ ! -f /etc/network/interfaces.d/50-cloud-init.bck ]]
-        					then
-						# Making backup of Network interfaces .cfg file
-					        cp -rf /etc/network/interfaces.d/50-cloud-init.cfg /etc/network/interfaces.d/50-cloud-init.bck > /dev/null 2>&1;
-        					echo -e "${LGreen}Backup Copy of /etc/network/interfaces.d/50-cloud-init.cfg created: .../50-cloud-init.bck ${NC}"
-        					fi
-                                        	echo -e "auto ens3:$n \niface ens3:$n inet static \naddress $ipv4  \nnetmask 255.255.255.255" >> /etc/network/interfaces.d/50-cloud-init.cfg
-						sed -i -e "s/bind=.*/bind=$ipv4:9999/;s/externalip=.*/externalip=$ipv4/" /etc/masternodes/denarius$((n+2)).conf
-				        elif [[ `lsb_release -rs` == "18.04" ]]
-        				then
-                                                if [[ ! -f /etc/netplan/50-cloud-init.yaml ]]
-                                                then
-                                                # Making backup of Netplan interfaces .yaml file
-                                                cp -rf /etc/netplan/50-cloud-init.yaml /etc/netplan/50-cloud-init.bck > /dev/null 2>&1;
-                                                echo -e "${LGreen}Backup Copy of /etc/netplan/50-cloud-init.yaml created: .../50-cloud-init.bck ${NC}"
-						fi
-						echo -e "            addresses: \n            - $ipv4/32" >> /etc/netplan/50-cloud-init.yaml
-						sed -i -e "s/bind=.*/bind=$ipv4:9999/;s/externalip=.*/externalip=$ipv4/" /etc/masternodes/denarius$((n+2)).conf
-					fi
-                                        echo -e "\n"
-                                        echo -e "${LYellow} FS Node $((n+2)) IPv4 configured - processing next one ${NC}"
-                                        sleep 1s
-                                        echo -e "\n"
-                                else
-					# Restoring backup copy to default .cgf / yaml .
-					if [[ `lsb_release -rs` == "16.04" ]]
-                                        then
-	                                        cp -rf /etc/network/interfaces.d/50-cloud-init.bck /etc/network/interfaces.d/50-cloud-init.cfg > /dev/null 2>&1;
-        	                                rm /etc/network/interfaces.d/50-cloud-init.bck  > /dev/null 2>&1;
-                			elif [[ `lsb_release -rs` == "18.04" ]]
-					then
-                                                cp -rf /etc/netplan/50-cloud-init.bck /etc/netplan/50-cloud-init.yaml > /dev/null 2>&1;
-                                                rm /etc/netplan/50-cloud-init.bck  > /dev/null 2>&1;
-					fi
-		                        echo -e "\n"
-                                        echo -e "${LYellow} You chose Cancel - Manually edit network .cfg file ${NC}"
-                                        echo -e "\n"
-                                        echo -e "${LGreen} Thanks for using this script, pls report bugs in D's Discord ${NC}"
-                                        echo -e "\n"
-                                exit 0
-                                fi
-                let n++
-                done
-		# Resetting the Network to make the changes done in the configuration load
-		if [[ `lsb_release -rs` == "16.04" ]]
-                then
-		       	systemctl restart networking > /dev/null 2>&1;
-	       	elif [[ `lsb_release -rs` == "18.04" ]]
-		then
-			netplan --debug apply > /dev/null 2>&1;
-		fi
-		echo -e "${LYellow} Network Interfaces Edited ${NC}"
-        	echo -e "\n"
-                echo -e "${LGreen}--------------------------------------------------------------------------------- ${NC}"
-        	echo -e "\n"
-        	echo -e "${LGreen} IPv4 configuration done for all installed FS Node(s). ${NC}"
-        	echo -e "\n"
-        	echo -e "${LGreen} Thanks for using this script, pls report bugs in D's Discord ${NC}"
-        	echo -e "\n"
-        	echo -e "${Red}\e[4m! It is suggested to reboot the Vps !  use: ' reboot now ' command ! ${NC}"
-        	echo -e "\n"
-else
+	if [[ ! -f /etc/network/interfaces.bck ]]
+	then
+		# Making backup of Network interfaces and preparing it for further population.
+        	cp -rf /etc/network/interfaces /etc/network/interfaces.bck > /dev/null 2>&1;
+			# Replace Interfaces file with 50-cloud-init-cfg if the vps setup use that configuration
+			if [[ -f /etc/network/interfaces.d/50-cloud-init.cfg ]]
+			then
+				cp -rf /etc/network/interfaces.d/50-cloud-init.cfg /etc/network/interfaces
+				echo -e "iface ens3 inet6 auto" >> /etc/network/interfaces
+			fi
+		echo -e "\n"
+        	echo -e "${LYello}Backup Copy of /etc/network/interfaces created in /etc/network/interfaces.bck ${NC}"
+		echo -e "\n"
+		sleep 2
+	fi
+elif [[ `lsb_release -rs` == "18.04" ]]
+then
+        if [[ ! -f /etc/netplan/50-cloud-init.yaml ]]
+        then
+        # Making backup of Netplan interfaces .yaml file
+        cp -rf /etc/netplan/50-cloud-init.yaml /etc/netplan/50-cloud-init.bck > /dev/null 2>&1;
         echo -e "\n"
-        echo -e "${Red}--------------------------------------------------------------------------------- ${NC}"
-        echo -e "\n"
-        echo -e "${Red}!- D-Ipv4 not compatible with current Network system - !${NC}"
-        echo -e "\n"
-        echo -e "${Red}--------------------------------------------------------------------------------- ${NC}"
-        echo -e "\n"
-        echo -e "${LGreen} Thanks for using this script, pls report bugs in D's Discord ${NC}"
-        echo -e "\n"
+	echo -e "${LGreen}Backup Copy of /etc/netplan/50-cloud-init.yaml created: .../50-cloud-init.bck ${NC}"
+	echo -e "\n"
+	fi
 fi
+	# Start the procedure to edit Network interfaces: clearing previouse adds and populating denarius*X*.conf files with the correct parameters
+        sed -i '/auto ens3:.*/,$d' /etc/network/interfaces > /dev/null 2>&1;
+        while [ $n -lt $ifs2 ]
+        do
+        	ipv4=$(whiptail --title " [D] - Ipv4 " --inputbox "Paste your FS Node $((n+2)) IPv4 address here:" 20 80 3>&1 1>&2 2>&3)
+        	exitstatus=$?
+        		if [ $exitstatus -eq 0 ]
+        		then
+				if [[ `lsb_release -rs` == "16.04" ]]
+				then
+					echo -e "${LGreen}--------------------------------------------------------------------------------- ${NC}"
+					sed -i -e "s/bind=.*/bind=$ipv4:9999/;s/externalip=.*/externalip=$ipv4/" /etc/masternodes/denarius$((n+2)).conf
+        				echo -e "auto ens3:$n \niface ens3:$n inet static \naddress $ipv4  \nnetmask 255.255.255.255" >> /etc/network/interfaces
+				elif [[ `lsb_release -rs` == "18.04" ]]
+				then
+					echo -e "            addresses: \n            - $ipv4/32" >> /etc/netplan/50-cloud-init.yaml
+					sed -i -e "s/bind=.*/bind=$ipv4:9999/;s/externalip=.*/externalip=$ipv4/" /etc/masternodes/denarius$((n+2)).conf
+				fi
+        		echo -e "\n"
+        		echo -e "${LYellow} FS Node $((n+2)) IPv4 configured - processing next one ${NC}"
+        		echo -e "\n"
+			echo -e "${LGreen}--------------------------------------------------------------------------------- ${NC}"
+        		sleep 1s
+        		echo -e "\n"
+                    	else
+				# Restoring backup copy to default .cgf / yaml .
+				if [[ `lsb_release -rs` == "16.04" ]]
+                                then
+		                        cp -rf /etc/network/interfaces.bck /etc/network/interfaces > /dev/null 2>&1;
+	        	                rm /etc/network/interfaces.bck  > /dev/null 2>&1;
+                		elif [[ `lsb_release -rs` == "18.04" ]]
+				then
+                                	cp -rf /etc/netplan/50-cloud-init.bck /etc/netplan/50-cloud-init.yaml > /dev/null 2>&1;
+                                        rm /etc/netplan/50-cloud-init.bck  > /dev/null 2>&1;
+				fi
+		                echo -e "\n"
+                	        echo -e "${LYellow} You chose Cancel - Manually edit network .cfg file ${NC}"
+                                echo -e "\n"
+                                echo -e "${LGreen} Thanks for using this script, pls report bugs in D's Discord ${NC}"
+                                echo -e "\n"
+                        exit 0
+                        fi
+	let n++
+        done
+# Resetting the Network to make the changes done in the configuration load
+if [[ `lsb_release -rs` == "16.04" ]]
+then
+systemctl restart networking > /dev/null 2>&1;
+elif [[ `lsb_release -rs` == "18.04" ]]
+then
+netplan --debug apply > /dev/null 2>&1;
+fi
+echo -e "${LYellow} Network Interfaces Edited ${NC}"
+echo -e "\n"
+echo -e "${LGreen}--------------------------------------------------------------------------------- ${NC}"
+echo -e "\n"
+echo -e "${LGreen} IPv4 configuration done for all installed FS Node(s). ${NC}"
+echo -e "\n"
+echo -e "${LGreen} Thanks for using this script, pls report bugs in D's Discord ${NC}"
+echo -e "\n"
+echo -e "${Red}\e[4m! It is suggested to reboot the Vps !  use: ' reboot now ' command ! ${NC}"
+echo -e "\n"
 		;;
 
 #--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -753,6 +757,7 @@ echo -e "\n"
 # Infobox explaining D-Start process that is about to begin
 whiptail --title "D-Start" --msgbox "This procedure will send a start command to the installed FS Node's daemon(s) within a 5 sec delay" 8 78
 clear
+echo -e "\n"
 echo -e "${LGreen} Detected $ifs FS Nodes - Starting sleeping daemons now ${NC}"
         # Start daemon(s) with 5 sec delay
         while [ $n -lt $ifs ]
@@ -789,6 +794,7 @@ echo -e "\n"
 # Infobox explaining D-Stop process that is about to begin
 whiptail --title "D-Stop" --msgbox "This procedure will send a Stop command to the installed FS Node's daemon(s) within a 5 sec delay" 8 78
 clear
+echo -e "\n"
 echo -e "${Red} Detected $ifs FS Nodes - Stopping daemons now ${NC}"
         # Stop daemon(s) with 5 sec delay
         while [ $n -lt $ifs ]
