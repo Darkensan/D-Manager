@@ -13,6 +13,8 @@ The entire script was written directly from the vps using nano as editor, the co
 
 OVH - Done - Working as intended
 
+Vultr - 1/2 Done - Auto IPv4 working as intended - Testing IPv6 protocoll.
+
 Oher vps test coming soon...
 
 
