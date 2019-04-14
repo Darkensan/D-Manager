@@ -19,7 +19,7 @@ fsn=$((ifs+1))
 ipv4="$(wget http://ipecho.net/plain -O - -q ; echo)"
 t=60
 dossl="OpenSSL 1.0.1j 15 Oct 2014"
-regex='^([0-9a-fA-F]{0,4}:){1,7}[0-9a-fA-F]{0,4}$'
+regex='^([0-9a-fA-F]{3,4}:){1,7}[0-9a-fA-F]{3,4}$'
 
 # Setting a menu interface ( still to study and improve the general outputs  )
 TEMP=/tmp/answer$$
@@ -654,108 +654,130 @@ echo -e "\n"
 
 6)
 # Infobox explaining D-IPv6 process that is about to begin
-whiptail --title "D-IPv6" --msgbox "This procedure will prompt for the Vps Ipv6, set the network interfaces and populate the FS Node(s) .conf file(s). \n \nIt is mandatory to paste the IPv6 in his extended form: xxxx:xxxx:xxxx:xxxx:xxxx:xxxx:xxxx:xxxx . \n \nBackup copy of original network interface.cfg can be found in /etc/network/interfaces.d/*.bck. \n \nReboot the Vps after the procedure is complete: ' reboot now ' ." 16 78
-#clear
-if [ -f /etc/network/interfaces.d/50-cloud-init.cfg ] || [ -f /etc/netplan/50-cloud-init.yaml ]
+whiptail --title "D-IPv6" --msgbox "This procedure will prompt for the Vps Ipv6, set the network interfaces and populate the FS Node(s) .conf file(s). \n \nIt is mandatory to paste the IPv6 in his extended form: xxxx:xxxx:xxxx:xxxx:xxxx:xxxx:xxxx:xxxx All ':0:' should be expanded as ':0000:'. \n \nBackup copy of original network interface.cfg can be found in /etc/network/interfaces.d/*.bck. \n \nReboot the Vps after the procedure is complete: ' reboot now ' ." 16 78
+clear
+if [[ `lsb_release -rs` == "16.04" ]]
 then
-                # Start the procedure to edit Network interfaces .cfg and denarius*X*.conf files with the correct parameters
-                echo -e "${LGreen}--------------------------------------------------------------------------------- ${NC}"
-       		sed -i -e '/inte6/,$d;/addresses:/,$d' /etc/network/interfaces.d/50-cloud-init.cfg > /dev/null 2>&1;
-		sed -i -e '/dhcp6:.*/d;/gateway6:.*/d;/addresses:.*/,$d' /etc/netplan/50-cloud-init.yaml > /dev/null 2>&1;
-	ipv6=$(whiptail --title "D-Ipv6" --inputbox "Paste your Vps IPv6 address here:" 20 80 3>&1 1>&2 2>&3)
-        exitstatus=$?
-        if [ $exitstatus -eq 0 ]
+        # Making backup of Network interfaces .cfg file
+        echo -e "\n"
+        echo -e "${LGreen}--------------------------------------------------------------------------------- ${NC}"
+        echo -e "\n"
+        if [[ ! -f /etc/network/interfaces.bck ]]
         then
-		while [[ $ipv6 =~ $regex ]]
-               	do
-                       	if [[ `lsb_release -rs` == "16.04" ]]
-	                then
-                                if [[ ! -f /etc/network/interfaces.d/50-cloud-init.bck ]]
-                                then
-                                # Making backup of Network interfaces .cfg file
-				cp -rf /etc/network/interfaces.d/50-cloud-init.cfg /etc/network/interfaces.d/50-cloud-init.bck > /dev/null 2>&1;
-                                echo -e "${LGreen}Backup Copy of /etc/network/interfaces.d/50-cloud-init.cfg created: .../50-cloud-init.bck ${NC}"
-				fi
-	                       	echo -e "\niface ens3 inet6 static \n                           address $ipv6 \n                                netmask 64" >> /etc/network/interfaces.d/50-cloud-init.cfg;
-	                   	uipv6=$(sed 's/.\{10\}$//' <<< "$ipv6")
-                  	        while [ $n -lt $ifs ]
-                      	        do
-                    	                fip=d$(printf "%02d" $((n+1)))
-                       	                echo -e "                               up /sbin/ip -6 addr add dev ens3 $uipv6:$fip" >> /etc/network/interfaces.d/50-cloud-init.cfg;
-                       	                sed -i -e "s/bind=.*/bind=[$uipv6:$fip]:9999/;s/externalip=.*/externalip=$uipv6:$fip/" /etc/masternodes/denarius$((n+1)).conf
-                       	                echo -e "\n"
-                       	                echo -e "${LYellow} FS Node $((n+1)) IPv6 configured - processing next one ${NC}"
-                       	        let n++
-                       	        done
-                        	echo -e "\n"
-                        	echo -e "${LGreen} IPv6 configuratione done for all FS Node(s) installed. ${NC}"
-                        	echo -e "\n"
-                        	echo -e "${LGreen} Thanks for using this script, pls report bugs in D's Discord ${NC}"
-                        	echo -e "\n"
-		        elif [[ `lsb_release -rs` == "18.04" ]]
-               		then
-				if [[ ! -f /etc/netplan/50-cloud-init.yaml ]]
-                                then
-                                # Making backup of Netplan interfaces .yaml file
-                                cp -rf /etc/netplan/50-cloud-init.yaml /etc/netplan/50-cloud-init.bck > /dev/null 2>&1;
-                                echo -e "${LGreen}Backup Copy of /etc/netplan/50-cloud-init.yaml created: .../50-cloud-init.bck ${NC}"
-                                fi
-				uipv6=$(sed 's/.\{10\}$//' <<< "$ipv6")
-				uipv26=$(sed 's/:0:0:0:/::/' <<< "$ipv6")
-	                        echo -e "            addresses:\n            - $uipv26/64" >> /etc/netplan/50-cloud-init.yaml
-                                sed -i "/dhcp4:.*/a \            dhcp6: false\n            gateway6: $uipv6:1" /etc/netplan/50-cloud-init.yaml
-				 	while [ $n -lt $ifs ]
-                                	do
-                                        	fip=d$(printf "%02d" $((n+1)))
-						echo -e "            - $uipv6:$fip/64" >> /etc/netplan/50-cloud-init.yaml
-                                        	sed -i -e "s/bind=.*/bind=[$uipv6:$fip]:9999/;s/externalip=.*/externalip=$uipv6:$fip/" /etc/masternodes/denarius$((n+1)).conf
-                                        	echo -e "\n"
-                                        	echo -e "${LYellow} FS Node $((n+1)) IPv6 configured - processing next one ${NC}"
-                                	let n++
-                                	done
-	                # Resetting the Network to make the changes done in the configuration load
-        	        if [[ `lsb_release -rs` == "16.04" ]]
-        	        then
-        	                systemctl restart networking > /dev/null 2>&1;
-        	        elif [[ `lsb_release -rs` == "18.04" ]]
-        	        then
-        	                netplan --debug apply > /dev/null 2>&1;
-        	        fi
-			echo -e "\n"
-                        echo -e "${LGreen} IPv6 configuratione done for all FS Node(s) installed. ${NC}"
-                        echo -e "\n"
-                        echo -e "${LGreen} Thanks for using this script, pls report bugs in D's Discord ${NC}"
-                        echo -e "\n"
-               		fi
-               	exit 0
-               	done
-                       	echo -e "\n"
-                       	echo -e "${Red}! Warning wrong IPv6 format - Use the correct format: ! ${NC}"
-                       	echo -e "\n"
-                       	echo -e "${Red}        xxxx:xxxx:xxxx:xxxx:xxxx:xxxx:xxxx:xxxx ${NC}"
-                       	echo -e "\n"
-                       	echo -e "${Red}     Run D-Manager again and repeat the Procedure. ${NC}"
+                cp -rf /etc/network/interfaces /etc/network/interfaces.bck > /dev/null 2>&1;
+                echo -e "\n"
+                echo -e "${LYello}Backup Copy of /etc/network/interfaces created in /etc/network/interfaces.bck ${NC}"
+                echo -e "\n"
+        fi
+        # Replace Interfaces file with 50-cloud-init-cfg, if the vps setup use that configuration
+        if [[ -f /etc/network/interfaces.d/50-cloud-init.cfg ]]
+        then
+                cp -rf /etc/network/interfaces.d/50-cloud-init.cfg /etc/network/interfaces
+        fi
+       	sed -i -e '/inte6/,$d;/addresses:/,$d' /etc/network/interfaces > /dev/null 2>&1;
+elif [[ `lsb_release -rs` == "18.04" ]]
+then
+        echo -e "\n"
+	echo -e "${LGreen}--------------------------------------------------------------------------------- ${NC}"
+        echo -e "\n"
+        cd /etc/netplan
+        find . -type f -empty -delete
+        cd ~
+        for i in /etc/netplan/*.yaml
+        do
+                # Making backup of Netplan interfaces .yaml file
+                if [[ ! -f $i.bck ]]
+                then
+                        cp -rf $i $i.bck > /dev/null 2>&1;
+                fi
+	sed -i -e '/dhcp6:.*/d;/gateway6:.*/d;/addresses:.*/,$d' $i > /dev/null 2>&1;
+	echo -e "${LYellow}Backup Copy of $i created in $i.bck ${NC}"
+	done
+fi
+# Start the procedure to edit Network interfaces cfg and denarius*X*.conf files with the correct parameters
+ipv6=$(whiptail --title "D-Ipv6" --inputbox "Paste your Vps IPv6 address here:" 20 80 3>&1 1>&2 2>&3)
+exitstatus=$?
+if [ $exitstatus -eq 0 ]
+then
+	while [[ $ipv6 =~ $regex ]]
+	do
+               	if [[ `lsb_release -rs` == "16.04" ]]
+	        then
+	               	echo -e "\niface ens3 inet6 static \n                           address $ipv6 \n                                netmask 64" >> /etc/network/interfaces;
+	              	uipv6=$(sed 's/.\{10\}$//' <<< "$ipv6")
+              	        while [ $n -lt $ifs ]
+              	        do
+              	                fip=d$(printf "%02d" $((n+1)))
+              	                echo -e "                               up /sbin/ip -6 addr add dev ens3 $uipv6:$fip" >> /etc/network/interfaces;
+               	                sed -i -e "s/bind=.*/bind=[$uipv6:$fip]:9999/;s/externalip=.*/externalip=$uipv6:$fip/" /etc/masternodes/denarius$((n+1)).conf
+               	                echo -e "\n"
+               	                echo -e "${LYellow} FS Node $((n+1)) IPv6 configured - processing next one ${NC}"
+               	        let n++
+               	        done
+                     	echo -e "\n"
+                      	echo -e "${LGreen} IPv6 configuratione done for all FS Node(s) installed. ${NC}"
                        	echo -e "\n"
                        	echo -e "${LGreen} Thanks for using this script, pls report bugs in D's Discord ${NC}"
                        	echo -e "\n"
-	else
-                echo -e "\n"
-                echo -e "${LYellow} You chose Cancel - Manually edit network .cfg file ${NC}"
+	        elif [[ `lsb_release -rs` == "18.04" ]]
+        	then
+		uipv6=$(sed 's/.\{19\}$//' <<< "$ipv6")
+		l4ipv6=$(echo -n $ipv6 | tail -c 4)
+		uipv62="$uipv6:$l4ipv6"
+			for i in /etc/netplan/*.yaml
+			do
+				sed -i -e '/^[[:blank:]]*$/d' $i
+				tag0=$( tail -n 1 $i )
+				tag1=$( expr match "$tag0" " *" )
+		                echo -e "dhcp6: false\ngateway6: $uipv6:1\naddresses:\n- $uipv62/64" | { perl -pe "s/^/' 'x$tag1/e" ; } >> $i
+			done
+				while [ $n -lt $ifs ]
+                               	do
+                                     	fip=d$(printf "%02d" $((n+1)))
+					for i in /etc/netplan/*.yaml
+					do
+		                        	sed -i -e '/^[[:blank:]]*$/d' $i
+        	                        	tag0=$( tail -n 1 $i )
+	                                	tag1=$( expr match "$tag0" " *" )
+						echo -e "- $uipv6:$fip/64" | { perl -pe "s/^/' 'x$tag1/e" ; } >> $i
+                                      	done
+					sed -i -e "s/bind=.*/bind=[$uipv6:$fip]:9999/;s/externalip=.*/externalip=$uipv6:$fip/" /etc/masternodes/denarius$((n+1)).conf
+                                       	echo -e "\n"
+                                       	echo -e "${LYellow} FS Node $((n+1)) IPv6 configured - processing next one ${NC}"
+                                let n++
+                                done
+	        # Resetting the Network to make the changes done in the configuration load
+        		if [[ `lsb_release -rs` == "16.04" ]]
+        		then
+        		        systemctl restart networking > /dev/null 2>&1;
+        		elif [[ `lsb_release -rs` == "18.04" ]]
+        		then
+        		        netplan --debug apply > /dev/null 2>&1;
+        		fi
+		echo -e "\n"
+                echo -e "${LGreen} IPv6 configuratione done for all FS Node(s) installed. ${NC}"
                 echo -e "\n"
                 echo -e "${LGreen} Thanks for using this script, pls report bugs in D's Discord ${NC}"
                 echo -e "\n"
-        exit 0
-        fi
-else
+               	fi
+       	exit 0
+       	done
         echo -e "\n"
-        echo -e "${Red}--------------------------------------------------------------------------------- ${NC}"
+        echo -e "${Red}! Warning wrong IPv6 format - Use the correct format: ! ${NC}"
         echo -e "\n"
-        echo -e "${Red}!- D-Ipv4 not compatible with current Network system - !${NC}"
+        echo -e "${Red}        xxxx:xxxx:xxxx:xxxx:xxxx:xxxx:xxxx:xxxx ${NC}"
         echo -e "\n"
-        echo -e "${Red}--------------------------------------------------------------------------------- ${NC}"
+        echo -e "${Red}     Run D-Manager again and repeat the Procedure. ${NC}"
         echo -e "\n"
         echo -e "${LGreen} Thanks for using this script, pls report bugs in D's Discord ${NC}"
         echo -e "\n"
+else
+        echo -e "\n"
+        echo -e "${LYellow} You chose Cancel - Manually edit network .cfg file ${NC}"
+        echo -e "\n"
+        echo -e "${LGreen} Thanks for using this script, pls report bugs in D's Discord ${NC}"
+        echo -e "\n"
+exit 0
 fi
                 ;;
 
