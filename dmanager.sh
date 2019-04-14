@@ -24,18 +24,20 @@ regex='^([0-9a-fA-F]{0,4}:){1,7}[0-9a-fA-F]{0,4}$'
 # Setting a menu interface ( still to study and improve the general outputs  )
 TEMP=/tmp/answer$$
 whiptail --fb --title "[D] - Manager" --menu "                   Ubuntu 16.04/18.04 Denarius's FS Node(s) Manager :" 21 0 0 \
-							1 "D-Setup   - Prepare the Vps and install dependancies and utilities" \
-							2 "D-Nodes   - Compile Deamon & Build Node(s) - Master or v3.4 - Branch Commits" \
-							3 "D-Update  - Update denariusd with latest - Master or v3.4 - Branch Commits" \
-							4 "D-Reset   - Reset selected FS Node back to latest chaindata blocks" \
-                                                        5 "D-IPv4    - Setting up Network & .conf file(s) with a multi IPv4 scheme"\
-                                                        6 "D-IPv6    - Setting up Network & .conf file(s) with a multi IPv6 scheme"\
-                                                        7 "D-Onion   - Coming soon or later - Populate .conf with onion scheme"\
-      							8 "D-Keys    - Prompt for PrivKey - Populate denarius*X*.conf" \
-							9 "D-Tail    - Tail selected FS Node debug.log" \
-							10 "D-Info    - Getinfo over the selected FS Node" \
-                                                        11 "D-Start   - Start all installed FS nodes" \
-                                                        12 "D-Stop    - Stops all installed FS nodes" 2>$TEMP
+							1 "D-Setup    - Prepare the Vps and install dependancies and utilities" \
+							2 "D-Nodes    - Compile Deamon & Build Node(s) - Master or v3.4 - Branch Commits" \
+							3 "D-Update   - Update denariusd with latest - Master or v3.4 - Branch Commits" \
+							4 "D-Reset    - Reset selected FS Node back to latest chaindata blocks" \
+                                                        5 "D-IPv4     - Setting up Network & .conf file(s) with a multi IPv4 scheme"\
+                                                        6 "D-IPv6     - Setting up Network & .conf file(s) with a multi IPv6 scheme"\
+                                                        7 "D-Onion    - Coming soon or later - Populate .conf with onion scheme"\
+      							8 "D-Keys     - Prompt for PrivKey - Populate denarius*X*.conf" \
+							9 "D-Tail     - Tail selected FS Node debug.log" \
+							10 "D-Info     - Getinfo over the selected FS Node" \
+							11 "D-Start    - Start Selected FS nodes" \
+							12 "D-Stop     - Stops Selected FS nodes" \
+                                                        13 "D-StartAll - Start all installed FS nodes" \
+                                                        14 "D-StopAll  - Stops all installed FS nodes" 2>$TEMP
 choice=`cat $TEMP`
 case $choice in
 
@@ -758,9 +760,9 @@ echo -e "\n"
 #--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 #--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-11)
-# Infobox explaining D-Start process that is about to begin
-whiptail --title "D-Start" --msgbox "This procedure will send a start command to the installed FS Node's daemon(s) within a 5 sec delay" 8 78
+13)
+# Infobox explaining D-StartAll process that is about to begin
+whiptail --title "D-StartAll" --msgbox "This procedure will send a start command to the installed FS Node's daemon(s) within a 5 sec delay" 8 78
 clear
 echo -e "\n"
 echo -e "${LGreen} Detected $ifs FS Nodes - Starting sleeping daemons now ${NC}"
@@ -795,9 +797,9 @@ echo -e "\n"
 #--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 #--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-12)
-# Infobox explaining D-Stop process that is about to begin
-whiptail --title "D-Stop" --msgbox "This procedure will send a Stop command to the installed FS Node's daemon(s) within a 5 sec delay" 8 78
+14)
+# Infobox explaining D-StopAll process that is about to begin
+whiptail --title "D-StopAll" --msgbox "This procedure will send a Stop command to the installed FS Node's daemon(s) within a 5 sec delay" 8 78
 clear
 echo -e "\n"
 echo -e "${Red} Detected $ifs FS Nodes - Stopping daemons now ${NC}"
@@ -947,7 +949,8 @@ exitstatus=$?
                         echo -e ""
                         echo -e "${LRed} Use D-Manager again to start the FS Node(s) ${NC}"
                         echo -e ""
-                        cd ~
+                        echo -e "${LGreen} Thanks for using this script, pls report bugs in D's Discord ${NC}"
+	                echo -e "\n"
                 exit 0
                 fi
         else
@@ -978,13 +981,18 @@ exitstatus=$?
                         echo -e "${LYellow} About to 'Getinfo' from FS Node $r ${NC}"
                         echo -e "\n"
                         denariusd -conf=/etc/masternodes/denarius$r.conf getinfo
+                	echo -e "\n"
+			echo -e "${LGreen} Thanks for using this script, pls report bugs in D's Discord ${NC}"
+                	echo -e "\n"
+
                 else
                         echo -e ""
                         echo -e "${LRed} Missing running process for FS Node $r - Nothing to 'Getinfo' from. ${NC}"
                         echo -e ""
                         echo -e "${LRed} Use D-Manager again to start the FS Node(s) ${NC}"
                         echo -e ""
-                        cd ~
+			echo -e "${LGreen} Thanks for using this script, pls report bugs in D's Discord ${NC}"
+	                echo -e ""
                 exit 0
                 fi
         else
@@ -996,6 +1004,92 @@ exitstatus=$?
         fi
                 ;;
 
+#--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+#--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+11)
+# Infobox explaining D-Reset process that is about to begin
+whiptail --title "D-Start" --msgbox "This procedure will prompt for the FS Node number to start." 10 78
+clear
+# Ask wich Node to reset
+r=$(whiptail --title "D-Start" --inputbox "Wich FS Node daemon do you want to run?" 10 78 3>&1 1>&2 2>&3)
+exitstatus=$?
+        if [ $exitstatus -eq 0 ]
+        then
+                daemon="denariusd -daemon -pid=/var/lib/masternodes/denarius$r/denarius.pid -conf=/etc/masternodes/denarius$r.conf -datadir=/var/lib/masternodes/denarius$r"
+                if [ ! $(pgrep -f "${daemon}") ]
+                then
+                        echo -e "\n"
+                        echo -e "${LYellow} About to 'Start' FS Node $r ${NC}"
+                        eval $daemon
+			sleep 5
+                        echo -e "\n"
+                        echo -e "${LGreen} Thanks for using this script, pls report bugs in D's Discord ${NC}"
+                        echo -e "\n"
+
+                else
+                        echo -e ""
+                        echo -e "${LRed} Detected running process for FS Node $r - Nothing to Strat. ${NC}"
+                        echo -e ""
+                        echo -e "${LRed} Use D-Manager again to stop the FS Node or choose a different one. ${NC}"
+                        echo -e ""
+                        echo -e "${LGreen} Thanks for using this script, pls report bugs in D's Discord ${NC}"
+                        echo -e ""
+                exit 0
+                fi
+        else
+                echo -e "\n"
+                echo -e "${LYellow} No input or wrong input. Run the process again. ${NC}"
+                echo -e "\n"
+                echo -e "${LGreen} Thanks for using this script, pls report bugs in D's Discord ${NC}"
+                echo -e "\n"
+        fi
+                ;;
+
+#--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+#--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+12)
+# Infobox explaining D-Reset process that is about to begin
+whiptail --title "D-Stop" --msgbox "This procedure will prompt for the FS Node number to Stop." 10 78
+clear
+# Ask wich Node to reset
+r=$(whiptail --title "D-Stop" --inputbox "Wich FS Node daemon do you want to Stop?" 10 78 3>&1 1>&2 2>&3)
+exitstatus=$?
+        if [ $exitstatus -eq 0 ]
+        then
+                daemon="denariusd -daemon -pid=/var/lib/masternodes/denarius$r/denarius.pid -conf=/etc/masternodes/denarius$r.conf -datadir=/var/lib/masternodes/denarius$r"
+                if [ $(pgrep -f "${daemon}") ]
+                then
+                        echo -e "\n"
+                        echo -e "${LYellow} About to 'Stop' FS Node $r ${NC}"
+                        denariusd -conf=/etc/masternodes/denarius$r.conf stop
+			sleep 2
+                        echo -e "\n"
+                        echo -e "${LGreen} Thanks for using this script, pls report bugs in D's Discord ${NC}"
+                        echo -e "\n"
+
+                else
+                        echo -e ""
+                        echo -e "${LRed} No running process detected for FS Node $r - Nothing to Stop. ${NC}"
+                        echo -e ""
+                        echo -e "${LRed} Use D-Manager again to start the FS Node or choose a different one. ${NC}"
+                        echo -e ""
+                        echo -e "${LGreen} Thanks for using this script, pls report bugs in D's Discord ${NC}"
+                        echo -e ""
+                exit 0
+                fi
+        else
+                echo -e "\n"
+                echo -e "${LYellow} No input or wrong input. Run the process again. ${NC}"
+                echo -e "\n"
+                echo -e "${LGreen} Thanks for using this script, pls report bugs in D's Discord ${NC}"
+                echo -e "\n"
+        fi
+                ;;
+
+#--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+#--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 esac
 echo Selected $choice
