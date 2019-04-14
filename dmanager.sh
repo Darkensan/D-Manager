@@ -566,8 +566,11 @@ then
 		echo -e "${LGreen}Backup Copy of /etc/netplan/50-cloud-init.yaml created: .../50-cloud-init.bck ${NC}"
 		echo -e "\n"
 	fi
-	sed -i '/inet6/,$d' /etc/network/interfaces > /dev/null 2>&1;
-	sleep2
+	for i in /etc/netplan/*.yaml
+	do
+		sed -i '/addresses:.*/,$d' "$i" > /dev/null 2>&1;
+	done
+	sleep 2
 fi
 	# Start the procedure to edit Network interfaces: clearing previouse adds and populating denarius*X*.conf files with the correct parameters
         while [ $n -lt $ifs2 ]
@@ -583,7 +586,13 @@ fi
         				echo -e "auto $net:$n \niface $net:$n inet static \naddress $ipv4  \nnetmask 255.255.255.255" >> /etc/network/interfaces
 				elif [[ `lsb_release -rs` == "18.04" ]]
 				then
-					echo -e "            addresses: \n            - $ipv4/32" >> /etc/netplan/50-cloud-init.yaml
+					# Check all kind of .cfg file(s) (names can be different from providers to providers) and add the neccesary lines with correct spaces
+					for i in /etc/netplan/*.yaml
+					do
+						tag0=$( tail -n 1 $i )
+						tag1=$( expr match "$tag0" " *" )
+						echo -e "addresses:\n- $ipv4/32" | { perl -pe "s/^/' 'x$tag1/e" ; } >> $i
+					done
 					sed -i -e "s/bind=.*/bind=$ipv4:9999/;s/externalip=.*/externalip=$ipv4/" /etc/masternodes/denarius$((n+2)).conf
 				fi
         		echo -e "\n"
