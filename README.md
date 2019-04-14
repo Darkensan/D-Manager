@@ -41,11 +41,15 @@ Oher vps test coming soon... (should now be full compatible with most vps provid
 
 8 - D-Keys    - Prompt for PrivKey - Populate denarius*X*.conf
 
-9 - D-Start   - Starts all installed FS nodes                     
+9 - D-Tail    - Tail selected FS Node debug.log
 
-0 - D-Stop    - Stops all installed FS nodes                     
+10 - D-Info    - Getinfo over the selected FS Node
 
-11- D-Monitor - Control & reboot FS Node(s) - In maintenance till FS bugs will be fixed or i find a different solution for some outputs - "broken" version is working for some part, will share in D's discord if asked too.
+11 - D-Start   - Starts all installed FS nodes                     
+
+12 - D-Stop    - Stops all installed FS nodes                     
+
+13- D-Monitor - Control & reboot FS Node(s) - In maintenance till FS bugs will be fixed or i find a different solution for some outputs - "broken" version is working for some part, will share in D's discord if asked too.
  
 
 IMPORTANT NOTE:
