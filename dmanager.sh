@@ -532,17 +532,18 @@ echo -e "\n"
 # Infobox explaining D-IPv4 process that is about to begin
 whiptail --title "D-IPv4" --msgbox "This procedure will prompt for the Vps Ipv4 FailoverIP addresses, starting from the first additional IP ( never count the default Vps IPv4 ). \n  \nAll the time a new FS Node(s) will be installed, run 'D-IPv4' again and paste all the FailoverIP once more. \n \nBe prepared with a list of all the IPv4, one for each FS Node(s) to configure." 16 78
 clear
+net=$(ip link | awk -F: '$0 !~ "lo|vir|wl|^[^0-9]"{print $2a;getline}')
 if [[ `lsb_release -rs` == "16.04" ]]
 then
 	if [[ ! -f /etc/network/interfaces.bck ]]
 	then
 		# Making backup of Network interfaces and preparing it for further population.
         	cp -rf /etc/network/interfaces /etc/network/interfaces.bck > /dev/null 2>&1;
-			# Replace Interfaces file with 50-cloud-init-cfg if the vps setup use that configuration
+			# Replace Interfaces file with 50-cloud-init-cfg, if the vps setup use that configuration
 			if [[ -f /etc/network/interfaces.d/50-cloud-init.cfg ]]
 			then
 				cp -rf /etc/network/interfaces.d/50-cloud-init.cfg /etc/network/interfaces
-				echo -e "iface ens3 inet6 auto" >> /etc/network/interfaces
+				echo -e "iface $net inet6 auto" >> /etc/network/interfaces
 			fi
 		echo -e "\n"
         	echo -e "${LYello}Backup Copy of /etc/network/interfaces created in /etc/network/interfaces.bck ${NC}"
@@ -561,7 +562,7 @@ then
 	fi
 fi
 	# Start the procedure to edit Network interfaces: clearing previouse adds and populating denarius*X*.conf files with the correct parameters
-        sed -i '/auto ens3:.*/,$d' /etc/network/interfaces > /dev/null 2>&1;
+        sed -i -r '/auto.*:.*/,${d}' /etc/network/interfaces > /dev/null 2>&1;
         while [ $n -lt $ifs2 ]
         do
         	ipv4=$(whiptail --title " [D] - Ipv4 " --inputbox "Paste your FS Node $((n+2)) IPv4 address here:" 20 80 3>&1 1>&2 2>&3)
@@ -572,7 +573,7 @@ fi
 				then
 					echo -e "${LGreen}--------------------------------------------------------------------------------- ${NC}"
 					sed -i -e "s/bind=.*/bind=$ipv4:9999/;s/externalip=.*/externalip=$ipv4/" /etc/masternodes/denarius$((n+2)).conf
-        				echo -e "auto ens3:$n \niface ens3:$n inet static \naddress $ipv4  \nnetmask 255.255.255.255" >> /etc/network/interfaces
+        				echo -e "auto $net:$n \niface $net:$n inet static \naddress $ipv4  \nnetmask 255.255.255.255" >> /etc/network/interfaces
 				elif [[ `lsb_release -rs` == "18.04" ]]
 				then
 					echo -e "            addresses: \n            - $ipv4/32" >> /etc/netplan/50-cloud-init.yaml
@@ -636,7 +637,6 @@ then
                 # Start the procedure to edit Network interfaces .cfg and denarius*X*.conf files with the correct parameters
                 echo -e "${LGreen}--------------------------------------------------------------------------------- ${NC}"
        		sed -i -e '/inte6/,$d;/addresses:/,$d' /etc/network/interfaces.d/50-cloud-init.cfg > /dev/null 2>&1;
-		#sed -i '/inet6/,$d' /etc/network/interfaces.d/50-cloud-init.cfg > /dev/null 2>&1;
 		sed -i -e '/dhcp6:.*/d;/gateway6:.*/d;/addresses:.*/,$d' /etc/netplan/50-cloud-init.yaml > /dev/null 2>&1;
 	ipv6=$(whiptail --title "D-Ipv6" --inputbox "Paste your Vps IPv6 address here:" 20 80 3>&1 1>&2 2>&3)
         exitstatus=$?
