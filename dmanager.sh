@@ -32,8 +32,10 @@ whiptail --fb --title "[D] - Manager" --menu "                   Ubuntu 16.04/18
                                                         6 "D-IPv6    - Setting up Network & .conf file(s) with a multi IPv6 scheme"\
                                                         7 "D-Onion   - Coming soon or later - Populate .conf with onion scheme"\
       							8 "D-Keys    - Prompt for PrivKey - Populate denarius*X*.conf" \
-                                                        9 "D-Start   - Start all installed FS nodes" \
-                                                        0 "D-Stop    - Stops all installed FS nodes" 2>$TEMP
+							9 "D-Tail    - Tail selected FS Node debug.log" \
+							10 "D-Info    - Getinfo over the selected FS Node" \
+                                                        11 "D-Start   - Start all installed FS nodes" \
+                                                        12 "D-Stop    - Stops all installed FS nodes" 2>$TEMP
 choice=`cat $TEMP`
 case $choice in
 
@@ -532,6 +534,7 @@ echo -e "\n"
 # Infobox explaining D-IPv4 process that is about to begin
 whiptail --title "D-IPv4" --msgbox "This procedure will prompt for the Vps Ipv4 FailoverIP addresses, starting from the first additional IP ( never count the default Vps IPv4 ). \n  \nAll the time a new FS Node(s) will be installed, run 'D-IPv4' again and paste all the FailoverIP once more. \n \nBe prepared with a list of all the IPv4, one for each FS Node(s) to configure." 16 78
 clear
+# Checks for Network interface Name
 net=$(ip link | awk -F: '$0 !~ "lo|vir|wl|^[^0-9]"{print $2a;getline}')
 if [[ `lsb_release -rs` == "16.04" ]]
 then
@@ -540,28 +543,29 @@ then
 		# Making backup of Network interfaces and preparing it for further population.
         	cp -rf /etc/network/interfaces /etc/network/interfaces.bck > /dev/null 2>&1;
 			# Replace Interfaces file with 50-cloud-init-cfg, if the vps setup use that configuration
-			if [[ -f /etc/network/interfaces.d/50-cloud-init.cfg ]]
-			then
-				cp -rf /etc/network/interfaces.d/50-cloud-init.cfg /etc/network/interfaces
-				echo -e "iface $net inet6 auto" >> /etc/network/interfaces
-			fi
 		echo -e "\n"
         	echo -e "${LYello}Backup Copy of /etc/network/interfaces created in /etc/network/interfaces.bck ${NC}"
 		echo -e "\n"
-		sleep 2
+	fi
+	if [[ -f /etc/network/interfaces.d/50-cloud-init.cfg ]]
+	then
+		cp -rf /etc/network/interfaces.d/50-cloud-init.cfg /etc/network/interfaces
+		echo -e "iface $net inet6 auto \n" >> /etc/network/interfaces
 	fi
         sed -i -r '/auto.*:.*/,${d}' /etc/network/interfaces > /dev/null 2>&1;
+	sleep 2
 elif [[ `lsb_release -rs` == "18.04" ]]
 then
         if [[ ! -f /etc/netplan/50-cloud-init.bck ]]
         then
-        # Making backup of Netplan interfaces .yaml file
-        cp -rf /etc/netplan/50-cloud-init.yaml /etc/netplan/50-cloud-init.bck > /dev/null 2>&1;
-        echo -e "\n"
-	echo -e "${LGreen}Backup Copy of /etc/netplan/50-cloud-init.yaml created: .../50-cloud-init.bck ${NC}"
-	echo -e "\n"
+	        # Making backup of Netplan interfaces .yaml file
+	        cp -rf /etc/netplan/50-cloud-init.yaml /etc/netplan/50-cloud-init.bck > /dev/null 2>&1;
+	        echo -e "\n"
+		echo -e "${LGreen}Backup Copy of /etc/netplan/50-cloud-init.yaml created: .../50-cloud-init.bck ${NC}"
+		echo -e "\n"
 	fi
 	sed -i '/inet6/,$d' /etc/network/interfaces > /dev/null 2>&1;
+	sleep2
 fi
 	# Start the procedure to edit Network interfaces: clearing previouse adds and populating denarius*X*.conf files with the correct parameters
         while [ $n -lt $ifs2 ]
@@ -754,7 +758,7 @@ echo -e "\n"
 #--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 #--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-9)
+11)
 # Infobox explaining D-Start process that is about to begin
 whiptail --title "D-Start" --msgbox "This procedure will send a start command to the installed FS Node's daemon(s) within a 5 sec delay" 8 78
 clear
@@ -791,7 +795,7 @@ echo -e "\n"
 #--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 #--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-0)
+12)
 # Infobox explaining D-Stop process that is about to begin
 whiptail --title "D-Stop" --msgbox "This procedure will send a Stop command to the installed FS Node's daemon(s) within a 5 sec delay" 8 78
 clear
@@ -920,6 +924,77 @@ exitstatus=$?
 
 #--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 #--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+9)
+# Infobox explaining D-Reset process that is about to begin
+whiptail --title "D-Tail" --msgbox "This procedure will prompt for the FS Node number to Tail, and start the command on shell. \nUse CTRL+C to exit the tailing the process. " 10 78
+clear
+# Ask wich Node to reset
+r=$(whiptail --title "D-Tail" --inputbox "Wich FS Node do you want to Tail?" 10 78 3>&1 1>&2 2>&3)
+exitstatus=$?
+        if [ $exitstatus -eq 0 ]
+        then
+                daemon="denariusd -daemon -pid=/var/lib/masternodes/denarius$r/denarius.pid -conf=/etc/masternodes/denarius$r.conf -datadir=/var/lib/masternodes/denarius$r"
+                if [ $(pgrep -f "${daemon}") ]
+                then
+                        echo -e "\n"
+                        echo -e "${LYellow} About to tail FS Node $r debug.log ${NC}"
+                        echo -e "\n"
+                        tail -f /var/lib/masternodes/denarius$r/debug.log
+                else
+                        echo -e ""
+                        echo -e "${LRed} Missing running process for FS Node $r - Nothing to Tail. ${NC}"
+                        echo -e ""
+                        echo -e "${LRed} Use D-Manager again to start the FS Node(s) ${NC}"
+                        echo -e ""
+                        cd ~
+                exit 0
+                fi
+        else
+                echo -e "\n"
+                echo -e "${LYellow} No input or wrong input. Run the process again. ${NC}"
+                echo -e "\n"
+                echo -e "${LGreen} Thanks for using this script, pls report bugs in D's Discord ${NC}"
+                echo -e "\n"
+        fi
+                ;;
+
+#--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+#--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+10)
+# Infobox explaining D-Reset process that is about to begin
+whiptail --title "D-Info" --msgbox "This procedure will prompt for the FS Node number from wich to 'getinfo' out, and start the command on shell. \nUse CTRL+C to exit the tailing the process. " 10 78
+clear
+# Ask wich Node to reset
+r=$(whiptail --title "D-Tail" --inputbox "Wich FS Node do you want to 'Getinfos'?" 10 78 3>&1 1>&2 2>&3)
+exitstatus=$?
+        if [ $exitstatus -eq 0 ]
+        then
+                daemon="denariusd -daemon -pid=/var/lib/masternodes/denarius$r/denarius.pid -conf=/etc/masternodes/denarius$r.conf -datadir=/var/lib/masternodes/denarius$r"
+                if [ $(pgrep -f "${daemon}") ]
+                then
+                        echo -e "\n"
+                        echo -e "${LYellow} About to 'Getinfo' from FS Node $r ${NC}"
+                        echo -e "\n"
+                        denariusd -conf=/etc/masternodes/denarius$r.conf getinfo
+                else
+                        echo -e ""
+                        echo -e "${LRed} Missing running process for FS Node $r - Nothing to 'Getinfo' from. ${NC}"
+                        echo -e ""
+                        echo -e "${LRed} Use D-Manager again to start the FS Node(s) ${NC}"
+                        echo -e ""
+                        cd ~
+                exit 0
+                fi
+        else
+                echo -e "\n"
+                echo -e "${LYellow} No input or wrong input. Run the process again. ${NC}"
+                echo -e "\n"
+                echo -e "${LGreen} Thanks for using this script, pls report bugs in D's Discord ${NC}"
+                echo -e "\n"
+        fi
+                ;;
 
 
 esac
