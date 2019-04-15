@@ -13,7 +13,7 @@ The entire script was written directly from the vps using nano as editor, the co
 
 OVH - Done - Working as intended
 
-Vultr - 1/2 Done - Auto IPv4 working as intended - Testing IPv6 protocoll.
+Vultr - Done - Working as intended
 
 Oher vps test coming soon... (should now be full compatible with most vps provider but still to test on field)
 
@@ -45,11 +45,15 @@ Oher vps test coming soon... (should now be full compatible with most vps provid
 
 10 - D-Info    - Getinfo over the selected FS Node
 
-11 - D-Start   - Starts all installed FS nodes                     
+11 - D-Start   - Start Selected FS node
 
-12 - D-Stop    - Stops all installed FS nodes                     
+12 - D-Stop    - Stop Selected FS node
 
-13- D-Monitor - Control & reboot FS Node(s) - In maintenance till FS bugs will be fixed or i find a different solution for some outputs - "broken" version is working for some part, will share in D's discord if asked too.
+13 - D-Start All   - Starts all installed FS nodes                     
+
+14 - D-Stop All    - Stops all installed FS nodes                     
+
+15- D-Monitor - Control & reboot FS Node(s) - In maintenance till FS bugs will be fixed or i find a different solution for some outputs - "broken" version is working for some part, will share in D's discord if asked too.
  
 
 IMPORTANT NOTE:
