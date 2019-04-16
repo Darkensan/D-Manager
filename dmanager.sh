@@ -703,12 +703,19 @@ then
 	do
                	if [[ `lsb_release -rs` == "16.04" ]]
 	        then
-	               	echo -e "\niface ens3 inet6 static \n                           address $ipv6 \n                                netmask 64" >> /etc/network/interfaces;
-	              	uipv6=$(sed 's/.\{10\}$//' <<< "$ipv6")
+                        sed -i -e '/^[[:blank:]]*$/d' /etc/network/interfaces;
+                        l4ipv6=$(echo -n $ipv6 | tail -c 4)
+                        uipv6=$(sed 's/.\{19\}$//' <<< "$ipv6")
+                        uipv62="$uipv6:$l4ipv6"
+                        tag0=$( tail -n 1 /etc/network/interfaces )
+                        tag1=$( expr match "$tag0" " *" )
+	               	echo -e "\niface ens3 inet6 static \naddress $uipv62 \nnetmask 64" | { perl -pe "s/^/' 'x$tag1/e" ; } >> /etc/network/interfaces;
               	        while [ $n -lt $ifs ]
               	        do
               	                fip=d$(printf "%02d" $((n+1)))
-              	                echo -e "                               up /sbin/ip -6 addr add dev ens3 $uipv6:$fip" >> /etc/network/interfaces;
+	                        tag2=$( tail -n 1 /etc/network/interfaces )
+	                        tag3=$( expr match "$tag2" " *" )
+              	                echo -e "up /sbin/ip -6 addr add dev ens3 $uipv6:$fip" | { perl -pe "s/^/' 'x$tag3/e" ; } >> /etc/network/interfaces;
                	                sed -i -e "s/bind=.*/bind=[$uipv6:$fip]:9999/;s/externalip=.*/externalip=$uipv6:$fip/" /etc/masternodes/denarius$((n+1)).conf
                	                echo -e "\n"
                	                echo -e "${LYellow} FS Node $((n+1)) IPv6 configured - processing next one ${NC}"
