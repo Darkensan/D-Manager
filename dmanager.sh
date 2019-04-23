@@ -20,6 +20,7 @@ ipv4="$(wget http://ipecho.net/plain -O - -q ; echo)"
 t=60
 dossl="OpenSSL 1.0.1j 15 Oct 2014"
 regex='^([0-9a-fA-F]{3,4}:){1,7}[0-9a-fA-F]{3,4}$'
+net=$(ip link | awk -F: '$0 !~ "lo|vir|wl|^[^0-9]"{print $2a;getline}')
 
 # Setting a menu interface ( still to study and improve the general outputs  )
 TEMP=/tmp/answer$$
@@ -644,8 +645,6 @@ echo -e "${LGreen} IPv4 configuration done for all installed FS Node(s). ${NC}"
 echo -e "\n"
 echo -e "${LGreen} Thanks for using this script, pls report bugs in D's Discord ${NC}"
 echo -e "\n"
-echo -e "${Red}\e[4m! It is suggested to reboot the Vps !  use: ' reboot now ' command ! ${NC}"
-echo -e "\n"
 		;;
 
 #--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -655,7 +654,6 @@ echo -e "\n"
 # Infobox explaining D-IPv6 process that is about to begin
 whiptail --title "D-IPv6" --msgbox "This procedure will prompt for the Vps Ipv6, set the network interfaces and populate the FS Node(s) .conf file(s). \n \nIt is mandatory to paste the IPv6 in his extended form: \nxxxx:xxxx:xxxx:xxxx:xxxx:xxxx:xxxx:xxxx \nWith all the ':0:' that  should be expanded as ':0000:'. \n \nBackup copy of original network interface.cfg can be found in /etc/network/interfaces.d/*.bck. " 16 78
 clear
-net=$(ip link | awk -F: '$0 !~ "lo|vir|wl|^[^0-9]"{print $2a;getline}')
 if [[ `lsb_release -rs` == "16.04" ]]
 then
         # Making backup of Network interfaces .cfg file
@@ -675,8 +673,7 @@ then
                 cp -rf /etc/network/interfaces.d/50-cloud-init.cfg /etc/network/interfaces || cp -rf /etc/network/interfaces.d/30-cloud-init.cfg /etc/network/interfaces
         fi
        	sed -i '/^source/d' /etc/network/interfaces > /dev/null 2>&1;
-	sed -i "/iface$net inte6/,${d}" /etc/network/interfaces > /dev/null 2>&1;
-	echo -e "${LGreen}--------------------------------------------------------------------------------- ${NC}"
+	sed -i '/inet6/,$d' /etc/network/interfaces > /dev/null 2>&1;
 	sleep 1
 elif [[ `lsb_release -rs` == "18.04" ]]
 then
@@ -695,7 +692,6 @@ then
 	echo -e "${LYellow}Backup Copy of $i created in $i.bck ${NC}"
 	sleep 1
 	done
-        echo -e "${LGreen}--------------------------------------------------------------------------------- ${NC}"
 fi
 # Start the procedure to edit Network interfaces cfg and denarius*X*.conf files with the correct parameters
 ipv6=$(whiptail --title "D-Ipv6" --inputbox "Paste your Vps IPv6 address here:" 20 80 3>&1 1>&2 2>&3)
@@ -717,17 +713,19 @@ then
               	                fip=d$(printf "%02d" $((n+1)))
 	                        tag2=$( tail -n 1 /etc/network/interfaces )
 	                        tag3=$( expr match "$tag2" " *" )
-              	                echo -e "up /sbin/ip -6 addr add dev$net $uipv6:$l4ipv6:$fip" | { perl -pe "s/^/' 'x$tag3/e" ; } >> /etc/network/interfaces;
-               	                sed -i -e "s/bind=.*/bind=[$uipv6:$l4ipv6:$fip]:9999/;s/externalip=.*/externalip=$uipv6:$l4ipv6:$fip/" /etc/masternodes/denarius$((n+1)).conf
+              	                echo -e "up /sbin/ip -6 addr add dev$net $uipv6:$fip" | { perl -pe "s/^/' 'x$tag3/e" ; } >> /etc/network/interfaces;
+               	                sed -i -e "s/bind=.*/bind=[$uipv6:$fip]:9999/;s/externalip=.*/externalip=$uipv6:$fip/" /etc/masternodes/denarius$((n+1)).conf
                	                echo -e "\n"
                	                echo -e "${LYellow} FS Node $((n+1)) IPv6 configured - processing next one ${NC}"
 				sleep 1
                	        let n++
                	        done
 		        # Resetting the Network to make the changes done in the configuration load
-       		        # systemctl restart networking > /dev/null 2>&1;
+       		        systemctl restart networking > /dev/null 2>&1;
                      	echo -e "\n"
                       	echo -e "${LGreen} IPv6 configuration done for all FS Node(s) installed. ${NC}"
+                       	echo -e "\n"
+			echo -e "${LGreen}--------------------------------------------------------------------------------- ${NC}"
                        	echo -e "\n"
                        	echo -e "${LGreen} Thanks for using this script, pls report bugs in D's Discord ${NC}"
                        	echo -e "\n"
@@ -764,6 +762,8 @@ then
 		echo -e "\n"
                 echo -e "${LGreen} IPv6 configuratione done for all FS Node(s) installed. ${NC}"
                 echo -e "\n"
+                echo -e "${LGreen}--------------------------------------------------------------------------------- ${NC}"
+ 		echo -e "\n"
                 echo -e "${LGreen} Thanks for using this script, pls report bugs in D's Discord ${NC}"
                 echo -e "\n"
                	fi
