@@ -314,13 +314,14 @@ else ((mfs=input)) && ((fsarr=1))
 
 # Checks and download Chaindata, store it for later use during node's datadir creation
 echo -e "${Green} Checking if Chaindata is already present ${NC}"
-	if	[ -e ~/denarius/chaindata1799510.zip ]
+	if	[ -e ~/denarius/chaindata2290877.zip ]
 	then
 		echo -e "${LYellow} Chaindata already present - proceding... ${NC}"
 		echo -e "\n"
 	else
 		echo -e "${LYellow} Chaindata not found - downloading a new archive ${NC}"
-		wget https://github.com/carsenk/denarius/releases/download/v3.3.7/chaindata1799510.zip
+		rm -rf ~/denarius/chaindata*.zip
+		wget https://gitlab.com/denarius/chain/raw/master/chaindata2290877.zip
 		echo -e "${Green} Chaindata Downloaded - proceding... ${NC}"
 		echo -e "\n"
 	fi
@@ -335,7 +336,7 @@ do
 
 	# Unzip the previouse downloaded Chaindata
 	cd /var/lib/masternodes/denarius$((fsn))
-	unzip -u ~/denarius/chaindata1799510.zip
+	unzip -u ~/denarius/chaindata2290877.zip
 
 	# Update Firewall rules setting rpc port for the current node
 	echo -e "${LYellow} Opening firewall port for FS node $((fsn)) ${NC}"
@@ -808,7 +809,7 @@ echo -e "\n"
 
 13)
 # Infobox explaining D-StartAll process that is about to begin
-whiptail --title "D-StartAll" --msgbox "This procedure will send a start command to the installed FS Node's daemon(s) within a 5 sec delay" 8 78
+whiptail --title "D-StartAll" --msgbox "This procedure will send a start command to the installed FS Node's daemon(s) within a 10 sec delay" 8 78
 clear
 echo -e "\n"
 echo -e "${LGreen} Detected $ifs FS Nodes - Starting sleeping daemons now ${NC}"
@@ -822,7 +823,7 @@ echo -e "${LGreen} Detected $ifs FS Nodes - Starting sleeping daemons now ${NC}"
                         echo -e "\n"
                         echo -e "${LYellow} Starting FS Node $((n+1)) ${NC}"
                         eval  $daemon
-                        sleep 5s
+                        sleep 10s
                 else
                         echo "" >> x
                         echo -e ""
@@ -845,7 +846,7 @@ echo -e "\n"
 
 14)
 # Infobox explaining D-StopAll process that is about to begin
-whiptail --title "D-StopAll" --msgbox "This procedure will send a Stop command to the installed FS Node's daemon(s) within a 5 sec delay" 8 78
+whiptail --title "D-StopAll" --msgbox "This procedure will send a Stop command to the installed FS Node's daemon(s) within a 10 sec delay" 8 78
 clear
 echo -e "\n"
 echo -e "${Red} Detected $ifs FS Nodes - Stopping daemons now ${NC}"
@@ -859,7 +860,7 @@ echo -e "${Red} Detected $ifs FS Nodes - Stopping daemons now ${NC}"
                         echo -e "\n"
                         echo -e "${LYellow} Stopping FS Node $((n+1)) ${NC}"
                         denariusd -conf=/etc/masternodes/denarius$((n+1)).conf stop
-                        sleep 5s
+                        sleep 10s
                 else
                         echo  "" >> x
                         echo -e ""
@@ -927,25 +928,26 @@ exitstatus=$?
         		echo -e "${LYellow} Resetting FS Node $r DB ${NC}"
         		cd /var/lib/masternodes/denarius$r || exit
         		rm -rf database txleveldb smsgDB peers.dat > /dev/null 2>&1;
-        		echo -e "\n"
-        		echo -e "${LYellow} Proceding unzipping latest chaindata... ${NC}"
+        		# echo -e "\n"
+        		# echo -e "${LYellow} Proceding unzipping latest chaindata... ${NC}"
         		echo -e "\n"
         		# Checks and download Chaindata, store it for later use during node's db resetting
         		echo -e "${LYellow} Checking if Chaindata is already present ${NC}"
         		echo -e "\n"
-                		if      [ -e ~/denarius/chaindata1799510.zip ]
+                		if      [ -e ~/denarius/chaindata2290877.zip ]
                                 then
                                 	echo -e "${LGreen} Chaindata already present - proceding... ${NC}"
                                 	echo -e "\n"
                                 else
                                 	echo -e "${LYellow} Chaindata not found - downloading a new archive ${NC}"
                                 	cd ~/denarius
-                                	wget https://github.com/carsenk/denarius/releases/download/v3.3.7/chaindata1799510.zip
+					rm -rf chaindata*.* > /dev/null 2>&1;
+                                	wget https://gitlab.com/denarius/chain/raw/master/chaindata2290877.zip
                                 	echo -e "${Green} Chaindata Downloaded - proceding... ${NC}"
                                 	echo -e "\n"
                                 	cd ~
                                 fi
-                        unzip -u ~/denarius/chaindata1799510.zip
+                        unzip -u ~/denarius/chaindata2290877.zip
                         sleep 1s
                         echo -e "\n"
                         echo -e "${LGreen} Reset for FS Node $r done.${NC}"
