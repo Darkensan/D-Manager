@@ -25,16 +25,16 @@ net=$(ip link | awk -F: '$0 !~ "lo|vir|wl|^[^0-9]"{print $2a;getline}')
 # Setting a menu interface ( still to study and improve the general outputs  )
 TEMP=/tmp/answer$$
 whiptail --fb --title "[D] - Manager" --menu "                   Ubuntu 16.04/18.04 Denarius's FS Node(s) Manager :" 21 0 0 \
-							1 "D-Setup    - Prepare the Vps and install dependancies and utilities" \
-							2 "D-Nodes    - Compile Deamon & Build Node(s) - Master or v3.4 - Branch Commits" \
-							3 "D-Update   - Update denariusd with latest - Master or v3.4 - Branch Commits" \
-							4 "D-Reset    - Reset selected FS Node back to latest chaindata blocks" \
-                                                        5 "D-IPv4     - Setting up Network & .conf file(s) with a multi IPv4 scheme"\
-                                                        6 "D-IPv6     - Setting up Network & .conf file(s) with a multi IPv6 scheme"\
-                                                        7 "D-Onion    - Coming soon or later - Populate .conf with onion scheme"\
-      							8 "D-Keys     - Prompt for PrivKey - Populate denarius*X*.conf" \
-							9 "D-Tail     - Tail selected FS Node debug.log" \
-							10 "D-Info     - Getinfo over the selected FS Node" \
+							1  "D-Setup    - Prepare the Vps and install dependancies and utilities" \
+							2  "D-Nodes    - Compile Deamon & Build Node(s) - Master or v3.4 - Branch Commits" \
+							3  "D-Update   - Update denariusd with latest - Master or v3.4 - Branch Commits" \
+							4  "D-Reset    - Reset selected FS Node back to latest chaindata blocks" \
+                                                        5  "D-IPv4     - Setting up Network & .conf file(s) with a multi IPv4 scheme"\
+                                                        6  "D-IPv6     - Setting up Network & .conf file(s) with a multi IPv6 scheme"\
+      							7  "D-Keys     - Prompt for a PrivKey for each installed FS Node - Populate relative denarius*X*.conf" \
+							8  "D-Tail     - Tail selected FS Node debug.log" \
+							9  "D-Info     - Getinfo over the selected FS Node" \
+							10 "D-Status   - Dispaly selected FS Node status"\
 							11 "D-Start    - Start Selected FS nodes" \
 							12 "D-Stop     - Stops Selected FS nodes" \
                                                         13 "D-StartAll - Start all installed FS nodes" \
@@ -61,6 +61,7 @@ case $choice in
 		# initialise trap to call trap_ctrlc function
 		# when signal 2 (SIGINT) is received
 		trap "trap_ctrlc" 2
+
 # Infobox explaining D-Setup process that is about to begin
 whiptail --title "D-Setup" --msgbox "This procedure will prepare the VPS to run D daemon(s) - installing and updating all the libraries and dependancies required. Compatible with U.16.04 & U.18.04." 12 78;
 clear
@@ -172,16 +173,21 @@ echo -e "${LYellow} - More Safety! - Installing Fail2ban ${NC}"
         sudo apt-get install -y fail2ban
         sudo systemctl enable fail2ban
         sudo systemctl start fail2ban
-        echo -e "\n"
-        echo -e "${LYellow} - Fail2ban installed succesfully ${NC}"
-	# Cleaning a bit from useless stuff to free some space?
-        sudo apt-get -y autoremove
-# Last commands to build some dirs to use later and print finals output messages
 echo -e "\n"
+echo -e "${Green} - Fail2ban installed succesfully ${NC}"
+echo -e "\n"
+# Cleaning a bit from useless stuff to free some space?
+echo -e "${LYellow} - Cleaning useless stuff ${NC}"
+	sudo apt-get -y autoremove
+echo -e "\n"
+echo -e "${Green} - Done${NC}"
+echo -e "\n"
+# Last commands to build some dirs to use later and print finals output messages
 echo -e "${LYellow} - Building some directories to use installing nodes${NC}"
 	[ -d /var/lib/masternodes/variants ] || mkdir -p /var/lib/masternodes/variants > /dev/null 2>&1;
 	[ -d /etc/masternodes ] || mkdir -p /etc/masternodes > /dev/null 2>&1;
-	echo -e "${LYellow}Done${NC}"
+echo -e "\n"
+echo -e "${Green} - Done${NC}"
 echo -e "\n"
 echo -e "${Green} - Vps updated and ready ${NC}"
 echo -e "\n"
@@ -209,6 +215,7 @@ echo -e "\n"
 	# initialise trap to call trap_ctrlc function
 	# when signal 2 (SIGINT) is received
 	trap "trap_ctrlc" 2
+
 # Infobox explaining D-Nodes process that is about to begin
 whiptail --title "D-Nodes" --msgbox "This procedure will compile a daemon if not present, create and populate folder(s) and file(s) for the number of node(s) choosen. \n \nChaindata will be downloaded and unzipped into node folder(s) for a faster syncronization. \n \nDenarius*X*.conf files will be populated adding 25 random peers to each .conf file, aswell as adding rpcpassword, rpcport and ip. \n \nSo far: \n Automatization for 1 node in Ipv4 both u.16 and u.18 . \n Multi Ipv4 and IPv6 scheme compatible with u.16.04 only. \n Working on u.18.04 and onion scheme." 22 78 0
 clear
@@ -734,13 +741,13 @@ then
         	then
 			uipv6=$(sed 's/.\{19\}$//' <<< "$ipv6")
 			l4ipv6=$(echo -n $ipv6 | tail -c 4)
-			uipv62="$uipv6:$l4ipv6"
+			uipv62="$uipv6::$l4ipv6"
 			for i in /etc/netplan/*.yaml
 			do
 				sed -i -e '/^[[:blank:]]*$/d' $i
 				tag0=$( tail -n 1 $i )
 				tag1=$( expr match "$tag0" " *" )
-		                echo -e "dhcp6: false\ngateway6: $uipv6:1\naddresses:\n- $uipv62/64" | { perl -pe "s/^/' 'x$tag1/e" ; } >> $i
+		                echo -e "dhcp6: false\ngateway6: $uipv6::1\naddresses:\n- $uipv62/64" | { perl -pe "s/^/' 'x$tag1/e" ; } >> $i
 			done
 				while [ $n -lt $ifs ]
                                	do
@@ -750,9 +757,9 @@ then
 		                        	sed -i -e '/^[[:blank:]]*$/d' $i
         	                        	tag0=$( tail -n 1 $i )
 	                                	tag1=$( expr match "$tag0" " *" )
-						echo -e "- $uipv6:$fip/64" | { perl -pe "s/^/' 'x$tag1/e" ; } >> $i
+						echo -e "- $uipv6::$fip/64" | { perl -pe "s/^/' 'x$tag1/e" ; } >> $i
                                       	done
-					sed -i -e "s/bind=.*/bind=[$uipv6:$fip]:9999/;s/externalip=.*/externalip=$uipv6:$fip/" /etc/masternodes/denarius$((n+1)).conf
+					sed -i -e "s/bind=.*/bind=[$uipv6::$fip]:9999/;s/externalip=.*/externalip=$uipv6::$fip/" /etc/masternodes/denarius$((n+1)).conf
                                        	echo -e "\n"
                                        	echo -e "${LYellow} FS Node $((n+1)) IPv6 configured - processing next one ${NC}"
                                 	sleep 1
@@ -792,22 +799,23 @@ fi
 #--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 #--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-7)
-clear
-# Infobox explaining D-Onion process that is about to begin
-echo -e "\n"
-echo -e "D-Onion  - Configurator for oinion address(es) FS Node(s)"
-echo -e "\n"
-echo -e "${LGreen} Coming Soon ${NC}"
-echo -e "\n"
-echo -e "${LGreen} Thanks for using this script, pls report bugs in D's Discord ${NC}"
-echo -e "\n"
-                ;;
-
-#--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-#--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-
 13)
+
+                # this function is called when Ctrl-C is sent
+                function trap_ctrlc ()
+                {
+                    # perform cleanup here
+                    echo -e "${Red} Ctrl-C caught...performing clean up${NC}"
+                    echo -e "${Green} Cleanup done${NC}"
+                    # exit shell script with error code 2
+                    # if omitted, shell script will continue execution
+                    exit 2
+                }
+                # initialise trap to call trap_ctrlc function
+                # when signal 2 (SIGINT) is received
+                trap "trap_ctrlc" 2
+
+
 # Infobox explaining D-StartAll process that is about to begin
 whiptail --title "D-StartAll" --msgbox "This procedure will send a start command to the installed FS Node's daemon(s) within a 10 sec delay" 8 78
 clear
@@ -882,7 +890,7 @@ echo -e "\n"
 #--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 #--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-8)
+7)
 # Infobox explaining D-Keys process that is about to begin
 whiptail --title "D-Keys" --msgbox "This procedure will prompt for a QT generated Private Key, then add the string to node(s) .conf file(s). Remember to use different Private Keys, one for each FS node(s) installed." 10 78
 clear
@@ -927,36 +935,36 @@ exitstatus=$?
         		echo -e "\n"
         		echo -e "${LYellow} Resetting FS Node $r DB ${NC}"
         		cd /var/lib/masternodes/denarius$r || exit
-        		rm -rf database txleveldb smsgDB peers.dat > /dev/null 2>&1;
-        		# echo -e "\n"
-        		# echo -e "${LYellow} Proceding unzipping latest chaindata... ${NC}"
+        		rm -rf database txleveldb smsgStore smsg.ini .lock i2pdebug.log debug.log db.log blk0001.dat denarius.pid peers.dat > /dev/null 2>&1;
         		echo -e "\n"
+			echo -e "${Green} Done ${NC}"
+			echo -e "\n"
         		# Checks and download Chaindata, store it for later use during node's db resetting
-        		echo -e "${LYellow} Checking if Chaindata is already present ${NC}"
+        		echo -e "${LYellow} Checking for latest zip archive... ${NC}"
         		echo -e "\n"
                 		if      [ -e ~/denarius/chaindata2290877.zip ]
                                 then
-                                	echo -e "${LGreen} Chaindata already present - proceding... ${NC}"
+                                	echo -e "${LGreen} Latest Chaindata already present - proceding unzipping... (may take a while)${NC}"
                                 	echo -e "\n"
                                 else
-                                	echo -e "${LYellow} Chaindata not found - downloading a new archive ${NC}"
+                                	echo -e "${LYellow} Chaindata not found - downloading a new zip archive ${NC}"
                                 	cd ~/denarius
 					rm -rf chaindata*.* > /dev/null 2>&1;
                                 	wget https://gitlab.com/denarius/chain/raw/master/chaindata2290877.zip
-                                	echo -e "${Green} Chaindata Downloaded - proceding... ${NC}"
-                                	echo -e "\n"
                                 	cd ~
+					echo -e "${Green} Chaindata Downloaded - proceding... ${NC}"
+                                	echo -e "\n"
                                 fi
-                        unzip -u ~/denarius/chaindata2290877.zip
+                        unzip -u ~/denarius/chaindata2290877.zip > /dev/null 2>&1;
                         sleep 1s
                         echo -e "\n"
-                        echo -e "${LGreen} Reset for FS Node $r done.${NC}"
+                        echo -e "${LGreen} FS Node $r reset done.${NC}"
                         echo -e "\n"
                         echo -e "${LGreen} Thanks for using this script, pls report bugs in D's Discord ${NC}"
                         echo -e "\n"
                 else
                         echo -e ""
-                        echo -e "${LRed} Detected running process for FS Node $r - Stop running FS Node before reset. ${NC}"
+                        echo -e "${LRed} FS Node $r running process detected - Stop FS Node daemon before the reset. ${NC}"
                         echo -e ""
                         echo -e "${LRed} Use: ' daemon="denariusd -conf=/etc/masternodes/denarius$r.conf stop" ' ${NC}"
                         echo -e ""
@@ -975,11 +983,11 @@ exitstatus=$?
 #--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 #--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-9)
-# Infobox explaining D-Reset process that is about to begin
+8)
+# Infobox explaining D-Tail process that is about to begin
 whiptail --title "D-Tail" --msgbox "This procedure will prompt for the FS Node number to Tail, and start the command on shell. \nUse CTRL+C to exit the tailing the process. " 10 78
 clear
-# Ask wich Node to reset
+# Ask wich Node to Tail.
 r=$(whiptail --title "D-Tail" --inputbox "Wich FS Node do you want to Tail?" 10 78 3>&1 1>&2 2>&3)
 exitstatus=$?
         if [ $exitstatus -eq 0 ]
@@ -1013,12 +1021,12 @@ exitstatus=$?
 #--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 #--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-10)
-# Infobox explaining D-Reset process that is about to begin
+9)
+# Infobox explaining D-Info process that is about to begin
 whiptail --title "D-Info" --msgbox "This procedure will prompt for the FS Node number from wich to 'getinfo' out, and start the command on shell. \nUse CTRL+C to exit the tailing the process. " 10 78
 clear
-# Ask wich Node to reset
-r=$(whiptail --title "D-Tail" --inputbox "Wich FS Node do you want to 'Getinfos'?" 10 78 3>&1 1>&2 2>&3)
+# Ask wich Node to Getinfo from.
+r=$(whiptail --title "D-Info" --inputbox "Wich FS Node do you want to 'Getinfos'?" 10 78 3>&1 1>&2 2>&3)
 exitstatus=$?
         if [ $exitstatus -eq 0 ]
         then
@@ -1055,11 +1063,53 @@ exitstatus=$?
 #--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 #--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
+10)
+# Infobox explaining D-Status process that is about to begin
+whiptail --title "D-Status" --msgbox "This procedure will prompt for the FS Node number to dispaly the Status, and start the command on shell." 10 78
+clear
+# Ask wich Node Status to check.
+r=$(whiptail --title "D-Status" --inputbox "Wich FS Node Status do you want to check?" 10 78 3>&1 1>&2 2>&3)
+exitstatus=$?
+        if [ $exitstatus -eq 0 ]
+        then
+                daemon="denariusd -daemon -pid=/var/lib/masternodes/denarius$r/denarius.pid -conf=/etc/masternodes/denarius$r.conf -datadir=/var/lib/masternodes/denarius$r"
+                if [ $(pgrep -f "${daemon}") ]
+                then
+                        echo -e "\n"
+                        echo -e "${LYellow} About to 'check the Status' of FS Node $r ${NC}"
+                        echo -e "\n"
+                        denariusd -conf=/etc/masternodes/denarius$r.conf fortunastake status
+                        echo -e "\n"
+                        echo -e "${LGreen} Thanks for using this script, pls report bugs in D's Discord ${NC}"
+                        echo -e "\n"
+
+                else
+                        echo -e ""
+                        echo -e "${LRed} Missing running process for FS Node $r - No Status to check. ${NC}"
+                        echo -e ""
+                        echo -e "${LRed} Use D-Manager again to start the FS Node(s) and repeat the procedure again. ${NC}"
+                        echo -e ""
+                        echo -e "${LGreen} Thanks for using this script, pls report bugs in D's Discord ${NC}"
+                        echo -e ""
+                exit 0
+                fi
+        else
+                echo -e "\n"
+                echo -e "${LYellow} No input or wrong input. Run the process again. ${NC}"
+                echo -e "\n"
+                echo -e "${LGreen} Thanks for using this script, pls report bugs in D's Discord ${NC}"
+                echo -e "\n"
+        fi
+                ;;
+
+#--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+#--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
 11)
-# Infobox explaining D-Reset process that is about to begin
+# Infobox explaining D-Start process that is about to begin
 whiptail --title "D-Start" --msgbox "This procedure will prompt for the FS Node number to start." 10 78
 clear
-# Ask wich Node to reset
+# Ask wich Node to Start
 r=$(whiptail --title "D-Start" --inputbox "Wich FS Node daemon do you want to run?" 10 78 3>&1 1>&2 2>&3)
 exitstatus=$?
         if [ $exitstatus -eq 0 ]
@@ -1098,10 +1148,10 @@ exitstatus=$?
 #--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 12)
-# Infobox explaining D-Reset process that is about to begin
+# Infobox explaining D-Stop process that is about to begin
 whiptail --title "D-Stop" --msgbox "This procedure will prompt for the FS Node number to Stop." 10 78
 clear
-# Ask wich Node to reset
+# Ask wich Node to Stop
 r=$(whiptail --title "D-Stop" --inputbox "Wich FS Node daemon do you want to Stop?" 10 78 3>&1 1>&2 2>&3)
 exitstatus=$?
         if [ $exitstatus -eq 0 ]
