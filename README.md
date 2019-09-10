@@ -37,13 +37,13 @@ Oher vps test coming soon... (should now be full compatible with most vps provid
  
 6 - D-Ipv6    - Multi Ipv6 network interface autoconfiguration and .conf file population 
 
-7 - D-Onion   - Coming soon or later... Onion autoconfiguration
+7 - D-Keys    - Prompt for a PrivKey for each installed FS Node - Populate denarius*X*.conf
 
-8 - D-Keys    - Prompt for PrivKey - Populate denarius*X*.conf
+8 - D-Tail    - Tail selected FS Node debug.log
 
-9 - D-Tail    - Tail selected FS Node debug.log
+9 - D-Info    - Getinfo over the selected FS Node
 
-10 - D-Info    - Getinfo over the selected FS Node
+10 - D-Status  - Dispaly selected FS Node status
 
 11 - D-Start   - Start Selected FS node
 
@@ -53,8 +53,8 @@ Oher vps test coming soon... (should now be full compatible with most vps provid
 
 14 - D-Stop All    - Stops all installed FS nodes                     
 
-15- D-Monitor - Control & reboot FS Node(s) - In maintenance till FS bugs will be fixed or i find a different solution for some outputs - "broken" version is working for some part, will share in D's discord if asked too.
- 
+
+
 
 IMPORTANT NOTE:
 
