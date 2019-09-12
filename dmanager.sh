@@ -35,10 +35,11 @@ whiptail --fb --title "[D] - Manager" --menu "                   Ubuntu 16.04/18
 							8  "D-Tail     - Tail selected FS Node debug.log" \
 							9  "D-Info     - Getinfo over the selected FS Node" \
 							10 "D-Status   - Dispaly selected FS Node status"\
-							11 "D-Start    - Start Selected FS nodes" \
+							11 "D-Start    - Start Selected FS nodes and replace 25 random peers in the .conf file" \
 							12 "D-Stop     - Stops Selected FS nodes" \
-                                                        13 "D-StartAll - Start all installed FS nodes" \
-                                                        14 "D-StopAll  - Stops all installed FS nodes" 2>$TEMP
+                                                        13 "D-StartAll - Start all installed FS nodes and replace 25 random peers in the .conf files" \
+                                                        14 "D-StopAll  - Stops all installed FS nodes" \
+							15 "D-Peers    - Delete the peers.dat files from a chosen FS Node folder" 2>$TEMP
 choice=`cat $TEMP`
 case $choice in
 
@@ -359,20 +360,20 @@ do
 	pw=$(pwgen 32 1)
 	echo -e "##############################" > /etc/masternodes/denarius$((fsn)).conf
 	echo -e "\nserver=1 \ndaemon=1 \nrpcuser=denariusrpc \nrpcpassword=${pw} \nrpcallowsip=127.0.0.1 \nrpcport=$((np))" >> /etc/masternodes/denarius$((fsn)).conf
-	echo -e "daemon=1 \nlisten=1 \ndebug=1" >> /etc/masternodes/denarius$((fsn)).conf
+	echo -e "daemon=1 \nlisten=1 \ndebug=1 \nmaxorphanblocks=1000" >> /etc/masternodes/denarius$((fsn)).conf
 	echo -e "\n##############################" >> /etc/masternodes/denarius$((fsn)).conf
 	echo -e "\nbind=${ipv4}:9999 \nexternalip=${ipv4}" >> /etc/masternodes/denarius$((fsn)).conf
 	echo -e "\n##############################" >> /etc/masternodes/denarius$((fsn)).conf
 	echo -e "\nfortunastake=0 \nfortunastakeprivkey=XXX_key_XXX" >> /etc/masternodes/denarius$((fsn)).conf
 	echo -e "\n##############################" >> /etc/masternodes/denarius$((fsn)).conf
 	echo -e "\naddnode=denarius.host \naddnode=denarius.win \naddnode=denarius.pro \naddnode=triforce.black" >> /etc/masternodes/denarius$((fsn)).conf
-	echo -e "\n##############################" >> /etc/masternodes/denarius$((fsn)).conf
-	echo -e "\n##### Random Peers List ###### \n" >> /etc/masternodes/denarius$((fsn)).conf
-		# Get the nodes list from coinexplorer then eleborate the infos "catting" lines with addr and filtering it removing blanck spaces and onion addresses
+	echo -e "\n############################## \n" >> /etc/masternodes/denarius$((fsn)).conf
+	echo -e "\##### Random Peers List ###### \n" >> /etc/masternodes/denarius$((fsn)).conf
+		# Get the nodes list from coinexplorer then eleborate the infos "catting" lines with addr and filtering it removing blanck spaces and onion addresses, black list 141. and 33. ip range.
 		echo -e "${Blue} Get Coinexplorer FS List ${NC}"
 		wget https://www.coinexplorer.net/api/v1/D/masternode/list;
 		cat list | jq '.result[].addr' | tr -d "\""  >> list.txt;
-		sed -i -e '/^$/d;/onion:9999$/d;s/^/addnode=/' list.txt;
+		sed -i -e '/^$/d;/onion:9999$/d;/^141/d;/^33/d;s/^/addnode=/' list.txt;
 		# Shuffle 25 random node out of the list and add them to denariusX.conf file, building nodes with randoms addnode= keep the network decentralized?? maybe it helps?
 		shuf -n 25 list.txt >> /etc/masternodes/denarius$((fsn)).conf;
 	# Print ending messages
@@ -382,7 +383,7 @@ do
 	echo -e "\n"
 	echo -e "${Blue} Cleaning up temp files - Done ${NC}"
 	echo -e "\n"
-	rm list list.txt
+	rm -rf list list.*
 	let n++
 	let np++
 	let fsn++
@@ -824,6 +825,24 @@ echo -e "${LGreen} Detected $ifs FS Nodes - Starting sleeping daemons now ${NC}"
         # Start daemon(s) with 5 sec delay
         while [ $n -lt $ifs ]
         do
+                        echo -e "\n"
+                        echo -e "${Blue} Relacing random peers with a new list ${NC}"
+                        sed -i -e '/##### Random Peers List ######/,$d ' /etc/masternodes/denarius$((r)).conf;
+                        # Get the nodes list from coinexplorer then eleborate the infos "catting" lines with addr and filtering it removing blanck spaces, onion addresses and 141. and 33. ip range
+                        echo -e "\n"
+                        echo -e "${Blue} Get Coinexplorer FS List ${NC}"
+                        wget -4 https://www.coinexplorer.net/api/v1/D/masternode/list;
+                        cat list | jq '.result[].addr' | tr -d "\""  >> list.txt;
+                        sed -i -e '/^$/d;/onion:9999$/d;/^141/d;/^33/d;s/^/addnode=/' list.txt;
+                        # Shuffle 25 random node out of the list and add them to denariusX.conf file, building nodes with randoms addnode= keep the network decentralized?? maybe it helps?
+                        echo -e "${Blue} Shuffle random peers node into .conf file ${NC}"
+                        echo -e "\n##### Random Peers List ###### \n" >> /etc/masternodes/denarius$((n+1)).conf
+                        shuf -n 25 list.txt >> /etc/masternodes/denarius$((n+1)).conf;
+                        rm -rf list.* list
+                        echo -e "${LGreen} Done ${NC}"
+                        echo -e "\n"
+                echo -e "${Blue} Running the Daemon ${NC}"
+                echo -e "\n"
                 daemon="denariusd -daemon -pid=/var/lib/masternodes/denarius$((n+1))/denarius.pid -conf=/etc/masternodes/denarius$((n+1)).conf -datadir=/var/lib/masternodes/denarius$((n+1))"
                 if [  ! $(pgrep -f "${daemon}") ]
                 then
@@ -1023,7 +1042,7 @@ exitstatus=$?
 
 9)
 # Infobox explaining D-Info process that is about to begin
-whiptail --title "D-Info" --msgbox "This procedure will prompt for the FS Node number from wich to 'getinfo' out, and start the command on shell. \nUse CTRL+C to exit the tailing the process. " 10 78
+whiptail --title "D-Info" --msgbox "This procedure will prompt for the FS Node number from wich to 'getinfo' out, and start the command on shell. " 10 78
 clear
 # Ask wich Node to Getinfo from.
 r=$(whiptail --title "D-Info" --inputbox "Wich FS Node do you want to 'Getinfos'?" 10 78 3>&1 1>&2 2>&3)
@@ -1114,14 +1133,31 @@ r=$(whiptail --title "D-Start" --inputbox "Wich FS Node daemon do you want to ru
 exitstatus=$?
         if [ $exitstatus -eq 0 ]
         then
-                daemon="denariusd -daemon -pid=/var/lib/masternodes/denarius$r/denarius.pid -conf=/etc/masternodes/denarius$r.conf -datadir=/var/lib/masternodes/denarius$r"
+	        daemon="denariusd -daemon -pid=/var/lib/masternodes/denarius$r/denarius.pid -conf=/etc/masternodes/denarius$r.conf -datadir=/var/lib/masternodes/denarius$r"
                 if [ ! $(pgrep -f "${daemon}") ]
                 then
                         echo -e "\n"
                         echo -e "${LYellow} About to 'Start' FS Node $r ${NC}"
+                      	echo -e "\n"
+                       	echo -e "${Blue} Relacing random peers with a new list ${NC}"
+			sed -i -e '/##### Random Peers List ######/,$d ' /etc/masternodes/denarius$((r)).conf;
+       	        	# Get the nodes list from coinexplorer then eleborate the infos "catting" lines with addr and filtering it removing blanck spaces and onion addresses
+                      	echo -e "\n"
+                	echo -e "${Blue} Get Coinexplorer FS List ${NC}"
+               		wget -4 https://www.coinexplorer.net/api/v1/D/masternode/list;
+               		cat list | jq '.result[].addr' | tr -d "\""  >> list.txt;
+               		sed -i -e '/^$/d;/onion:9999$/d;/^141/d;/^33/d;s/^/addnode=/' list.txt;
+               		# Shuffle 25 random node out of the list and add them to denariusX.conf file, building nodes with randoms addnode= keep the network decentralized?? maybe it helps?
+			echo -e "${Blue} Shuffle random peers node into .conf file ${NC}"
+		        echo -e "\n##### Random Peers List ###### \n" >> /etc/masternodes/denarius$((r)).conf
+			shuf -n 25 list.txt >> /etc/masternodes/denarius$((r)).conf;
+			rm -rf list.* list
+			echo -e "${LGreen} Done ${NC}"
+                       	echo -e "\n"
+                       	echo -e "${Blue} Running the Daemon ${NC}"
                         eval $daemon
-			sleep 5
-                        echo -e "\n"
+			sleep 3
+                       	echo -e "\n"
                         echo -e "${LGreen} Thanks for using this script, pls report bugs in D's Discord ${NC}"
                         echo -e "\n"
 
@@ -1175,6 +1211,46 @@ exitstatus=$?
                         echo -e ""
                         echo -e "${LGreen} Thanks for using this script, pls report bugs in D's Discord ${NC}"
                         echo -e ""
+                exit 0
+                fi
+        else
+                echo -e "\n"
+                echo -e "${LYellow} No input or wrong input. Run the process again. ${NC}"
+                echo -e "\n"
+                echo -e "${LGreen} Thanks for using this script, pls report bugs in D's Discord ${NC}"
+                echo -e "\n"
+        fi
+                ;;
+
+#--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+#--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+15)
+# Infobox explaining D-Peers process that is about to begin
+whiptail --title "D-Peers" --msgbox "This procedure will prompt for the FS Node number and delete the peers.dat files from his folder." 10 78
+clear
+# Ask wich Node peers.dat file to delete
+r=$(whiptail --title "D-Peers" --inputbox "Wich FS Node peers.dat do you want to delete?" 10 78 3>&1 1>&2 2>&3)
+exitstatus=$?
+        if [ $exitstatus -eq 0 ]
+        then
+                daemon="denariusd -daemon -pid=/var/lib/masternodes/denarius$r/denarius.pid -conf=/etc/masternodes/denarius$r.conf -datadir=/var/lib/masternodes/denarius$r"
+                if [ ! $(pgrep -f "${daemon}") ]
+                then
+                        echo -e "\n"
+                        echo -e "${LYellow} Deleting FS Node $r peers.dat ${NC}"
+                        cd /var/lib/masternodes/denarius$r || exit
+                        rm -rf peers.dat > /dev/null 2>&1;
+                        echo -e "\n"
+                        echo -e "${Green} Done ${NC}"
+                        echo -e "\n"
+                else
+                        echo -e ""
+                        echo -e "${LRed} FS Node $r running process detected - Stop FS Node daemon before delete his peers.dat file. ${NC}"
+                        echo -e ""
+                        echo -e "${LRed} Use: ' daemon="denariusd -conf=/etc/masternodes/denarius$r.conf stop" ' ${NC}"
+                        echo -e ""
+                        cd ~
                 exit 0
                 fi
         else
