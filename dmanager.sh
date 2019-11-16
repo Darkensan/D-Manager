@@ -151,39 +151,83 @@ echo -e "${LYellow} - Confirguring a Firewall ${NC}"
         sudo ufw --force enable
         echo -e "\n"
         echo -e "${LYellow} - Firewall settings done - D port open ${NC}"
-# Checks if a swapfile already exist, if not build one
-echo -e "\n"
-echo -e "${LYellow} - Configuring a swapfile of 4G if not present ${NC}"
-# Size of swapfile in megabytes
-swapsize=4096
-if [ ! -e ~/swapfile.img  ];
-then
-	echo -e "${LYellow} - Swapfile not found -  Adding 4G Swapfile ${NC}"
-	fallocate -l ${swapsize}M ~/swapfile.img
-	chmod 600 ~/swapfile.img
-	mkswap ~/swapfile.img
-	swapon ~/swapfile.img
-	echo '~/swapfile.img	none	swap	sw	0 0' >> /etc/fstab
-else
-	echo -e "\n"
-	echo -e "${LYellow} - Swapfile found - No changes made ${NC}"
+
+# ----------------------------------------------------------------------------
+#
+# This script will create swap file if the swap file does not exist.
+# It will disable the swap file and re-create it if it does exist.
+#
+# Re-create the swap to adjust the size when you change AWS instance types.
+#check permissions
+#
+# Note the following assumptions:
+# - you have enough disk-space for the new swap
+#   - less than 2 Gb RAM - swap size: 2x the amount of RAM
+#   - more than 2 GB RAM, but less than 32 GB - swap size: 4 GB + (RAM – 2 GB)
+#   - 32 GB of RAM or more - swap size: 1x the amount of RAM
+# - you are running as root user
+# - your swap file is called: swapfile
+#
+# ----------------------------------------------------------------------------
+
+if [[ $EUID -ne 0 ]]; then
+    echo ""
+    echo "This script must be run as root! Login as root, sudo or su."
+    echo ""
+    exit 1;
 fi
-echo -e "\n"
+
+#load code functions
+source Swapmain.sh
+
+#setup permissions for functions
+chmod 500 Swapmain.sh
+
+echo ""
+echo "--------------------------------------------------------------------------"
+echo "setupSwap - creates swap space on your server based on AWS guidelines"
+echo "--------------------------------------------------------------------------"
+echo ""
+echo "This will remove an existing swap file and then create a new one. "
+echo "Please read the disclaimer and review the code before proceeding."
+echo ""
+
+echo -n " ¿Do you want to proceed? (y/n): "; read proceed
+if [ "$proceed" == "y" ]; then
+    echo ""
+
+    setupSwapMain
+
+else
+
+    echo "You chose to exit. Bye!"
+
+fi
+
+echo ""
+echo "--------------------------------------------------------------------------"
+echo ""
+
+exit 1
+
 # Installing Fail2ban
+echo -e "\n"
 echo -e "${LYellow} - More Safety! - Installing Fail2ban ${NC}"
         sudo apt-get install -y fail2ban
         sudo systemctl enable fail2ban
         sudo systemctl start fail2ban
 echo -e "\n"
 echo -e "${Green} - Fail2ban installed succesfully ${NC}"
-echo -e "\n"
+
 # Cleaning a bit from useless stuff to free some space?
+echo -e "\n"
 echo -e "${LYellow} - Cleaning useless stuff ${NC}"
 	sudo apt-get -y autoremove
 echo -e "\n"
 echo -e "${Green} - Done${NC}"
-echo -e "\n"
+
 # Last commands to build some dirs to use later and print finals output messages
+echo -e "\n"
 echo -e "${LYellow} - Building some directories to use installing nodes${NC}"
 	[ -d /var/lib/masternodes/variants ] || mkdir -p /var/lib/masternodes/variants > /dev/null 2>&1;
 	[ -d /etc/masternodes ] || mkdir -p /etc/masternodes > /dev/null 2>&1;
@@ -192,9 +236,9 @@ echo -e "${Green} - Done${NC}"
 echo -e "\n"
 echo -e "${Green} - Vps updated and ready ${NC}"
 echo -e "\n"
-echo -e "${LGreen} To compile denariusd daemon and install FS nodes run D-Manager once more ${NC}"
+echo -e "${LGreen} - To compile denariusd daemon and install FS nodes run D-Manager once more ${NC}"
 echo -e "\n"
-echo -e "${LGreen} Thanks for using this script, pls report bugs in D's Discord ${NC}"
+echo -e "${LGreen} - Thanks for using this script, pls report bugs in D's Discord ${NC}"
 echo -e "\n"
 		;;
 
@@ -826,19 +870,23 @@ echo -e "${LGreen} Detected $ifs FS Nodes - Starting sleeping daemons now ${NC}"
         while [ $n -lt $ifs ]
         do
                         echo -e "\n"
-                        echo -e "${Blue} Relacing random peers with a new list ${NC}"
-                        sed -i -e '/##### Random Peers List ######/,$d ' /etc/masternodes/denarius$((r)).conf;
+                        echo -e "${Blue} Replacing random peers with a new list ${NC}"
+                        sed -i -e '/##### Random Peers List ######/,$d ' /etc/masternodes/denarius$((n+1)).conf;
                         # Get the nodes list from coinexplorer then eleborate the infos "catting" lines with addr and filtering it removing blanck spaces, onion addresses and 141. and 33. ip range
                         echo -e "\n"
-                        echo -e "${Blue} Get Coinexplorer FS List ${NC}"
-                        wget -4 https://www.coinexplorer.net/api/v1/D/masternode/list;
-                        cat list | jq '.result[].addr' | tr -d "\""  >> list.txt;
-                        sed -i -e '/^$/d;/onion:9999$/d;/^141/d;/^33/d;s/^/addnode=/' list.txt;
+			echo -e "${Blue} Get Coinexplorer's FS List if not present ${NC}"
+			if [ ! -f list ];
+		        then
+				wget -4 https://www.coinexplorer.net/api/v1/D/masternode/list;
+                        	cat list | jq '.result[].addr' | tr -d "\""  >> list.txt;
+                        	sed -i -e '/^$/d;/onion:9999$/d;/^141/d;/^33/d;s/^/addnode=/' list.txt;
+			else
+				echo -e "${Yellow} peer list already present - processing next step ... ${NC}";
+			fi
                         # Shuffle 25 random node out of the list and add them to denariusX.conf file, building nodes with randoms addnode= keep the network decentralized?? maybe it helps?
                         echo -e "${Blue} Shuffle random peers node into .conf file ${NC}"
                         echo -e "\n##### Random Peers List ###### \n" >> /etc/masternodes/denarius$((n+1)).conf
                         shuf -n 25 list.txt >> /etc/masternodes/denarius$((n+1)).conf;
-                        rm -rf list.* list
                         echo -e "${LGreen} Done ${NC}"
                         echo -e "\n"
                 echo -e "${Blue} Running the Daemon ${NC}"
@@ -859,6 +907,7 @@ echo -e "${LGreen} Detected $ifs FS Nodes - Starting sleeping daemons now ${NC}"
                 fi
         let n++
         done
+rm -rf list.* list
 xn=$(wc -w < x)
 echo -e "\n"
 echo -e "${LGreen} $((xn)) FS Nodes Started - give it some time to link blockchain ${NC}"
