@@ -49,9 +49,13 @@ Oher vps test coming soon... (should now be full compatible with most vps provid
 
 12 - D-Stop    - Stop Selected FS node
 
-13 - D-Start All   - Starts all installed FS nodes                     
+13 - D-Start All - Starts all installed FS nodes                     
 
-14 - D-Stop All    - Stops all installed FS nodes                     
+14 - D-Stop All  - Stops all installed FS nodes       
+
+15 - D-Peers   - Delete peers.dat file from a chosen FS Nod folder
+
+
 
 
 
@@ -66,7 +70,7 @@ dmanager.sh: to install all nodes once more.
 
 Network .cfg will be compromised otherwise, and will need a manual editing.
 
-Also denarius1.conf will be compromised and a manual edit necessary aswell. 
+Also denarius(X).conf will be compromised and a manual edit necessary aswell. 
 
 
 
