@@ -112,6 +112,8 @@ echo -e "${LYellow} Updating linux packages & dependencies${NC}"
 	sudo apt-get -y install automake;
 	echo -e "${LYellow} - Installing libtool ${NC}"
 	sudo apt-get -y install libtool;
+	echo -e "${LYellow} - Installing libcurl4-openssl-dev ${NC}"
+	sudo apt-get -y install libcurl4-openssl-dev;
 	# Check the for Ubuntu 18.04 then for downgraded lib, if not present download the zip and prepare the lib
 	if [[ `lsb_release -rs` == "18.04" ]];
 	then
@@ -291,7 +293,7 @@ else ((mfs=input)) && ((fsarr=1))
 		fi
         cd ~/denarius
         echo -e "${LYellow} Wich branch to install? ${NC}"
-                        select yn in "Master/Origin" "v3.4_Dev_Commits";
+                        select yn in "Master/Origin" "Dev/v3.3.9.7";
                         do
                                 case $yn in
                                 Master/Origin )\
@@ -299,10 +301,10 @@ else ((mfs=input)) && ((fsarr=1))
                                         git pull
 					echo -e "${Green} Downloded latest Master/Orinig release - Start Compiling ${NC}"
                                         break;;
-                                v3.4_Dev_Commits )\
-                                        git checkout v3.4
+                                Dev/v3.3.9.7 )\
+                                        git checkout v3.3.9.7
                                         git pull
-					echo -e "${Green} Downloded latest v3.4 Branch Commits - Start Compiling ${NC}"
+					echo -e "${Green} Downloded latest Dev/v3.3.9.7 Branch Commits - Start Compiling ${NC}"
                                         break;;
                                 esac
                         done
@@ -366,14 +368,14 @@ else ((mfs=input)) && ((fsarr=1))
 
 # Checks and download Chaindata, store it for later use during node's datadir creation
 echo -e "${Green} Checking if Chaindata is already present ${NC}"
-	if	[ -e ~/denarius/chaindata2290877.zip ]
+	if	[ -e ~/denarius/chaindata2862597.zip ]
 	then
 		echo -e "${LYellow} Chaindata already present - proceding... ${NC}"
 		echo -e "\n"
 	else
 		echo -e "${LYellow} Chaindata not found - downloading a new archive ${NC}"
 		rm -rf ~/denarius/chaindata*.zip
-		wget https://gitlab.com/denarius/chain/raw/master/chaindata2290877.zip
+		wget https://gitlab.com/denarius/chain/raw/master/chaindata2862597.zip
 		echo -e "${Green} Chaindata Downloaded - proceding... ${NC}"
 		echo -e "\n"
 	fi
@@ -388,7 +390,7 @@ do
 
 	# Unzip the previouse downloaded Chaindata
 	cd /var/lib/masternodes/denarius$((fsn))
-	unzip -u ~/denarius/chaindata2290877.zip
+	unzip -u ~/denarius/chaindata2862597.zip
 
 	# Update Firewall rules setting rpc port for the current node
 	echo -e "${LYellow} Opening firewall port for FS node $((fsn)) ${NC}"
@@ -496,10 +498,10 @@ echo -e "\n"
         # initialise trap to call trap_ctrlc function when signal 2 (SIGINT) is received
         trap "trap_ctrlc" 2
 # Infobox explaining D-Update process that is about to begin
-whiptail --title "D-Update" --msgbox "This procedure will delete the old daemon and compile a new one with latest Master/Origin release or v3.4 commits. A prompt will ask wich Branch to update, and again ask for a confirmation before to start." 8 78;
+whiptail --title "D-Update" --msgbox "This procedure will delete the old daemon and compile a new one with latest Master/Origin release or Dev/v3.3.9.7 commits. A prompt will ask wich Branch to update, and again ask for a confirmation before to start." 8 78;
 clear
 echo -e "\n"
-echo -e "${Green} Ubuntu 16.04 / 18.04: Updating denariusd to latest Master/Origin or v3.4 branch commits ${NC}"
+echo -e "${Green} Ubuntu 16.04 / 18.04: Updating denariusd to latest Master/Origin or Dev/v3.3.9.7 branch commits ${NC}"
 echo -e "${Blue}                                    CTRL-C to exit ${NC}"
 echo -e "\n"
 cd ~
@@ -513,7 +515,7 @@ cd ~
 	# ask wich branch to compile and start the process
         cd ~/denarius
         echo -e "${LYellow} Wich branch to install? ${NC}"
-                        select yn in "Master/Origin" "v3.4/Branch";
+                        select yn in "Master/Origin" "dev/v3.3.9.7/Branch";
                         do
                                 case $yn in
                                 Master/Origin )\
@@ -521,10 +523,10 @@ cd ~
                                         git pull
                                         echo -e "${Green} Downloded latest Master/Orinig release - Start Compiling ${NC}"
                                         break;;
-                                v3.4/Branch )\
-                                        git checkout v3.4
+                                dev/v3.3.9.7/Branch )\
+                                        git checkout v3.3.9.7
                                         git pull
-                                        echo -e "${Green} Downloded latest v3.4 Branch Commits - Start Compiling ${NC}"
+                                        echo -e "${Green} Downloded latest v3.3.9.7 Branch Commits - Start Compiling ${NC}"
                                         break;;
                                 esac
                         done
@@ -1010,7 +1012,7 @@ exitstatus=$?
         		# Checks and download Chaindata, store it for later use during node's db resetting
         		echo -e "${LYellow} Checking for latest zip archive... ${NC}"
         		echo -e "\n"
-                		if      [ -e ~/denarius/chaindata2290877.zip ]
+                		if      [ -e ~/denarius/chaindata2862597.zip ]
                                 then
                                 	echo -e "${LGreen} Latest Chaindata already present - proceding unzipping... (may take a while)${NC}"
                                 	echo -e "\n"
@@ -1018,12 +1020,12 @@ exitstatus=$?
                                 	echo -e "${LYellow} Chaindata not found - downloading a new zip archive ${NC}"
                                 	cd ~/denarius
 					rm -rf chaindata*.* > /dev/null 2>&1;
-                                	wget https://gitlab.com/denarius/chain/raw/master/chaindata2290877.zip
+                                	wget https://gitlab.com/denarius/chain/raw/master/chaindata2862597.zip
                                 	cd ~
 					echo -e "${Green} Chaindata Downloaded - proceding... ${NC}"
                                 	echo -e "\n"
                                 fi
-                        unzip -u ~/denarius/chaindata2290877.zip > /dev/null 2>&1;
+                        unzip -u ~/denarius/chaindata2862597.zip > /dev/null 2>&1;
                         sleep 1s
                         echo -e "\n"
                         echo -e "${LGreen} FS Node $r reset done.${NC}"
