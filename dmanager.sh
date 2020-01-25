@@ -304,7 +304,7 @@ else ((mfs=input)) && ((fsarr=1))
                                 Dev/v3.3.9.7 )\
                                         git checkout v3.3.9.7
                                         git pull
-					echo -e "${Green} Downloded latest Dev/v3.3.9.7 Branch Commits - Start Compiling ${NC}"
+					echo -e "${Green} Downloded latest v3.3.9.7 Branch Commits - Start Compiling ${NC}"
                                         break;;
                                 esac
                         done
@@ -368,14 +368,14 @@ else ((mfs=input)) && ((fsarr=1))
 
 # Checks and download Chaindata, store it for later use during node's datadir creation
 echo -e "${Green} Checking if Chaindata is already present ${NC}"
-	if	[ -e ~/denarius/chaindata2862597.zip ]
+	if	[ -e ~/denarius/chaindata.zip ]
 	then
 		echo -e "${LYellow} Chaindata already present - proceding... ${NC}"
 		echo -e "\n"
 	else
 		echo -e "${LYellow} Chaindata not found - downloading a new archive ${NC}"
-		rm -rf ~/denarius/chaindata*.zip
-		wget https://gitlab.com/denarius/chain/raw/master/chaindata2862597.zip
+		rm -rf ~/denarius/chaindata.zip
+		wget https://chaindata.pos.watch/chaindata.zip
 		echo -e "${Green} Chaindata Downloaded - proceding... ${NC}"
 		echo -e "\n"
 	fi
@@ -390,7 +390,7 @@ do
 
 	# Unzip the previouse downloaded Chaindata
 	cd /var/lib/masternodes/denarius$((fsn))
-	unzip -u ~/denarius/chaindata2862597.zip
+	unzip -o ~/denarius/chaindata.zip -d /var/lib/masternodes/denarius$((fsn))
 
 	# Update Firewall rules setting rpc port for the current node
 	echo -e "${LYellow} Opening firewall port for FS node $((fsn)) ${NC}"
@@ -515,7 +515,7 @@ cd ~
 	# ask wich branch to compile and start the process
         cd ~/denarius
         echo -e "${LYellow} Wich branch to install? ${NC}"
-                        select yn in "Master/Origin" "dev/v3.3.9.7/Branch";
+                        select yn in "Master/Origin" "Dev/v3.3.9.7";
                         do
                                 case $yn in
                                 Master/Origin )\
@@ -523,7 +523,7 @@ cd ~
                                         git pull
                                         echo -e "${Green} Downloded latest Master/Orinig release - Start Compiling ${NC}"
                                         break;;
-                                dev/v3.3.9.7/Branch )\
+                                Dev/v3.3.9.7 )\
                                         git checkout v3.3.9.7
                                         git pull
                                         echo -e "${Green} Downloded latest v3.3.9.7 Branch Commits - Start Compiling ${NC}"
@@ -1012,20 +1012,20 @@ exitstatus=$?
         		# Checks and download Chaindata, store it for later use during node's db resetting
         		echo -e "${LYellow} Checking for latest zip archive... ${NC}"
         		echo -e "\n"
-                		if      [ -e ~/denarius/chaindata2862597.zip ]
+                		if      [ -e ~/denarius/chaindata.zip ]
                                 then
                                 	echo -e "${LGreen} Latest Chaindata already present - proceding unzipping... (may take a while)${NC}"
                                 	echo -e "\n"
                                 else
                                 	echo -e "${LYellow} Chaindata not found - downloading a new zip archive ${NC}"
                                 	cd ~/denarius
-					rm -rf chaindata*.* > /dev/null 2>&1;
-                                	wget https://gitlab.com/denarius/chain/raw/master/chaindata2862597.zip
+					rm -rf chaindata.* > /dev/null 2>&1;
+                                	wget https://chaindata.pos.watch/chaindata.zip
                                 	cd ~
 					echo -e "${Green} Chaindata Downloaded - proceding... ${NC}"
                                 	echo -e "\n"
                                 fi
-                        unzip -u ~/denarius/chaindata2862597.zip > /dev/null 2>&1;
+                        unzip -o ~/denarius/chaindata.zip -d /var/lib/masternodes/denarius$r > /dev/null 2>&1;
                         sleep 1s
                         echo -e "\n"
                         echo -e "${LGreen} FS Node $r reset done.${NC}"
