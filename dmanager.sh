@@ -39,7 +39,7 @@ whiptail --fb --title "[D] - Manager" --menu "                   Ubuntu 16.04/18
 							12 "D-Stop     - Stops Selected FS nodes" \
                                                         13 "D-StartAll - Start all installed FS nodes and replace 25 random peers in the .conf files" \
                                                         14 "D-StopAll  - Stops all installed FS nodes" \
-							15 "D-Peers    - Delete the peers.dat files from a chosen FS Node folder"\
+							15 "D-Peers    - Delete the peers.dat files from a chosen FS Node folder" 2>$TEMP
 choice=`cat $TEMP`
 case $choice in
 
