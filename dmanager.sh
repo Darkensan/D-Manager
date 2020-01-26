@@ -26,8 +26,8 @@ net=$(ip link | awk -F: '$0 !~ "lo|vir|wl|^[^0-9]"{print $2a;getline}')
 TEMP=/tmp/answer$$
 whiptail --fb --title "[D] - Manager" --menu "                   Ubuntu 16.04/18.04 Denarius's FS Node(s) Manager :" 21 0 0 \
 							1  "D-Setup    - Prepare the Vps and install dependancies and utilities" \
-							2  "D-Nodes    - Compile Deamon & Build Node(s) - Master or v3.4 - Branch Commits" \
-							3  "D-Update   - Update denariusd with latest - Master or v3.4 - Branch Commits" \
+							2  "D-Nodes    - Compile Deamon & Build Node(s) - Master or Dev - Branch Commits" \
+							3  "D-Update   - Update denariusd with latest - Master or Dev - Branch Commits" \
 							4  "D-Reset    - Reset selected FS Node back to latest chaindata blocks" \
                                                         5  "D-IPv4     - Setting up Network & .conf file(s) with a multi IPv4 scheme"\
                                                         6  "D-IPv6     - Setting up Network & .conf file(s) with a multi IPv6 scheme"\
@@ -39,7 +39,7 @@ whiptail --fb --title "[D] - Manager" --menu "                   Ubuntu 16.04/18
 							12 "D-Stop     - Stops Selected FS nodes" \
                                                         13 "D-StartAll - Start all installed FS nodes and replace 25 random peers in the .conf files" \
                                                         14 "D-StopAll  - Stops all installed FS nodes" \
-							15 "D-Peers    - Delete the peers.dat files from a chosen FS Node folder" 2>$TEMP
+							15 "D-Peers    - Delete the peers.dat files from a chosen FS Node folder"\
 choice=`cat $TEMP`
 case $choice in
 
@@ -114,6 +114,8 @@ echo -e "${LYellow} Updating linux packages & dependencies${NC}"
 	sudo apt-get -y install libtool;
 	echo -e "${LYellow} - Installing libcurl4-openssl-dev ${NC}"
 	sudo apt-get -y install libcurl4-openssl-dev;
+	echo -e "${LYellow} - Installing nginx ${NC}"
+	sudo apt-get -y install nginx;
 	# Check the for Ubuntu 18.04 then for downgraded lib, if not present download the zip and prepare the lib
 	if [[ `lsb_release -rs` == "18.04" ]];
 	then
@@ -406,7 +408,7 @@ do
 	pw=$(pwgen 32 1)
 	echo -e "##############################" > /etc/masternodes/denarius$((fsn)).conf
 	echo -e "\nserver=1 \ndaemon=1 \nrpcuser=denariusrpc \nrpcpassword=${pw} \nrpcallowsip=127.0.0.1 \nrpcport=$((np))" >> /etc/masternodes/denarius$((fsn)).conf
-	echo -e "daemon=1 \nlisten=1 \ndebug=1 \nmaxorphanblocks=1000" >> /etc/masternodes/denarius$((fsn)).conf
+	echo -e "daemon=1 \nlisten=1 \ndebug=1 \nmaxorphanblocks=300 \blocknotify=/root/status.sh" >> /etc/masternodes/denarius$((fsn)).conf
 	echo -e "\n##############################" >> /etc/masternodes/denarius$((fsn)).conf
 	echo -e "\nbind=${ipv4}:9999 \nexternalip=${ipv4}" >> /etc/masternodes/denarius$((fsn)).conf
 	echo -e "\n##############################" >> /etc/masternodes/denarius$((fsn)).conf
@@ -1200,7 +1202,7 @@ exitstatus=$?
                		sed -i -e '/^$/d;/onion:9999$/d;/^141/d;/^33/d;s/^/addnode=/' list.txt;
                		# Shuffle 25 random node out of the list and add them to denariusX.conf file, building nodes with randoms addnode= keep the network decentralized?? maybe it helps?
 			echo -e "${Blue} Shuffle random peers node into .conf file ${NC}"
-		        echo -e "\n##### Random Peers List ###### \n" >> /etc/masternodes/denarius$((r)).conf
+		        echo -e "##### Random Peers List ###### \n" >> /etc/masternodes/denarius$((r)).conf
 			shuf -n 25 list.txt >> /etc/masternodes/denarius$((r)).conf;
 			rm -rf list.* list
 			echo -e "${LGreen} Done ${NC}"
@@ -1315,6 +1317,23 @@ exitstatus=$?
 
 #--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 #--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+16)
+#!/bin/bash
+denariusd -conf=/etc/masternodes/denarius1.conf getblockcount > /var/www/html/block.txt
+#stop and start installed FS Nodes
+for ((i=1; i<7; i++))
+do
+echo "$i"
+denariusd -conf=/etc/masternodes/denarius$i.conf fortunastake status > /var/www/html/$i.json
+chmod -R 644 /var/www/html/*
+done
+
+
+		;;
+#-------------------------------------------------------------------------------------------------------------------------------------------------------$
+#-------------------------------------------------------------------------------------------------------------------------------------------------------$
+
 
 esac
 echo Selected $choice
