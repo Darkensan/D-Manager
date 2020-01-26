@@ -156,6 +156,30 @@ echo -e "${LYellow} - Confirguring a Firewall ${NC}"
         echo -e "\n"
         echo -e "${LYellow} - Firewall settings done - D port open ${NC}"
 
+# Installing Fail2ban
+echo -e "\n"
+echo -e "${LYellow} - More Safety! - Installing Fail2ban ${NC}"
+        sudo apt-get install -y fail2ban
+        sudo systemctl enable fail2ban
+        sudo systemctl start fail2ban
+echo -e "\n"
+echo -e "${Green} - Fail2ban installed succesfully ${NC}"
+
+# Cleaning a bit from useless stuff to free some space?
+echo -e "\n"
+echo -e "${LYellow} - Cleaning useless stuff ${NC}"
+        sudo apt-get -y autoremove
+echo -e "\n"
+echo -e "${Green} - Done${NC}"
+
+# Last commands to build some dirs to use later and print finals output messages
+echo -e "\n"
+echo -e "${LYellow} - Building some directories to use installing nodes${NC}"
+        [ -d /var/lib/masternodes/variants ] || mkdir -p /var/lib/masternodes/variants > /dev/null 2>&1;
+        [ -d /etc/masternodes ] || mkdir -p /etc/masternodes > /dev/null 2>&1;
+echo -e "\n"
+echo -e "${Green} - Done${NC}"
+
 # ----------------------------------------------------------------------------
 #
 # This script will create swap file if the swap file does not exist.
@@ -182,10 +206,10 @@ if [[ $EUID -ne 0 ]]; then
 fi
 
 #load code functions
-source Swapmain.sh
+source /root/D-Manager/Swapmain.sh
 
 #setup permissions for functions
-chmod 500 Swapmain.sh
+chmod 500 /root/D-Manager/Swapmain.sh
 
 echo ""
 echo "--------------------------------------------------------------------------"
@@ -205,6 +229,13 @@ if [ "$proceed" == "y" ]; then
 else
 
     echo "You chose to exit. Bye!"
+    echo -e "\n"
+    echo -e "${Green} - Vps updated and ready ${NC}"
+    echo -e "\n"
+    echo -e "${LGreen} - To compile denariusd daemon and install FS nodes run D-Manager once more ${NC}"
+    echo -e "\n"
+    echo -e "${LGreen} - Thanks for using this script, pls report bugs in D's Discord ${NC}"
+    echo -e "\n"
 
 fi
 
@@ -214,36 +245,6 @@ echo ""
 
 exit 1
 
-# Installing Fail2ban
-echo -e "\n"
-echo -e "${LYellow} - More Safety! - Installing Fail2ban ${NC}"
-        sudo apt-get install -y fail2ban
-        sudo systemctl enable fail2ban
-        sudo systemctl start fail2ban
-echo -e "\n"
-echo -e "${Green} - Fail2ban installed succesfully ${NC}"
-
-# Cleaning a bit from useless stuff to free some space?
-echo -e "\n"
-echo -e "${LYellow} - Cleaning useless stuff ${NC}"
-	sudo apt-get -y autoremove
-echo -e "\n"
-echo -e "${Green} - Done${NC}"
-
-# Last commands to build some dirs to use later and print finals output messages
-echo -e "\n"
-echo -e "${LYellow} - Building some directories to use installing nodes${NC}"
-	[ -d /var/lib/masternodes/variants ] || mkdir -p /var/lib/masternodes/variants > /dev/null 2>&1;
-	[ -d /etc/masternodes ] || mkdir -p /etc/masternodes > /dev/null 2>&1;
-echo -e "\n"
-echo -e "${Green} - Done${NC}"
-echo -e "\n"
-echo -e "${Green} - Vps updated and ready ${NC}"
-echo -e "\n"
-echo -e "${LGreen} - To compile denariusd daemon and install FS nodes run D-Manager once more ${NC}"
-echo -e "\n"
-echo -e "${LGreen} - Thanks for using this script, pls report bugs in D's Discord ${NC}"
-echo -e "\n"
 		;;
 
 #--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
