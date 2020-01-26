@@ -142,7 +142,7 @@ createSwap() {
     echo "--> Done"
     echo ""
 
-    exit 1
+    # exit 0
 }
 
 #the main function that is run by the calling script.
@@ -164,4 +164,13 @@ function setupSwapMain() {
     fi
 
     echo "Setup swap complete! Check output to confirm everything is good."
+    echo -e "\n"
+    echo -e "${Green} - Vps updated and ready ${NC}"
+    echo -e "\n"
+    echo -e "${LGreen} - To compile denariusd daemon and install FS nodes run D-Manager once more ${NC}"
+    echo -e "\n"
+    echo -e "${LGreen} - Thanks for using this script, pls report bugs in D's Discord ${NC}"
+    echo -e "\n"
 }
+
+
